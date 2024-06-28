@@ -1,0 +1,95 @@
+# Ignore Visual Studio temporary files, build results, and
+# Include .NET Core SDK related stuff
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.csproj.user
+*.vcxproj.user
+*.code-workspace
+*.pdb
+*.cache
+*.ilk
+*.obj
+*.log
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+.vscode/
+.vs/
+[Tt]est[Rr]esult*/
+[Bb]in/
+[Dd]ebug*/
+[Rr]elease*/
+[Tt]est[Rr]esult*/
+[Pp]ublish*/
+[Oo]ut/
+*.Publish.xml
+*.exe
+*.dll
+*.com
+*.bat
+*.app
+*.pkg
+*.msi
+*.msp
+*.mst
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.p12
+node_modules/
+dist/
+lib/
+nuget.exe
+
+# Ignore .env files
+*.env
+
+# Ignore .temp files
+*.temp
+
+# Ignore large video/audio files
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.flv
+*.mp3
+*.wav
+*.ogg
+*.flac
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code workspace settings
+.vscode/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# Windows clutter
+*.cab
+*.msi
+*.msm
+*.msp
