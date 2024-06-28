@@ -39,8 +39,8 @@ jobs:
           fi
         done
 
-    - name: List contents of Drawings directory after conversion
-      run: ls -la Docu/Drawings
+    - name: List all files after conversion
+      run: find Docu/Drawings -type f -exec ls -la {} \;
 
     - name: Check if PNG files were generated
       run: |
