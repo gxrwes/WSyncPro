@@ -4,9 +4,27 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WSyncProApp"
-        mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <StackPanel>
+            <TextBlock Text="WSyncPro" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       HorizontalAlignment="Center" 
+                       Margin="10"/>
+            <Button Content="Start Sync" 
+                    Margin="10" 
+                    Padding="10"/>
+            <Button Content="Manage Jobs" 
+                    Margin="10" 
+                    Padding="10"/>
+            <Button Content="View History" 
+                    Margin="10" 
+                    Padding="10"/>
+            <Button Content="Settings" 
+                    Margin="10" 
+                    Padding="10"
+                    Click="Settings_Click"/>
+        </StackPanel>
     </Grid>
 </Window>
