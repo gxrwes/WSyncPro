@@ -33,7 +33,11 @@ jobs:
           if [ -f "$file" ]; then
             echo "Converting $file"
             drawio --export --output "${file%.drawio}.png" "$file"
-            echo "Output should be in ${file%.drawio}.png"
+            if [ -f "${file%.drawio}.png" ]; then
+              echo "Successfully generated ${file%.drawio}.png"
+            else
+              echo "Failed to generate ${file%.drawio}.png"
+            fi
           else
             echo "No .drawio files found."
           fi
