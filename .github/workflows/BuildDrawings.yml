@@ -16,14 +16,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-
-    - name: Install drawio-batch
-      run: npm install -g drawio-batch
-
     - name: List .drawio files before conversion
       run: ls -la Docu/Drawings/*.drawio
 
@@ -33,14 +25,19 @@ jobs:
         for file in Docu/Drawings/*.drawio; do
           if [ -f "$file" ]; then
             echo "Converting $file"
-            drawio-batch --export --format png --output "${file%.drawio}.png" "$file" > "${file%.drawio}.log" 2>&1
-            if [ -f "${file%.drawio}.png" ]; then
-              echo "Successfully generated ${file%.drawio}.png"
+            dest_file="${file%.drawio}.png"
+            echo "::set-output name=src::$file"
+            echo "::set-output name=dest::$dest_file"
+            # Using the drawio conversion action
+            - name: Convert drawio to png
+              uses: Burnett01/actions-drawio@1.2
+              with:
+                src: $file
+                dest: $dest_file
+            if [ -f "$dest_file" ]; then
+              echo "Successfully generated $dest_file"
             else
-              echo "Failed to generate ${file%.drawio}.png"
-              echo "==== Log output ===="
-              cat "${file%.drawio}.log"
-              echo "===================="
+              echo "Failed to generate $dest_file"
             fi
           else
             echo "No .drawio files found."
