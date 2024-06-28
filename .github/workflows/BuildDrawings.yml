@@ -32,7 +32,7 @@ jobs:
         for file in WSyncPro/Docu/Drawings/*.drawio; do
           if [ -f "$file" ]; then
             echo "Converting $file"
-            drawio --export --output "WSyncPro/Docu/Drawings/images/${file##*/%.drawio}.png" "$file"
+            drawio --export --output "Docu/Drawings/images/${file##*/%.drawio}.png" "$file"
           else
             echo "No .drawio files found."
           fi
@@ -45,7 +45,7 @@ jobs:
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
-        git add WSyncPro/Docu/Drawings/images/*.png
+        git add Docu/Drawings/images/*.png
         git commit -m 'Automated conversion of .drawio files to images'
         git push
       env:
