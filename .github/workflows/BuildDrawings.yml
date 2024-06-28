@@ -25,7 +25,7 @@ jobs:
       run: npm install -g drawio
 
     - name: List .drawio files before conversion
-      run: ls -la WSyncPro/Docu/Drawings/*.drawio
+      run: ls -la Docu/Drawings/*.drawio
 
     - name: Convert .drawio files to PNG
       run: |
