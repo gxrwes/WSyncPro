@@ -41,8 +41,17 @@ jobs:
           fi
         done
 
-    - name: List generated PNG files
+    - name: List contents of images directory after conversion
       run: ls -la Docu/Drawings/images
+
+    - name: Check if PNG files were generated
+      run: |
+        if ls Docu/Drawings/images/*.png 1> /dev/null 2>&1; then
+          echo "PNG files generated."
+        else
+          echo "No PNG files generated."
+          exit 1
+        fi
 
     - name: Commit and push changes
       run: |
