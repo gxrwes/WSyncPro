@@ -60,6 +60,7 @@ jobs:
           echo "No PNG files generated."
           exit 1
         fi
+        
 
     - name: Commit and push changes
       run: |
