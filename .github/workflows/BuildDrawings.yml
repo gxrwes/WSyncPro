@@ -40,7 +40,9 @@ jobs:
               echo "Successfully generated ${file%.drawio}.png"
             else
               echo "Failed to generate ${file%.drawio}.png"
+              echo "==== Log output ===="
               cat "${file%.drawio}.log"
+              echo "===================="
             fi
           else
             echo "No .drawio files found."
