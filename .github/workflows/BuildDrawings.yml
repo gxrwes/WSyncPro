@@ -29,6 +29,7 @@ jobs:
 
     - name: Convert .drawio files to PNG
       run: |
+        set -x
         for file in Docu/Drawings/*.drawio; do
           if [ -f "$file" ]; then
             echo "Converting $file"
