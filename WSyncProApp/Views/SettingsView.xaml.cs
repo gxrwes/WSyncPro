@@ -1,15 +1,17 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using WSyncProApp.Helpers;
 using WSyncProApp.Models;
 
 namespace WSyncProApp.Views
 {
-    public partial class SettingsWindow : Window
+    public partial class SettingsView : UserControl
     {
         private const string VersionInfoPath = "version.json";
 
-        public SettingsWindow()
+        public SettingsView()
         {
             InitializeComponent();
             LoadVersionInfo();
@@ -19,7 +21,9 @@ namespace WSyncProApp.Views
         {
             try
             {
-                var versionInfo = JsonHelper.LoadVersionInfo(VersionInfoPath);
+                // Get the path relative to the executable location
+                string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, VersionInfoPath);
+                var versionInfo = JsonHelper.LoadVersionInfo(fullPath);
 
                 CurrentVersionText.Text = versionInfo.CurrentVersion;
                 LastReleaseNotesText.Text = versionInfo.LastReleaseNotes;

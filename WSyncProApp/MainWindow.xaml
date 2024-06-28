@@ -3,25 +3,35 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <StackPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Background="LightGray">
             <TextBlock Text="WSyncPro" 
                        FontSize="24" 
                        FontWeight="Bold" 
                        HorizontalAlignment="Center" 
-                       Margin="10"/>
+                       Margin="1"/>
             <Button Content="Start Sync" 
-                    Margin="10" 
-                    Padding="10"/>
+                    Margin="1" 
+                    Padding="1"
+                    Click="StartSync_Click"/>
             <Button Content="Manage Jobs" 
-                    Margin="10" 
-                    Padding="10"/>
+                    Margin="1" 
+                    Padding="1"
+                    Click="ManageJobs_Click"/>
             <Button Content="View History" 
-                    Margin="10" 
-                    Padding="10"/>
+                    Margin="1" 
+                    Padding="1"
+                    Click="ViewHistory_Click"/>
             <Button Content="Settings" 
-                    Margin="10" 
-                    Padding="10"
+                    Margin="1" 
+                    Padding="1"
                     Click="Settings_Click"/>
         </StackPanel>
+
+        <ContentControl Grid.Column="1" Name="ContentArea" />
     </Grid>
 </Window>
