@@ -39,7 +39,7 @@ jobs:
         done
 
     - name: List generated PNG files
-      run: ls -la WSyncPro/Docu/Drawings/images
+      run: ls -la Docu/Drawings/images
 
     - name: Commit and push changes
       run: |
