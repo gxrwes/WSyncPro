@@ -22,7 +22,10 @@ jobs:
         node-version: '14'
 
     - name: Install draw.io CLI
-      run: npm install -g drawio
+      run: |
+        npm install -g drawio
+        drawio --version
+        which drawio
 
     - name: List .drawio files before conversion
       run: ls -la Docu/Drawings/*.drawio
