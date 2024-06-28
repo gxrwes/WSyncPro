@@ -36,6 +36,7 @@ jobs:
           if [ -f "$file" ]; then
             echo "Converting $file"
             drawio --export --output "Docu/Drawings/images/${file##*/%.drawio}.png" "$file"
+            echo "Output should be in Docu/Drawings/images/${file##*/%.drawio}.png"
           else
             echo "No .drawio files found."
           fi
