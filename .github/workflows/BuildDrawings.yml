@@ -21,8 +21,8 @@ jobs:
       with:
         node-version: '14'
 
-    - name: Install draw.io CLI
-      run: npm install -g drawio
+    - name: Install drawio-export
+      run: npm install -g drawio-export
 
     - name: List .drawio files before conversion
       run: ls -la Docu/Drawings/*.drawio
@@ -33,7 +33,7 @@ jobs:
         for file in Docu/Drawings/*.drawio; do
           if [ -f "$file" ]; then
             echo "Converting $file"
-            drawio --export --output "${file%.drawio}.png" "$file" > "${file%.drawio}.log" 2>&1
+            drawio-export --format png --output "${file%.drawio}.png" "$file" > "${file%.drawio}.log" 2>&1
             if [ -f "${file%.drawio}.png" ]; then
               echo "Successfully generated ${file%.drawio}.png"
             else
