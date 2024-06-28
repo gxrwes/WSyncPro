@@ -27,6 +27,9 @@ jobs:
     - name: List .drawio files before conversion
       run: ls -la Docu/Drawings/*.drawio
 
+    - name: Ensure images directory exists
+      run: mkdir -p Docu/Drawings/images
+
     - name: Convert .drawio files to PNG
       run: |
         for file in Docu/Drawings/*.drawio; do
