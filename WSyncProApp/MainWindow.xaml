@@ -1,7 +1,9 @@
 ﻿<Window x:Class="WSyncProApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="450" Width="800">
+        TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+        Background="{DynamicResource MaterialDesign.Brush.Background}"
+        Title="MainWindow" Height="450" Width="900">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
@@ -32,6 +34,6 @@
                     Click="Settings_Click"/>
         </StackPanel>
 
-        <ContentControl Grid.Column="1" Name="ContentArea" />
+        <ContentControl Grid.Column="1" Name="ContentArea" Background="DarkGray" />
     </Grid>
 </Window>

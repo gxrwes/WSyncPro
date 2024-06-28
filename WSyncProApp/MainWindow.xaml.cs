@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using WSyncProApp.Views;
+
 namespace WSyncProApp
 {
     public partial class MainWindow : Window

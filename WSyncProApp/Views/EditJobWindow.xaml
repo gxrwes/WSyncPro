@@ -1,0 +1,30 @@
+﻿<Window x:Class="WSyncProApp.Views.EditJobWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+        Background="{DynamicResource MaterialDesign.Brush.Background}"
+        Title="Edit Job" Height="450" Width="400">
+    <Grid Margin="10">
+        <StackPanel>
+            <TextBlock Text="Edit Job" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+            <TextBlock Text="Name:"/>
+            <TextBox Name="NameTextBox"/>
+            <TextBlock Text="Priority:"/>
+            <TextBox Name="PriorityTextBox"/>
+            <TextBlock Text="Description:"/>
+            <TextBox Name="DescriptionTextBox"/>
+            <TextBlock Text="Source Directory:"/>
+            <TextBox Name="SourceDirectoryTextBox"/>
+            <TextBlock Text="Target Directory:"/>
+            <TextBox Name="TargetDirectoryTextBox"/>
+            <TextBlock Text="Mode:"/>
+            <ComboBox Name="ModeComboBox">
+                <ComboBoxItem Content="Archive"/>
+                <ComboBoxItem Content="Sync"/>
+                <ComboBoxItem Content="Publish"/>
+            </ComboBox>
+            <CheckBox Name="IsActiveCheckBox" Content="Is Active"/>
+            <Button Content="Save" Click="Save_Click" Margin="0,20,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>
