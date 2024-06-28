@@ -1,0 +1,42 @@
+name: Convert draw.io to images
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  convert-drawio:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install draw.io CLI
+      run: npm install -g drawio
+
+    - name: Convert .drawio files to PNG
+      run: |
+        mkdir -p images
+        for file in *.drawio; do
+          drawio --export --output "images/${file%.drawio}.png" "$file"
+        done
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add images/*.png
+        git commit -m 'Automated conversion of .drawio files to images'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
