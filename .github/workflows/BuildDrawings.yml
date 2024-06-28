@@ -26,16 +26,16 @@ jobs:
 
     - name: Convert .drawio files to PNG
       run: |
-        mkdir -p images
-        for file in *.drawio; do
-          drawio --export --output "images/${file%.drawio}.png" "$file"
+        mkdir -p WSyncPro/Docu/Drawings/images
+        for file in WSyncPro/Docu/Drawings/*.drawio; do
+          drawio --export --output "WSyncPro/Docu/Drawings/images/${file##*/%.drawio}.png" "$file"
         done
 
     - name: Commit and push changes
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
-        git add images/*.png
+        git add WSyncPro/Docu/Drawings/images/*.png
         git commit -m 'Automated conversion of .drawio files to images'
         git push
       env:
