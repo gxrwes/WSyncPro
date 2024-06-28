@@ -22,10 +22,7 @@ jobs:
         node-version: '14'
 
     - name: Install draw.io CLI
-      run: |
-        npm install -g drawio
-        drawio --version
-        which drawio
+      run: npm install -g drawio
 
     - name: List .drawio files before conversion
       run: ls -la Docu/Drawings/*.drawio
@@ -60,9 +57,9 @@ jobs:
           echo "No PNG files generated."
           exit 1
         fi
-        
 
     - name: Commit and push changes
+      if: success()
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
