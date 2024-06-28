@@ -24,12 +24,18 @@ jobs:
     - name: Install draw.io CLI
       run: npm install -g drawio
 
+    - name: List .drawio files
+      run: ls -la WSyncPro/Docu/Drawings/*.drawio
+
     - name: Convert .drawio files to PNG
       run: |
         mkdir -p WSyncPro/Docu/Drawings/images
         for file in WSyncPro/Docu/Drawings/*.drawio; do
           drawio --export --output "WSyncPro/Docu/Drawings/images/${file##*/%.drawio}.png" "$file"
         done
+
+    - name: List generated PNG files
+      run: ls -la WSyncPro/Docu/Drawings/images
 
     - name: Commit and push changes
       run: |
