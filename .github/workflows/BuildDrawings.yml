@@ -26,7 +26,6 @@ jobs:
 
     - name: Convert .drawio files to PNG
       run: |
-        mkdir -p WSyncPro/Docu/Drawings/images
         for file in WSyncPro/Docu/Drawings/*.drawio; do
           drawio --export --output "WSyncPro/Docu/Drawings/images/${file##*/%.drawio}.png" "$file"
         done
