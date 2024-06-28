@@ -21,13 +21,12 @@ jobs:
 
     - name: Convert .drawio files to PNG
       run: |
-        set -x
         for file in Docu/Drawings/*.drawio; do
           if [ -f "$file" ]; then
-            echo "Converting $file"
             dest_file="${file%.drawio}.png"
-            echo "Source file: $file"
-            echo "Destination file: $dest_file"
+            echo "Converting $file to $dest_file"
+            echo "::set-env name=SRC_FILE::$file"
+            echo "::set-env name=DEST_FILE::$dest_file"
             gh workflow run Burnett01/actions-drawio@1.2 --with "src=$file dest=$dest_file"
             if [ -f "$dest_file" ]; then
               echo "Successfully generated $dest_file"
