@@ -1,38 +1,34 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.IO;
+using System.Windows;
+using WSyncProApp.Helpers;
+using WSyncProApp.Models;
 
 namespace WSyncProApp.Views
 {
     public partial class SettingsWindow : Window
     {
+        private const string VersionInfoPath = "version.json";
+
         public SettingsWindow()
         {
             InitializeComponent();
+            LoadVersionInfo();
         }
 
-        private void Apply_Click(object sender, RoutedEventArgs e)
+        private void LoadVersionInfo()
         {
-            string selectedTheme = (ThemeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-
-            if (selectedTheme == "Light Theme")
+            try
             {
-                ApplyTheme("pack://application:,,,/MaterialDesignThemes;component/Themes/MaterialDesignTheme.Light.xaml");
+                var versionInfo = JsonHelper.LoadVersionInfo(VersionInfoPath);
+
+                CurrentVersionText.Text = versionInfo.CurrentVersion;
+                LastReleaseNotesText.Text = versionInfo.LastReleaseNotes;
+                ReleaseNotesHistoryList.ItemsSource = versionInfo.ReleaseNotesHistory;
             }
-            else if (selectedTheme == "Dark Theme")
+            catch (FileNotFoundException ex)
             {
-                ApplyTheme("pack://application:,,,/MaterialDesignThemes;component/Themes/MaterialDesignTheme.Dark.xaml");
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        private void ApplyTheme(string themeUri)
-        {
-            var resourceDictionary = new ResourceDictionary() { Source = new Uri(themeUri) };
-
-            // Clear existing ResourceDictionary from Application
-            Application.Current.Resources.MergedDictionaries.Clear();
-
-            // Add new ResourceDictionary to Application
-            Application.Current.Resources.MergedDictionaries.Add(resourceDictionary);
         }
     }
 }
