@@ -1,28 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using WSyncProApp.Managers;
+using WSyncProApp.Models;
 
 namespace WSyncProApp.Views
 {
-    /// <summary>
-    /// Interaction logic for ViewHistoryView.xaml
-    /// </summary>
     public partial class ViewHistoryView : UserControl
     {
         public ViewHistoryView()
         {
             InitializeComponent();
+            LoadSyncRunHistory();
+        }
+
+        private void LoadSyncRunHistory()
+        {
+            var syncRuns = SyncRunManager.LoadSyncRuns();
+            SyncRunsListView.ItemsSource = syncRuns;
+        }
+
+        private void ViewJobsButton_Click(object sender, RoutedEventArgs e)
+        {
+            SyncRun selectedSyncRun = (sender as Button).DataContext as SyncRun;
+            if (selectedSyncRun != null)
+            {
+                ViewJobsWindow viewJobsWindow = new ViewJobsWindow(selectedSyncRun.Jobs);
+                viewJobsWindow.ShowDialog();
+            }
         }
     }
 }

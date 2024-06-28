@@ -6,26 +6,29 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Name="NoJobsTextBlock" Text="No jobs available" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
-        <ListView Name="JobsListView" Margin="10" Visibility="Collapsed">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="100"/>
-                    <GridViewColumn Header="Priority" DisplayMemberBinding="{Binding Priority}" Width="50"/>
-                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="200"/>
-                    <GridViewColumn Header="Source Directory" DisplayMemberBinding="{Binding SourceDirectory}" Width="150"/>
-                    <GridViewColumn Header="Target Directory" DisplayMemberBinding="{Binding TargetDirectory}" Width="150"/>
-                    <GridViewColumn Header="Mode" DisplayMemberBinding="{Binding Mode}" Width="100"/>
-                    <GridViewColumn Header="Is Active" DisplayMemberBinding="{Binding IsActive}" Width="50"/>
-                    <GridViewColumn Header="Edit">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="Edit" Click="EditJob_Click"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
+        <StackPanel>
+            <Button Content="Add Job" Click="AddJob_Click" Margin="10"/>
+            <TextBlock Name="NoJobsTextBlock" Text="No jobs available" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+            <ListView Name="JobsListView" Margin="10" Visibility="Collapsed">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="100"/>
+                        <GridViewColumn Header="Priority" DisplayMemberBinding="{Binding Priority}" Width="50"/>
+                        <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="200"/>
+                        <GridViewColumn Header="Source Directory" DisplayMemberBinding="{Binding SourceDirectory}" Width="150"/>
+                        <GridViewColumn Header="Target Directory" DisplayMemberBinding="{Binding TargetDirectory}" Width="150"/>
+                        <GridViewColumn Header="Mode" DisplayMemberBinding="{Binding Mode}" Width="100"/>
+                        <GridViewColumn Header="Is Active" DisplayMemberBinding="{Binding IsActive}" Width="50"/>
+                        <GridViewColumn Header="Edit">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Edit" Click="EditJob_Click"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
     </Grid>
 </UserControl>

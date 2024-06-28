@@ -5,7 +5,32 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="View History View" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid Background="{DynamicResource MaterialDesign.Brush.Background}">
+        <StackPanel>
+            <TextBlock Text="Sync Run History" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="10"/>
+            <ListView Name="SyncRunsListView" Margin="10">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Start Time" DisplayMemberBinding="{Binding TimestampStart}" Width="150"/>
+                        <GridViewColumn Header="Completion Time" DisplayMemberBinding="{Binding TimestampCompletion}" Width="150"/>
+                        <GridViewColumn Header="Total Jobs" DisplayMemberBinding="{Binding Jobs.Count}" Width="100"/>
+                        <GridViewColumn Header="Messages" Width="300">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ItemsControl ItemsSource="{Binding RunMessages}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="View Jobs">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="View Jobs" Click="ViewJobsButton_Click"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
     </Grid>
 </UserControl>

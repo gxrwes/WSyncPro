@@ -52,6 +52,19 @@ namespace WSyncProApp.Views
             }
         }
 
+        private void AddJob_Click(object sender, RoutedEventArgs e)
+        {
+            AddJobWindow addJobWindow = new AddJobWindow();
+            if (addJobWindow.ShowDialog() == true)
+            {
+                _jobs.Add(addJobWindow.Job);
+                JobsListView.Items.Refresh();
+
+                // Save the new job list to the JSON file
+                SaveJobs();
+            }
+        }
+
         private void EditJob_Click(object sender, RoutedEventArgs e)
         {
             Job selectedJob = (sender as Button).DataContext as Job;

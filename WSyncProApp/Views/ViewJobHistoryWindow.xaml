@@ -1,0 +1,30 @@
+﻿<Window x:Class="WSyncProApp.Views.ViewJobHistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+        Background="{DynamicResource MaterialDesign.Brush.Background}"
+        Title="Job History" Height="450" Width="800">
+    <Grid Background="{DynamicResource MaterialDesign.Brush.Background}">
+        <StackPanel>
+            <TextBlock Text="Job History" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="10" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="Name:" FontWeight="Bold" Margin="10,0,0,0" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="{Binding Name}" Margin="10,0,0,10" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="Priority:" FontWeight="Bold" Margin="10,0,0,0" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="{Binding Priority}" Margin="10,0,0,10" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="Description:" FontWeight="Bold" Margin="10,0,0,0" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="{Binding Description}" Margin="10,0,0,10" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="Source Directory:" FontWeight="Bold" Margin="10,0,0,0" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="{Binding SourceDirectory}" Margin="10,0,0,10" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="Target Directory:" FontWeight="Bold" Margin="10,0,0,0" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="{Binding TargetDirectory}" Margin="10,0,0,10" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <TextBlock Text="Log:" FontWeight="Bold" Margin="10,0,0,0" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <ListView Name="LogListView" Margin="10">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Log Entry" DisplayMemberBinding="{Binding}" Width="750"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
+    </Grid>
+</Window>
