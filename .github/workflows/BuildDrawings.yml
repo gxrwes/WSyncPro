@@ -26,14 +26,9 @@ jobs:
           if [ -f "$file" ]; then
             echo "Converting $file"
             dest_file="${file%.drawio}.png"
-            echo "::set-output name=src::$file"
-            echo "::set-output name=dest::$dest_file"
-            # Using the drawio conversion action
-            - name: Convert drawio to png
-              uses: Burnett01/actions-drawio@1.2
-              with:
-                src: $file
-                dest: $dest_file
+            echo "Source file: $file"
+            echo "Destination file: $dest_file"
+            gh workflow run Burnett01/actions-drawio@1.2 --with "src=$file dest=$dest_file"
             if [ -f "$dest_file" ]; then
               echo "Successfully generated $dest_file"
             else
