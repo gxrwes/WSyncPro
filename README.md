@@ -3,6 +3,9 @@ WSyncPro  WSyncPro is a powerful suite of C# programs and libraries designed for
 
 # User Documentation
 # Developer Documentation
+## Other useful Documentation
+[Material Design Getting Started](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/wiki/Getting-Started)
+[Material Design](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit)
 ## Diagrams
 
 ![Diagram 1](WSyncPro/Docu/Drawings/images/HowJobWorks.png)

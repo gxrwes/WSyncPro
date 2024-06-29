@@ -1,0 +1,30 @@
+﻿<Window x:Class="WSyncProApp.Views.ViewJobsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+        Background="{DynamicResource MaterialDesign.Brush.Background}"
+        Title="View Jobs" Height="450" Width="800">
+    <Grid Background="{DynamicResource MaterialDesign.Brush.Background}">
+        <StackPanel>
+            <TextBlock Text="Jobs in Sync Run" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="10" Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"/>
+            <ListView Name="JobsListView" Margin="10">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="150"/>
+                        <GridViewColumn Header="Priority" DisplayMemberBinding="{Binding Priority}" Width="50"/>
+                        <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="200"/>
+                        <GridViewColumn Header="Source Directory" DisplayMemberBinding="{Binding SourceDirectory}" Width="150"/>
+                        <GridViewColumn Header="Target Directory" DisplayMemberBinding="{Binding TargetDirectory}" Width="150"/>
+                        <GridViewColumn Header="View">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="View" Click="ViewJob_Click"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
+    </Grid>
+</Window>
