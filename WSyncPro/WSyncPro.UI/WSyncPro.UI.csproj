@@ -8,4 +8,9 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WSyncPro.Core\WSyncPro.Core.csproj" />
+    <ProjectReference Include="..\WSyncPro.Data\WSyncPro.Data.csproj" />
+  </ItemGroup>
+
 </Project>
