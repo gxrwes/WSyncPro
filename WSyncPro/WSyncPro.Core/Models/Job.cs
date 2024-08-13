@@ -12,6 +12,9 @@ namespace WSyncPro.Core.Models
 
     public class Job
     {
+        public string Id { get; set; }
+        public string Name { get; set; }  // Convert 'name' field to 'Name' property
+        public string Description { get; set; }
         public string SourceDirectory { get; set; }
         public string TargetDirectory { get; set; } // Not required for ReRender
         public string[] TargetedFileTypes { get; set; }
@@ -26,6 +29,7 @@ namespace WSyncPro.Core.Models
         public ArchiveOptions ArchiveOptions { get; set; }
         public ReRenderOptions ReRenderOptions { get; set; }
     }
+
 
     public class ArchiveOptions
     {
