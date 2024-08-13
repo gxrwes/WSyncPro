@@ -1,0 +1,38 @@
+﻿<Window x:Class="WSyncPro.UI.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings" Height="400" Width="600">
+    <Grid>
+        <StackPanel Margin="10">
+            <TextBlock FontSize="18" FontWeight="Bold" Text="Application Settings" Margin="0,0,0,10"/>
+
+            <TextBlock Text="HandBrake CLI Path:" Margin="0,0,0,5"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBox x:Name="HandBrakeCliPathTextBox" Width="400"/>
+                <Button Content="Browse" Width="80" Margin="5,0,0,0" Click="BrowseHandBrakeCliPath_Click"/>
+            </StackPanel>
+
+            <TextBlock Text="Default Target Directory for Clean Job:" Margin="0,0,0,5"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBox x:Name="CleanJobTargetDirectoryTextBox" Width="400"/>
+                <Button Content="Browse" Width="80" Margin="5,0,0,0" Click="BrowseCleanJobTargetDirectory_Click"/>
+            </StackPanel>
+
+            <TextBlock Text="Archive Options:" FontWeight="Bold" Margin="0,20,0,5"/>
+
+            <TextBlock Text="Default Archive Directory:" Margin="0,0,0,5"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBox x:Name="ArchiveDirectoryTextBox" Width="400"/>
+                <Button Content="Browse" Width="80" Margin="5,0,0,0" Click="BrowseArchiveDirectory_Click"/>
+            </StackPanel>
+
+            <TextBlock Text="Grouping Pattern:" Margin="0,0,0,5"/>
+            <TextBox x:Name="GroupingPatternTextBox" Margin="0,0,0,10"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Save and Exit" Width="100" Margin="5" Click="SaveAndExitButton_Click"/>
+                <Button Content="Cancel and Exit" Width="100" Margin="5" Click="CancelAndExitButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

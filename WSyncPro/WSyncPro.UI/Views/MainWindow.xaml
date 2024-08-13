@@ -4,7 +4,7 @@
         Title="WSyncPro" Height="450" Width="800">
     <Grid>
         <Menu VerticalAlignment="Top">
-            <MenuItem Header="Settings"/>
+            <MenuItem Header="Settings" Click="SettingsMenu_Click"/>
             <MenuItem Header="Jobs">
                 <MenuItem Header="Import Jobs"/>
                 <MenuItem Header="Export Jobs"/>

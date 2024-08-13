@@ -8,5 +8,11 @@ namespace WSyncPro.UI.Views
         {
             InitializeComponent();
         }
+
+        private void SettingsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
+        }
     }
 }
