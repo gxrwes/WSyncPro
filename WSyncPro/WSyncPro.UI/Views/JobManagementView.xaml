@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="WSyncPro.UI.Views.JobManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+    <Grid>
+        <StackPanel Margin="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,10">
+                <Button Content="Create New Job" Width="120" Margin="5" Command="{Binding CreateJobCommand}"/>
+                <Button Content="Import Jobs" Width="120" Margin="5" Command="{Binding ImportJobsCommand}"/>
+                <Button Content="Export Jobs" Width="120" Margin="5" Command="{Binding ExportJobsCommand}"/>
+            </StackPanel>
+
+            <DataGrid ItemsSource="{Binding Jobs}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="0,0,0,10">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                    <DataGridTextColumn Header="Source Directory" Binding="{Binding SourceDirectory}" Width="*"/>
+                    <DataGridTextColumn Header="Target Directory" Binding="{Binding TargetDirectory}" Width="*"/>
+                    <DataGridTextColumn Header="Job Type" Binding="{Binding JobType}" Width="*"/>
+                    <DataGridTextColumn Header="File Types" Binding="{Binding TargetedFileTypes}" Width="*"/>
+                    <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" Width="*"/>
+                    <DataGridCheckBoxColumn Header="Scheduled" Binding="{Binding IsScheduled}" Width="*"/>
+                    <DataGridTemplateColumn Header="Edit">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Edit" Command="{Binding DataContext.EditJobCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Start Selected Jobs" Width="150" Margin="5" Command="{Binding StartJobsCommand}"/>
+                <Button Content="Execute All Enabled Jobs" Width="150" Margin="5" Command="{Binding ExecuteAllEnabledJobsCommand}"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>
