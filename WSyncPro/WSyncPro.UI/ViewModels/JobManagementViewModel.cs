@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using WSyncPro.Core.Models;
 using WSyncPro.Data.DataAccess;
 using WSyncPro.UI.Commands;
@@ -56,12 +58,35 @@ namespace WSyncPro.UI.ViewModels
 
         private void ImportJobs()
         {
-            // Logic to import jobs from a file
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                var json = System.IO.File.ReadAllText(openFileDialog.FileName);
+                var importedJobs = JsonConvert.DeserializeObject<List<Job>>(json);
+                foreach (var job in importedJobs)
+                {
+                    Jobs.Add(job);
+                }
+                _dataAccess.SaveJobs(Jobs.ToList());
+            }
         }
 
         private void ExportJobs()
         {
-            // Logic to export jobs to a file
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                var json = JsonConvert.SerializeObject(Jobs.ToList(), Formatting.Indented);
+                System.IO.File.WriteAllText(saveFileDialog.FileName, json);
+            }
         }
 
         private void EditJob(Job job)

@@ -26,10 +26,13 @@ namespace WSyncPro.UI.Views
         private void LoadJobDetails()
         {
             JobNameTextBox.Text = Job.Name;
+            DescriptionTextBox.Text = Job.Description;
             SourceDirectoryTextBox.Text = Job.SourceDirectory;
             TargetDirectoryTextBox.Text = Job.TargetDirectory;
-            JobTypeComboBox.SelectedItem = Job.JobType.ToString();
+            JobTypeComboBox.SelectedIndex = (int)Job.JobType;
             FileTypesTextBox.Text = string.Join(", ", Job.TargetedFileTypes);
+            FilterStringsTextBox.Text = string.Join(", ", Job.FilterStrings);
+            AntiFilterStringsTextBox.Text = string.Join(", ", Job.AntiFilterStrings);
             IsEnabledCheckBox.IsChecked = Job.IsEnabled;
             IsScheduledCheckBox.IsChecked = Job.IsScheduled;
         }
@@ -43,10 +46,13 @@ namespace WSyncPro.UI.Views
             }
 
             Job.Name = JobNameTextBox.Text;
+            Job.Description = DescriptionTextBox.Text;
             Job.SourceDirectory = SourceDirectoryTextBox.Text;
             Job.TargetDirectory = TargetDirectoryTextBox.Text;
             Job.JobType = (JobType)JobTypeComboBox.SelectedIndex;
             Job.TargetedFileTypes = FileTypesTextBox.Text.Split(new[] { ',', ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+            Job.FilterStrings = FilterStringsTextBox.Text.Split(new[] { ',', ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+            Job.AntiFilterStrings = AntiFilterStringsTextBox.Text.Split(new[] { ',', ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
             Job.IsEnabled = IsEnabledCheckBox.IsChecked.GetValueOrDefault();
             Job.IsScheduled = IsScheduledCheckBox.IsChecked.GetValueOrDefault();
 
