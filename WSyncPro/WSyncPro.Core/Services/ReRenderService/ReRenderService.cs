@@ -13,10 +13,12 @@ namespace WSyncPro.Core.Services.ReRenderService
         public string HandBreakPostFix { get; set; } = "_HB";
 
         private readonly string _handBrakeCliPath;
+        private readonly StateManager _stateManager;
 
         public ReRenderService()
         {
-            _handBrakeCliPath = StateManager.Instance.HandBrakeCliPath;
+            _stateManager = StateManager.Instance;
+            _handBrakeCliPath = _stateManager.HandBrakeCliPath;
 
             if (string.IsNullOrWhiteSpace(_handBrakeCliPath) || !File.Exists(_handBrakeCliPath))
             {
@@ -32,15 +34,32 @@ namespace WSyncPro.Core.Services.ReRenderService
             if (directory == null)
                 throw new ArgumentNullException(nameof(directory));
 
-            foreach (var file in directory.Files.OfType<WVideoFile>())
-            {
-                if (FileContainsPreset(file, job.ReRenderOptions.Preset.ToString())) continue;
+            _stateManager.RegisterService("ReRenderService");
 
-                string outputFilePath = GenerateOutputFilePath(file, job.ReRenderOptions.Preset.ToString());
-                ReRenderFile(file.Path, outputFilePath, job.ReRenderOptions.Preset.ToString(), job.ReRenderOptions.AdvancedOptions);
+            try
+            {
+                foreach (var file in directory.Files.OfType<WVideoFile>())
+                {
+                    if (FileContainsPreset(file, job.ReRenderOptions.Preset.ToString())) continue;
+
+                    string outputFilePath = GenerateOutputFilePath(file, job.ReRenderOptions.Preset.ToString());
+
+                    // Report progress
+                    _stateManager.UpdateProgress("ReRenderService", $"Re-rendering {file.Name}", 50);
+
+                    ReRenderFile(file.Path, outputFilePath, job.ReRenderOptions.Preset.ToString(), job.ReRenderOptions.AdvancedOptions);
+
+                    _stateManager.UpdateProgress("ReRenderService", $"Re-rendered {file.Name}", 100);
+                }
+
+                _stateManager.CompleteService("ReRenderService");
+            }
+            catch (Exception ex)
+            {
+                _stateManager.Log($"Error in ReRenderService: {ex.Message}");
+                throw;
             }
         }
-
 
         private bool FileContainsPreset(WVideoFile file, string preset)
         {
@@ -81,6 +100,4 @@ namespace WSyncPro.Core.Services.ReRenderService
             }
         }
     }
-
-
 }

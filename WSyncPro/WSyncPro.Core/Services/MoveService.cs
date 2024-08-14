@@ -2,11 +2,19 @@
 using System.IO;
 using WSyncPro.Core.Models;
 using WSyncPro.Core.Models.FileModels;
+using WSyncPro.Core.State;
 
 namespace WSyncPro.Core.Services
 {
     public class MoveService
     {
+        private readonly StateManager _stateManager;
+
+        public MoveService()
+        {
+            _stateManager = StateManager.Instance;
+        }
+
         public void MoveFiles(WDirectory sourceDirectory, Job job, FileOverwriteOptions overwriteOption, bool keepDirectoryStructure)
         {
             if (sourceDirectory == null)
@@ -30,9 +38,19 @@ namespace WSyncPro.Core.Services
                 }
             }
 
-            MoveDirectory(sourceDirectory, job.TargetDirectory, overwriteOption, keepDirectoryStructure);
-        }
+            _stateManager.RegisterService("MoveService");
 
+            try
+            {
+                MoveDirectory(sourceDirectory, job.TargetDirectory, overwriteOption, keepDirectoryStructure);
+                _stateManager.CompleteService("MoveService");
+            }
+            catch (Exception ex)
+            {
+                _stateManager.Log($"Error in MoveService: {ex.Message}");
+                throw;
+            }
+        }
 
         private bool IsValidPath(string path)
         {
@@ -68,7 +86,9 @@ namespace WSyncPro.Core.Services
                 }
                 else
                 {
+                    _stateManager.UpdateProgress("MoveService", $"Moving {file.Name}", 50);
                     MoveFile(file.Path, targetPath, overwriteOption);
+                    _stateManager.UpdateProgress("MoveService", $"Moved {file.Name}", 100);
                 }
             }
         }

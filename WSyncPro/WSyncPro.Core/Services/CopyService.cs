@@ -3,14 +3,19 @@ using System.IO;
 using System.Linq;
 using WSyncPro.Core.Models;
 using WSyncPro.Core.Models.FileModels;
+using WSyncPro.Core.State;
 
 namespace WSyncPro.Core.Services
 {
-    /*
-     * add description 
-     */
     public class CopyService
     {
+        private readonly StateManager _stateManager;
+
+        public CopyService()
+        {
+            _stateManager = StateManager.Instance;
+        }
+
         public void CopyFiles(WDirectory sourceDirectory, Job job, FileOverwriteOptions overwriteOption, bool keepDirectoryStructure)
         {
             if (sourceDirectory == null)
@@ -27,7 +32,18 @@ namespace WSyncPro.Core.Services
                 Directory.CreateDirectory(job.TargetDirectory);
             }
 
-            CopyDirectory(sourceDirectory, job.TargetDirectory, overwriteOption, keepDirectoryStructure);
+            _stateManager.RegisterService("CopyService");
+
+            try
+            {
+                CopyDirectory(sourceDirectory, job.TargetDirectory, overwriteOption, keepDirectoryStructure);
+                _stateManager.CompleteService("CopyService");
+            }
+            catch (Exception ex)
+            {
+                _stateManager.Log($"Error in CopyService: {ex.Message}");
+                throw;
+            }
         }
 
         private void CopyDirectory(WDirectory sourceDirectory, string targetDirectory, FileOverwriteOptions overwriteOption, bool keepDirectoryStructure)
@@ -51,7 +67,9 @@ namespace WSyncPro.Core.Services
                 }
                 else
                 {
+                    _stateManager.UpdateProgress("CopyService", $"Copying {file.Name}", 50);
                     CopyFile(file.Path, targetPath, overwriteOption);
+                    _stateManager.UpdateProgress("CopyService", $"Copied {file.Name}", 100);
                 }
             }
         }

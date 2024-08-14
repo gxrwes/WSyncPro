@@ -25,23 +25,38 @@ namespace WSyncPro.Core.Services.CleanService
             if (job == null)
                 throw new ArgumentNullException(nameof(job));
 
-            // Ensure TrashDirectory is set
-            if (string.IsNullOrWhiteSpace(_stateManager.TrashDirectory))
-                throw new InvalidOperationException("Trash directory is not set in the StateManager.");
+            _stateManager.RegisterService("CleanService");
 
-            // Ensure TrashDirectory is a valid path
-            if (!IsValidPath(_stateManager.TrashDirectory))
-                throw new ArgumentException("The Trash directory path is invalid.", nameof(_stateManager.TrashDirectory));
-
-
-            // Use the provided directory or scan the source directory
-            directory ??= _directoryScanner.ScanDirectory(job.SourceDirectory, job.TargetedFileTypes, job.FilterStrings);
-
-            // Move the files to the trash directory
-            _moveService.MoveFiles(directory, new Job
+            try
             {
-                TargetDirectory = _stateManager.TrashDirectory
-            }, FileOverwriteOptions.ALWAYS, keepDirectoryStructure: true);
+                // Ensure TrashDirectory is set
+                if (string.IsNullOrWhiteSpace(_stateManager.TrashDirectory))
+                    throw new InvalidOperationException("Trash directory is not set in the StateManager.");
+
+                // Ensure TrashDirectory is a valid path
+                if (!IsValidPath(_stateManager.TrashDirectory))
+                    throw new ArgumentException("The Trash directory path is invalid.", nameof(_stateManager.TrashDirectory));
+
+                // Use the provided directory or scan the source directory
+                directory ??= _directoryScanner.ScanDirectory(job.SourceDirectory, job.TargetedFileTypes, job.FilterStrings);
+
+                // Report progress
+                _stateManager.UpdateProgress("CleanService", "Moving files to trash", 50);
+
+                // Move the files to the trash directory
+                _moveService.MoveFiles(directory, new Job
+                {
+                    TargetDirectory = _stateManager.TrashDirectory
+                }, FileOverwriteOptions.ALWAYS, keepDirectoryStructure: true);
+
+                _stateManager.UpdateProgress("CleanService", "Files moved to trash", 100);
+                _stateManager.CompleteService("CleanService");
+            }
+            catch (Exception ex)
+            {
+                _stateManager.Log($"Error in CleanService: {ex.Message}");
+                throw;
+            }
         }
 
         private bool IsValidPath(string path)
