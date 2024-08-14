@@ -18,10 +18,12 @@ jobs:
           dotnet-version: '7.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore ./WSyncPro/WSyncPro.sln
+        working-directory: ./WSyncPro
+        run: dotnet restore WSyncPro.sln
 
       - name: Build the project
-        run: dotnet build ./WSyncPro/WSyncPro.sln --configuration Release --no-restore
+        working-directory: ./WSyncPro
+        run: dotnet build WSyncPro.sln --configuration Release --no-restore
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -44,7 +46,8 @@ jobs:
           dotnet-version: '7.0.x'
 
       - name: Run tests
-        run: dotnet test ./WSyncPro/WSyncPro.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
+        working-directory: ./WSyncPro
+        run: dotnet test WSyncPro.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
