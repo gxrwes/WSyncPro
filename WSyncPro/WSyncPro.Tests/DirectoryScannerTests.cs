@@ -141,7 +141,7 @@ namespace WSyncPro.Tests
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.Empty(result.Files);
+                Assert.Empty(result.Files); // Unsupported file type should not be included
             }
             finally
             {
@@ -228,6 +228,47 @@ namespace WSyncPro.Tests
                 var textFile = level2Directory.Files.OfType<WDocumentFile>().FirstOrDefault();
                 Assert.NotNull(textFile);
                 Assert.Equal("test.txt", textFile.Name);
+            }
+            finally
+            {
+                // Cleanup
+                Directory.Delete(tempPath, true);
+            }
+        }
+
+        [Fact]
+        public void ScanDirectory_WithFilters_ReturnsFilteredResults()
+        {
+            // Arrange
+            var tempPath = Path.Combine(Path.GetTempPath(), "TestDirectoryWithFilters");
+            Directory.CreateDirectory(tempPath);
+
+            var filePath1 = Path.Combine(tempPath, "rendered_video.mp4");
+            var filePath2 = Path.Combine(tempPath, "final_audio.mp3");
+            var filePath3 = Path.Combine(tempPath, "draft_video.mp4");
+            File.Create(filePath1).Dispose();  // Create a test video file
+            File.Create(filePath2).Dispose();  // Create a test audio file
+            File.Create(filePath3).Dispose();  // Create a test video file that should be filtered out
+
+            string[] targetedFileTypes = { ".mp4", ".mp3" };
+            string[] filterStrings = { "render", "final" };
+
+            try
+            {
+                // Act
+                var result = _scanner.ScanDirectory(tempPath, targetedFileTypes, filterStrings);
+
+                // Assert
+                Assert.NotNull(result);
+                Assert.Equal(2, result.Files.Count); // Only 2 files should match the filter
+
+                var videoFile = result.Files.OfType<WVideoFile>().FirstOrDefault(f => f.Name == "rendered_video.mp4");
+                var audioFile = result.Files.OfType<WAudioFile>().FirstOrDefault(f => f.Name == "final_audio.mp3");
+
+                Assert.NotNull(videoFile);
+                Assert.NotNull(audioFile);
+
+                Assert.Null(result.Files.FirstOrDefault(f => f.Name == "draft_video.mp4")); // Should not be included
             }
             finally
             {
