@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - 'dev'
+      - 'feature/*'
   pull_request:
     branches:
       - main
@@ -20,7 +20,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'  # Adjust to match your .NET version
+        dotnet-version: '7.0.x'
 
     - name: Restore dependencies
       run: dotnet restore ./WSyncPro/WSyncPro.sln
