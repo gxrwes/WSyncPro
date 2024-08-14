@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - 'dev'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'  # Adjust to match your .NET version
+
+    - name: Restore dependencies
+      run: dotnet restore ./WSyncPro/WSyncPro.sln
+
+    - name: Build the project
+      run: dotnet build ./WSyncPro/WSyncPro.sln --configuration Release --no-restore
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: ./WSyncPro/bin/Release/
