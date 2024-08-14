@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <Folder Include="Services\CleanService\" />
-    <Folder Include="Services\SyncService\" />
     <Folder Include="Services\ReRenderService\" />
   </ItemGroup>
 
