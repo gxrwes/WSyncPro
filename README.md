@@ -82,7 +82,7 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 For more detailed information about each component of the WSyncPro application, refer to the individual README files in the respective project directories:
 
-- [WSyncPro.Core](./WSyncPro.Core/README.md)
-- [WSyncPro.Tests](./WSyncPro.Tests/README.md)
-- [WSyncPro.Data](./WSyncPro.Data/README.md)
-- [WSyncPro.UI](./WSyncPro.UI/README.md)
+- [WSyncPro.Core](./WSyncPro/WSyncPro.Core/README.md)
+- [WSyncPro.Tests](./WSyncPro/WSyncPro.Tests/README.md)
+- [WSyncPro.Data](./WSyncPro/WSyncPro.Data/README.md)
+- [WSyncPro.UI](./WSyncPro/WSyncPro.UI/README.md)
