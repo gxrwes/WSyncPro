@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Test"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+        path: ./WSyncPro/bin/Release/
+
+    - name: Deploy Application
+      run: echo "Deploying application..."
+      # Add your deployment script here
