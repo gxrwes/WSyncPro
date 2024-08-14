@@ -6,6 +6,7 @@
         Audio,
         Video,
         Document,
-        Program
+        Program,
+        Directory
     }
 }
