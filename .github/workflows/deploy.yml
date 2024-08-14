@@ -1,14 +1,12 @@
 name: Deploy
 
 on:
-  workflow_run:
-    workflows: ["Test"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     runs-on: windows-latest
 
     steps:
@@ -24,8 +22,8 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-artifacts
-        path: ./WSyncPro/bin/Release/
 
-    - name: Deploy Application
-      run: echo "Deploying application..."
-      # Add your deployment script here
+    - name: Deploy application
+      run: |
+        # Insert your deployment commands here
+        echo "Deploying application..."

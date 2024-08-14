@@ -1,10 +1,9 @@
 name: Test
 
 on:
-  workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
+  push:
+    branches:
+      - '**'  # This ensures the workflow runs on every branch
 
 jobs:
   test:
@@ -23,7 +22,12 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-artifacts
-        path: ./WSyncPro/bin/Release/
 
     - name: Run tests
-      run: dotnet test ./WSyncPro/WSyncPro.sln --no-build --verbosity normal --logger "trx;LogFileName=TestResults.trx"
+      run: dotnet test ./WSyncPro/WSyncPro.sln --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: '**/TestResults/*.trx'
