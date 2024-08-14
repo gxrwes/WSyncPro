@@ -73,12 +73,14 @@ namespace WSyncPro.Core.Services
 
                 if (!shouldOverwrite)
                 {
-                    File.Delete(sourcePath);
                     return;
                 }
+
+                // Delete the target file if overwriting
+                File.Delete(targetPath);
             }
 
-            File.Move(sourcePath, targetPath, overwriteOption == FileOverwriteOptions.ALWAYS);
+            File.Move(sourcePath, targetPath);
         }
     }
 }

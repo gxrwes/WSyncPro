@@ -31,7 +31,6 @@ namespace WSyncPro.Tests
         [Fact]
         public void MoveFiles_AlwaysOverwrite_MovesAllFiles()
         {
-            // Arrange
             var sourceDirectory = new WDirectory
             {
                 Path = _testSourceDirectory,
@@ -74,7 +73,6 @@ namespace WSyncPro.Tests
         [Fact]
         public void MoveFiles_NeverOverwrite_SkipsExistingFiles()
         {
-            // Arrange
             File.WriteAllText(Path.Combine(_testTargetDirectory, "file1.txt"), "Existing file content.");
 
             var sourceDirectory = new WDirectory
@@ -105,7 +103,6 @@ namespace WSyncPro.Tests
         [Fact]
         public void MoveFiles_NewerOverwrite_OverwritesWithNewerFiles()
         {
-            // Arrange
             string targetFilePath = Path.Combine(_testTargetDirectory, "file1.txt");
             File.WriteAllText(targetFilePath, "Older file content.");
             File.SetLastWriteTime(targetFilePath, DateTime.Now.AddDays(-1));
@@ -137,7 +134,6 @@ namespace WSyncPro.Tests
 
         public void Dispose()
         {
-            // Clean up temporary files and directories
             if (Directory.Exists(_testSourceDirectory))
             {
                 Directory.Delete(_testSourceDirectory, true);
