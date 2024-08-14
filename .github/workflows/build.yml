@@ -21,16 +21,21 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '7.0.x'
-    - name: List all directories recursively
-      run: dir ./WSyncPro/ /s
-      
+
+    - name: List all directories recursively (PowerShell)
+      run: Get-ChildItem -Recurse -Directory ./WSyncPro/
+
     - name: Restore dependencies
       run: dotnet restore ./WSyncPro/WSyncPro.sln
 
     - name: Build the project
       run: dotnet build ./WSyncPro/WSyncPro.sln --configuration Release --no-restore
 
-    - name: List build directory contents
-      run: dir ./WSyncPro/**/bin/Release/
+    - name: List build directory contents (PowerShell)
+      run: Get-ChildItem ./WSyncPro/**/bin/Release/ -Recurse
 
-   
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: ./WSyncPro/**/bin/Release/
