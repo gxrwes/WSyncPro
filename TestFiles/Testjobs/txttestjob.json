@@ -1,0 +1,23 @@
+[
+  {
+    "Id": null,
+    "Name": "test",
+    "Description": "test",
+    "SourceDirectory": "F:\\test",
+    "TargetDirectory": "F:\\Trash",
+    "TargetedFileTypes": [
+      ".txt",
+      ".png"
+    ],
+    "FilterStrings": [
+      "*temp*"
+    ],
+    "AntiFilterStrings": [],
+    "IsEnabled": true,
+    "IsScheduled": false,
+    "Schedule": null,
+    "JobType": 0,
+    "ArchiveOptions": null,
+    "ReRenderOptions": null
+  }
+]
