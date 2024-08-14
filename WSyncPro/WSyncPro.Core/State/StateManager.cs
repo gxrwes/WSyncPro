@@ -10,6 +10,7 @@ namespace WSyncPro.Core.State
     {
         private static readonly Lazy<StateManager> lazy = new Lazy<StateManager>(() => new StateManager());
 
+        public string TrashDirectory = "";
         public static StateManager Instance => lazy.Value;
 
         public List<Job> Jobs { get; private set; }
