@@ -6,6 +6,9 @@ using WSyncPro.Core.Models.FileModels;
 
 namespace WSyncPro.Core.Services
 {
+    /*
+     * add description 
+     */
     public class CopyService
     {
         public void CopyFiles(WDirectory sourceDirectory, Job job, FileOverwriteOptions overwriteOption, bool keepDirectoryStructure)

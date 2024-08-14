@@ -6,6 +6,9 @@ using WSyncPro.Core.Models.FileModels;
 
 namespace WSyncPro.Core.Services.ScanService
 {
+    /*
+     * add description 
+     */
     public class DirectoryScanner
     {
         public WDirectory ScanDirectory(string path, string[] targetedFileTypes = null, string[] filterStrings = null)
