@@ -10,6 +10,9 @@ namespace WSyncPro.Core.State
     {
         private static readonly Lazy<StateManager> lazy = new Lazy<StateManager>(() => new StateManager());
 
+        // NEEDED DIRECTORIES
+        public string TrashDirectory = "";
+        public string HandBrakeCliPath = "";
         public static StateManager Instance => lazy.Value;
 
         public List<Job> Jobs { get; private set; }

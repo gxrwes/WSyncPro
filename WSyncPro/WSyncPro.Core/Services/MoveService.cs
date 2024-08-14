@@ -15,15 +15,36 @@ namespace WSyncPro.Core.Services
             if (job == null)
                 throw new ArgumentNullException(nameof(job));
 
-            if (string.IsNullOrWhiteSpace(job.TargetDirectory))
-                throw new ArgumentException("Job.TargetDirectory cannot be null or whitespace.", nameof(job.TargetDirectory));
+            if (string.IsNullOrWhiteSpace(job.TargetDirectory) || !IsValidPath(job.TargetDirectory))
+                throw new ArgumentException("Job.TargetDirectory is invalid.", nameof(job.TargetDirectory));
 
             if (!Directory.Exists(job.TargetDirectory))
             {
-                Directory.CreateDirectory(job.TargetDirectory);
+                try
+                {
+                    Directory.CreateDirectory(job.TargetDirectory);
+                }
+                catch (Exception ex)
+                {
+                    throw new IOException($"Failed to create directory '{job.TargetDirectory}': {ex.Message}");
+                }
             }
 
             MoveDirectory(sourceDirectory, job.TargetDirectory, overwriteOption, keepDirectoryStructure);
+        }
+
+
+        private bool IsValidPath(string path)
+        {
+            try
+            {
+                string fullPath = Path.GetFullPath(path);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private void MoveDirectory(WDirectory sourceDirectory, string targetDirectory, FileOverwriteOptions overwriteOption, bool keepDirectoryStructure)
