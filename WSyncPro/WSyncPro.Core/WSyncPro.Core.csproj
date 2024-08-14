@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\CleanService\" />
+    <Folder Include="Services\SyncService\" />
+    <Folder Include="Services\ReRenderService\" />
+  </ItemGroup>
+
 </Project>

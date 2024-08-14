@@ -5,7 +5,7 @@ using WSyncPro.Core.Models.FileModels;
 
 namespace WSyncPro.Core.Services.ArchiveServices
 {
-    internal class ArchiveFunctionReplacer
+    public class ArchiveFunctionReplacer
     {
         public static string DirectoryStructureReplacer(string directoryStructure, Job job, WFile file)
         {

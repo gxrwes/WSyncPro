@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using WSyncPro.Core.Models.FileModels;
 
 namespace WSyncPro.Core.Services.ScanService
 {
     public class DirectoryScanner
     {
-        public WDirectory ScanDirectory(string path)
+        public WDirectory ScanDirectory(string path, string[] targetedFileTypes = null, string[] filterStrings = null)
         {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new ArgumentException("Path cannot be null or empty.", nameof(path));
+            }
+
             if (!Directory.Exists(path))
             {
                 throw new DirectoryNotFoundException($"The directory '{path}' does not exist.");
@@ -24,21 +30,67 @@ namespace WSyncPro.Core.Services.ScanService
             // Scan all files in the current directory
             foreach (var file in Directory.GetFiles(path))
             {
-                var wfile = CreateWFile(file);
-                if (wfile != null)
+                try
                 {
-                    directory.Files.Add(wfile);
+                    if (IsFileIncluded(file, targetedFileTypes, filterStrings))
+                    {
+                        var wfile = CreateWFile(file);
+                        if (wfile != null)
+                        {
+                            directory.Files.Add(wfile);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the error or handle it according to your needs
+                    Console.WriteLine($"Error processing file '{file}': {ex.Message}");
                 }
             }
 
             // Recursively scan all subdirectories
             foreach (var dir in Directory.GetDirectories(path))
             {
-                var subDirectory = ScanDirectory(dir);
-                directory.Files.Add(subDirectory);
+                try
+                {
+                    var subDirectory = ScanDirectory(dir, targetedFileTypes, filterStrings);
+                    directory.Files.Add(subDirectory);
+                }
+                catch (Exception ex)
+                {
+                    // Log the error or handle it according to your needs
+                    Console.WriteLine($"Error processing directory '{dir}': {ex.Message}");
+                }
             }
 
             return directory;
+        }
+
+        private bool IsFileIncluded(string filePath, string[] targetedFileTypes, string[] filterStrings)
+        {
+            var fileName = Path.GetFileName(filePath);
+
+            // Check if the file type matches the targeted file types
+            if (targetedFileTypes != null && targetedFileTypes.Length > 0)
+            {
+                var fileExtension = Path.GetExtension(filePath).ToLower();
+                if (!targetedFileTypes.Contains(fileExtension))
+                {
+                    return false;
+                }
+            }
+
+            // Check if the file name matches any of the filter strings
+            if (filterStrings != null && filterStrings.Length > 0)
+            {
+                bool matchesFilter = filterStrings.Any(filter => fileName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+                if (!matchesFilter)
+                {
+                    return false;
+                }
+            }
+
+            return true; // Include the file if it passes all filters
         }
 
         private WFile CreateWFile(string filePath)
@@ -91,6 +143,7 @@ namespace WSyncPro.Core.Services.ScanService
                 case ".pdf":
                 case ".docx":
                 case ".txt":
+                case ".md":
                     wfile = new WDocumentFile
                     {
                         Name = Path.GetFileName(filePath),
@@ -112,7 +165,8 @@ namespace WSyncPro.Core.Services.ScanService
                     break;
 
                 default:
-                    // Handle other file types or skip
+                    // Log unsupported file type or handle as needed
+                    Console.WriteLine($"Unsupported file type: {extension}");
                     break;
             }
 
