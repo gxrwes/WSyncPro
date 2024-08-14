@@ -1,9 +1,10 @@
 name: Test
 
 on:
-  push:
-    branches:
-      - '**'  # This ensures the workflow runs on every branch
+  workflow_run:
+    workflows: ["Build"]  # This will run the Test workflow after the Build workflow completes
+    types:
+      - completed
 
 jobs:
   test:
