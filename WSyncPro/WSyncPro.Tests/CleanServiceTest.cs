@@ -49,6 +49,18 @@ namespace WSyncPro.Tests
         }
 
         [Fact]
+        public void ExecuteClean_ThrowsException_WhenTrashDirectoryIsInvalid()
+        {
+            // Arrange
+            StateManager.Instance.TrashDirectory = "InvalidPath:://"; // Set an invalid TrashDirectory path
+            var job = new Job { SourceDirectory = _testDirectory };
+
+            // Act & Assert
+            Assert.Throws<System.IO.IOException>(() => _cleanService.ExecuteClean(job));
+        }
+
+
+        [Fact]
         public void ExecuteClean_UsesProvidedDirectory()
         {
             // Arrange

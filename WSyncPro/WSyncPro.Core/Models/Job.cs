@@ -38,9 +38,11 @@ namespace WSyncPro.Core.Models
 
     public class ReRenderOptions
     {
-        public string Preset { get; set; }
+        public HandbreakPreset Preset { get; set; }
         public string AdvancedOptions { get; set; }
     }
+
+
 
     public class Schedule
     {

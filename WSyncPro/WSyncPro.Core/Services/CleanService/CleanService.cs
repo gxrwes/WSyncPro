@@ -29,6 +29,11 @@ namespace WSyncPro.Core.Services.CleanService
             if (string.IsNullOrWhiteSpace(_stateManager.TrashDirectory))
                 throw new InvalidOperationException("Trash directory is not set in the StateManager.");
 
+            // Ensure TrashDirectory is a valid path
+            if (!IsValidPath(_stateManager.TrashDirectory))
+                throw new ArgumentException("The Trash directory path is invalid.", nameof(_stateManager.TrashDirectory));
+
+
             // Use the provided directory or scan the source directory
             directory ??= _directoryScanner.ScanDirectory(job.SourceDirectory, job.TargetedFileTypes, job.FilterStrings);
 
@@ -37,6 +42,19 @@ namespace WSyncPro.Core.Services.CleanService
             {
                 TargetDirectory = _stateManager.TrashDirectory
             }, FileOverwriteOptions.ALWAYS, keepDirectoryStructure: true);
+        }
+
+        private bool IsValidPath(string path)
+        {
+            try
+            {
+                Path.GetFullPath(path);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
