@@ -64,5 +64,39 @@ namespace WSyncPro.Data.DataAccess
             var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
             File.WriteAllText(_filePath, json);
         }
+
+        // Load ImportProfile from JSON file
+        public ImportProfile LoadImportProfile()
+        {
+            if (!File.Exists(_filePath))
+                return null;
+
+            var json = File.ReadAllText(_filePath);
+            return JsonConvert.DeserializeObject<ImportProfile>(json);
+        }
+
+        // Save ImportProfile to JSON file
+        public void SaveImportProfile(ImportProfile profile)
+        {
+            var json = JsonConvert.SerializeObject(profile, Formatting.Indented);
+            File.WriteAllText(_filePath, json);
+        }
+
+        // Load all ImportProfiles from JSON file
+        public List<ImportProfile> LoadImportProfiles()
+        {
+            if (!File.Exists(_filePath))
+                return new List<ImportProfile>();
+
+            var json = File.ReadAllText(_filePath);
+            return JsonConvert.DeserializeObject<List<ImportProfile>>(json);
+        }
+
+        // Save a list of ImportProfiles to JSON file
+        public void SaveImportProfiles(List<ImportProfile> profiles)
+        {
+            var json = JsonConvert.SerializeObject(profiles, Formatting.Indented);
+            File.WriteAllText(_filePath, json);
+        }
     }
 }

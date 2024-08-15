@@ -13,10 +13,11 @@ namespace WSyncPro.Core.Services
         public UsbDeviceInfo(string name, string volumeLabel, long totalSize, long freeSpace, string fileSystem)
         {
             Name = name;
-            VolumeLabel = volumeLabel;
+            VolumeLabel = string.IsNullOrWhiteSpace(volumeLabel) ? "Unknown Volume" : volumeLabel; // Provide a default label
             TotalSize = totalSize;
             FreeSpace = freeSpace;
             FileSystem = fileSystem;
         }
+
     }
 }

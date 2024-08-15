@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using WSyncPro.Core.Services;
 
 namespace WSyncPro.UI.Views
 {
