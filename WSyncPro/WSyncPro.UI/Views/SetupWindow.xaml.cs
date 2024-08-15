@@ -5,11 +5,11 @@ using WSyncPro.Core.State;
 
 namespace WSyncPro.UI.Views
 {
-    public partial class SettingsWindow : Window
+    public partial class SetupWindow : Window
     {
         private readonly StateManager _stateManager;
 
-        public SettingsWindow()
+        public SetupWindow()
         {
             InitializeComponent();
             _stateManager = StateManager.Instance;
@@ -18,39 +18,40 @@ namespace WSyncPro.UI.Views
 
         private void LoadSettings()
         {
+            // Load existing settings, if any
             var appSettings = _stateManager.AppSettings;
-            if (appSettings != null)
-            {
-                HandBrakeCliPathTextBox.Text = appSettings.HandBrakeCliPath;
-                CleanJobTargetDirectoryTextBox.Text = appSettings.TrashDirectory;
-                ArchiveDirectoryTextBox.Text = appSettings.DefaultArchiveDirectory;
-            }
+
+            HandBrakeCliPathTextBox.Text = appSettings.HandBrakeCliPath;
+            TrashDirectoryTextBox.Text = appSettings.TrashDirectory;
+            ArchiveDirectoryTextBox.Text = appSettings.DefaultArchiveDirectory;
         }
 
         private void SaveAndExitButton_Click(object sender, RoutedEventArgs e)
         {
             if (!ValidatePath(HandBrakeCliPathTextBox.Text) ||
-                !ValidatePath(CleanJobTargetDirectoryTextBox.Text) ||
+                !ValidatePath(TrashDirectoryTextBox.Text) ||
                 !ValidatePath(ArchiveDirectoryTextBox.Text))
             {
                 MessageBox.Show("One or more paths are invalid. Please correct them and try again.", "Invalid Path", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
+            // Save the settings to StateManager
             var appSettings = _stateManager.AppSettings;
 
             appSettings.HandBrakeCliPath = HandBrakeCliPathTextBox.Text;
-            appSettings.TrashDirectory = CleanJobTargetDirectoryTextBox.Text;
+            appSettings.TrashDirectory = TrashDirectoryTextBox.Text;
             appSettings.DefaultArchiveDirectory = ArchiveDirectoryTextBox.Text;
 
             _stateManager.SaveSettings();
-            MessageBox.Show("Settings saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            this.Close(); // Close the settings window
+            MessageBox.Show("Setup completed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            this.Close();
         }
 
         private void CancelAndExitButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close(); // Close the settings window without saving
+            // Optionally, handle what happens if the user cancels the setup.
+            this.Close();
         }
 
         private bool ValidatePath(string path)
@@ -71,12 +72,12 @@ namespace WSyncPro.UI.Views
             }
         }
 
-        private void BrowseCleanJobTargetDirectory_Click(object sender, RoutedEventArgs e)
+        private void BrowseTrashDirectory_Click(object sender, RoutedEventArgs e)
         {
             var folderPath = SelectFolder();
             if (!string.IsNullOrEmpty(folderPath))
             {
-                CleanJobTargetDirectoryTextBox.Text = folderPath;
+                TrashDirectoryTextBox.Text = folderPath;
             }
         }
 

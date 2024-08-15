@@ -18,7 +18,7 @@ namespace WSyncPro.Core.Services.ReRenderService
         public ReRenderService()
         {
             _stateManager = StateManager.Instance;
-            _handBrakeCliPath = _stateManager.HandBrakeCliPath;
+            _handBrakeCliPath = _stateManager.AppSettings.HandBrakeCliPath;
 
             if (string.IsNullOrWhiteSpace(_handBrakeCliPath) || !File.Exists(_handBrakeCliPath))
             {

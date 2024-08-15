@@ -11,9 +11,6 @@ namespace WSyncPro.Core.State
     {
         private static readonly Lazy<StateManager> lazy = new Lazy<StateManager>(() => new StateManager());
 
-        // NEEDED DIRECTORIES
-        public string TrashDirectory = "";
-        public string HandBrakeCliPath = "";
         private readonly List<string> _logEntries = new List<string>();
         private readonly object _logLock = new object();
         private readonly object _progressLock = new object();
@@ -27,6 +24,8 @@ namespace WSyncPro.Core.State
 
         public List<Job> Jobs { get; private set; }
         public List<SyncRun> SyncRuns { get; private set; }
+        public AppSettings AppSettings { get; private set; }
+
         public string StateFilePath { get; set; } = "AppState.json";
         public string LogFilePath { get; set; } = "WSyncPro_Log.txt";
 
@@ -50,6 +49,42 @@ namespace WSyncPro.Core.State
                 Jobs = new List<Job>();
                 SyncRuns = new List<SyncRun>();
             }
+
+            LoadSettings();
+        }
+
+        private void LoadSettings()
+        {
+            string settingsFilePath = "AppSettings.json";
+
+            if (File.Exists(settingsFilePath))
+            {
+                var json = File.ReadAllText(settingsFilePath);
+                AppSettings = JsonConvert.DeserializeObject<AppSettings>(json);
+            }
+            else
+            {
+                AppSettings = new AppSettings();
+            }
+
+            // Initialize settings that might be needed by other services
+            if (AppSettings.AppLaunchCounter == 0)
+            {
+                AppSettings.SetupEnabled = true;
+            }
+            else
+            {
+                AppSettings.SetupEnabled = false;
+            }
+
+            SaveSettings();
+        }
+
+        public void SaveSettings()
+        {
+            string settingsFilePath = "AppSettings.json";
+            var json = JsonConvert.SerializeObject(AppSettings, Formatting.Indented);
+            File.WriteAllText(settingsFilePath, json);
         }
 
         public void SaveState()
@@ -60,7 +95,7 @@ namespace WSyncPro.Core.State
                 SyncRuns = this.SyncRuns
             };
 
-            var json = JsonConvert.SerializeObject(state, Newtonsoft.Json.Formatting.Indented);
+            var json = JsonConvert.SerializeObject(state, Formatting.Indented);
             File.WriteAllText(StateFilePath, json);
         }
 
