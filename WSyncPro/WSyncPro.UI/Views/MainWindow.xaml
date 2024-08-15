@@ -21,7 +21,7 @@
                 <!-- Run History UI Components -->
             </TabItem>
             <TabItem Header="Import Files">
-                <!-- Import Files UI Components -->
+                <local:ImportView />
             </TabItem>
         </TabControl>
     </Grid>
