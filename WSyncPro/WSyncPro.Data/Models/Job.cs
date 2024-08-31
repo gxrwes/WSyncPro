@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WSyncPro.Core.Models
+namespace WSyncPro.Data.Models
 {
     public enum JobType
     {

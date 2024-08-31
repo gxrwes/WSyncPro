@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WSyncPro.Core.Models.FileModels
+namespace WSyncPro.Data.Models.FileModels
 {
     public class WImageFile : WFile
     {

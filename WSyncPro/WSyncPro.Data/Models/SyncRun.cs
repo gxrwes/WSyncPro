@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WSyncPro.Core.Models
+namespace WSyncPro.Data.Models
 {
     public class SyncRun
     {

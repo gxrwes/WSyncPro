@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WSyncPro.Core.Models
+namespace WSyncPro.Data.Models
 {
-    public enum FileOverwriteOptions
+    public class HistoryModel
     {
-        ALWAYS,
-        NEVER,
-        NEWER
     }
 }

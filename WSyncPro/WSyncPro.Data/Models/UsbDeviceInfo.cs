@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace WSyncPro.Core.Services
+namespace WSyncPro.Data.Models
 {
     public class UsbDeviceInfo
     {

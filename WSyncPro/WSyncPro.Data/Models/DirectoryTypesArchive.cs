@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WSyncPro.Core.Models
+namespace WSyncPro.Data.Models
 {
     enum DirectoryTypesArchive
     {

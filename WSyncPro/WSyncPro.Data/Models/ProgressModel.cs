@@ -1,4 +1,4 @@
-﻿namespace WSyncPro.Core.Models
+﻿namespace WSyncPro.Data.Models
 {
     public class ProgressModel
     {

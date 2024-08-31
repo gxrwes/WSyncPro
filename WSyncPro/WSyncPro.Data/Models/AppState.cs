@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WSyncPro.Core.Models.FileModels;
 
-namespace WSyncPro.Core.Models
+namespace WSyncPro.Data.Models
 {
     public class AppState
     {
