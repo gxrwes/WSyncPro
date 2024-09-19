@@ -1,4 +1,5 @@
-﻿using System;
+﻿// AppStateManager.cs
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using WSyncPro.Core.Services;
 using WSyncPro.Models;
+using WSyncPro.Models.Enums;
 using WSyncPro.Models.State;
 
 namespace WSyncPro.Core.Managers
@@ -37,7 +39,7 @@ namespace WSyncPro.Core.Managers
         /// <summary>
         /// Path to the file where the app state is saved.
         /// </summary>
-        private readonly string _appStateFilePath;
+        private string _appStateFilePath;
 
         /// <summary>
         /// Service responsible for serializing and deserializing objects to and from JSON files.
@@ -78,17 +80,21 @@ namespace WSyncPro.Core.Managers
         /// </summary>
         public void UpdateAppState()
         {
-            var newAppState = new AppStateSnapShot();
+            var newAppState = new AppStateSnapShot
+            {
+                Guid = Guid.NewGuid(),
+                TimeStamp = DateTime.UtcNow,
+                Jobs = Jobs.ToList() // Copy jobs
+            };
 
             foreach (var job in Jobs)
             {
-                if (!newAppState.JobStateList.ContainsKey(job))
+                if (!newAppState.JobStateList.ContainsKey(job.Id))
                 {
-                    newAppState.JobStateList[job] = new List<JobProgress>();
+                    newAppState.JobStateList[job.Id] = new List<JobProgress>();
                 }
 
-                // Assuming each job maintains its own list of JobProgress instances
-                newAppState.JobStateList[job] = job.ProgressHistory.ToList();
+                newAppState.JobStateList[job.Id] = job.ProgressHistory.ToList();
             }
 
             // Check if the new state differs from the current state
@@ -139,7 +145,7 @@ namespace WSyncPro.Core.Managers
         /// Loads the most recent application state from the JSON file.
         /// If no state exists, initializes a new snapshot.
         /// </summary>
-        private void LoadAppState()
+        public void LoadAppState()
         {
             try
             {
@@ -150,15 +156,33 @@ namespace WSyncPro.Core.Managers
                 }
                 else
                 {
-                    _currentAppState = new AppStateSnapShot();
+                    _currentAppState = new AppStateSnapShot
+                    {
+                        Guid = Guid.NewGuid(),
+                        TimeStamp = DateTime.UtcNow
+                    };
                     Console.WriteLine("No existing app state found. Initialized a new state.");
+                }
+
+                // Reconstruct Jobs list from JobStateList
+                if (_currentAppState.Jobs != null)
+                {
+                    Jobs = _currentAppState.Jobs.ToList();
+                }
+                else
+                {
+                    Jobs = new List<Job>();
                 }
             }
             catch (Exception ex)
             {
                 // Handle exceptions (e.g., logging)
                 Console.WriteLine($"Error loading app state: {ex.Message}");
-                _currentAppState = new AppStateSnapShot();
+                _currentAppState = new AppStateSnapShot
+                {
+                    Guid = Guid.NewGuid(),
+                    TimeStamp = DateTime.UtcNow
+                };
             }
         }
 
@@ -181,6 +205,17 @@ namespace WSyncPro.Core.Managers
 
             if (state1.TimeStamp != state2.TimeStamp)
                 return false;
+
+            if (state1.Jobs.Count != state2.Jobs.Count)
+                return false;
+
+            // Compare each job
+            foreach (var job in state1.Jobs)
+            {
+                var correspondingJob = state2.Jobs.FirstOrDefault(j => j.Id == job.Id);
+                if (correspondingJob == null || !job.Equals(correspondingJob))
+                    return false;
+            }
 
             if (state1.JobStateList.Count != state2.JobStateList.Count)
                 return false;
