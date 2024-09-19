@@ -14,6 +14,16 @@
             "related": ".xml"
           }
         }
+      },
+      "WSyncPro.Models/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/WSyncPro.Models.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WSyncPro.Models.dll": {}
+        }
       }
     }
   },
@@ -47,11 +57,17 @@
         "newtonsoft.json.nuspec",
         "packageIcon.png"
       ]
+    },
+    "WSyncPro.Models/1.0.0": {
+      "type": "project",
+      "path": "../WSyncPro.Models/WSyncPro.Models.csproj",
+      "msbuildProject": "../WSyncPro.Models/WSyncPro.Models.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "Newtonsoft.Json >= 13.0.3"
+      "Newtonsoft.Json >= 13.0.3",
+      "WSyncPro.Models >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -86,7 +102,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj": {
+              "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
