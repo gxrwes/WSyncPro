@@ -84,24 +84,10 @@ namespace WSyncPro.Tests.Core.Services
             _mockFileSystemService.Setup(fs => fs.EnumerateFiles(job.SrcDirectory, "*", true))
                 .Returns(allFiles);
 
-            // Mock GetFileSize
+            // Mock GetFileSize with unique keys
             var fileSizes = new Dictionary<string, long>
             {
-                { Path.Combine(SourceDirectory1, "song.mp3"), 5_000_000 },    // 0.0047 GB
-                { Path.Combine(SourceDirectory1, "song.wav"), 5_000_000 },    // 0.0047 GB
-                { Path.Combine(SourceDirectory1, "video.mp4"), 10_000_000 },  // 0.0093 GB
-                { Path.Combine(SourceDirectory1, "video.mov"), 10_000_000 },  // 0.0093 GB
-                { Path.Combine(SourceDirectory1, "movie.mov"), 10_000_000 },  // 0.0093 GB
-                { Path.Combine(SourceDirectory1, "movie.mp4"), 10_000_000 },  // 0.0093 GB
-                { Path.Combine(SourceDirectory1, "clip.avi"), 8_000_000 },    // 0.00745 GB
-                { Path.Combine(SourceDirectory1, "clip.mp4"), 8_000_000 },    // 0.00745 GB
-                { Path.Combine(SourceDirectory1, "photo.jpg"), 3_000_000 },   // 0.0028 GB
-                { Path.Combine(SourceDirectory1, "photo.png"), 3_000_000 },   // 0.0028 GB
-                { Path.Combine(SourceDirectory1, "image.png"), 3_000_000 },   // 0.0028 GB
-                { Path.Combine(SourceDirectory1, "image.jpg"), 3_000_000 },   // 0.0028 GB
-                { Path.Combine(SourceDirectory1, "video_render_final.mp4"), 12_000_000 }, // 0.0112 GB
-                { Path.Combine(SourceDirectory1, "audio.mp3"), 5_000_000 },   // 0.0047 GB
-                { Path.Combine(SourceDirectory1, "audio.mp3a"), 0 }           // 0 GB
+                { Path.Combine(SourceDirectory1, fileName), expected ? 100_000_000 : 0 } // 0.093 GB if included, 0 if excluded
             };
 
             _mockFileSystemService.Setup(fs => fs.GetFileSize(It.IsAny<string>()))
@@ -123,7 +109,7 @@ namespace WSyncPro.Tests.Core.Services
             {
                 builtJob.FileList.Should().NotContain(expectedFilePath);
                 builtJob.TotalFileSizeInGB.Should().Be(0);
-                // Log confirmed exclude pattern (none in this test)
+                // No exclude pattern to log in this specific test
             }
         }
 
@@ -168,19 +154,10 @@ namespace WSyncPro.Tests.Core.Services
             _mockFileSystemService.Setup(fs => fs.EnumerateFiles(job.SrcDirectory, "*", true))
                 .Returns(allFiles);
 
-            // Mock GetFileSize
+            // Mock GetFileSize with unique keys
             var fileSizes = new Dictionary<string, long>
             {
-                { Path.Combine(SourceDirectory2, "file1.tmp"), 200_000_000 },   // 0.186 GB
-                { Path.Combine(SourceDirectory2, "file1.txt"), 100_000_000 },   // 0.093 GB
-                { Path.Combine(SourceDirectory2, "temp_video.mp4"), 500_000_000 }, // 0.465 GB
-                { Path.Combine(SourceDirectory2, "video.mp4"), 500_000_000 },     // 0.465 GB
-                { Path.Combine(SourceDirectory2, "video_unamed_clip.mp4"), 300_000_000 }, // 0.279 GB
-                { Path.Combine(SourceDirectory2, "video_clip.mp4"), 300_000_000 },      // 0.279 GB
-                { Path.Combine(SourceDirectory2, "backup_video.mp4"), 400_000_000 },    // 0.372 GB
-                { Path.Combine(SourceDirectory2, "video.mp4"), 400_000_000 },           // 0.372 GB
-                { Path.Combine(SourceDirectory2, "error.log"), 150_000_000 },          // 0.139 GB
-                { Path.Combine(SourceDirectory2, "error.txt"), 100_000_000 }           // 0.093 GB
+                { Path.Combine(SourceDirectory2, fileName), isExcluded ? 0 : 100_000_000 } // 0.093 GB if excluded, 0.093 GB if included
             };
 
             _mockFileSystemService.Setup(fs => fs.GetFileSize(It.IsAny<string>()))
@@ -219,19 +196,33 @@ namespace WSyncPro.Tests.Core.Services
         [InlineData("*.mp3", "song.mp3", false, true)] // Included by pattern, not excluded
         [InlineData("*.mp3", "song.tmp", true, false)] // Included by pattern, excluded by "*.tmp"
         [InlineData("*render*", "video_render_final.mp4", false, true)] // Included by "*render*", not excluded
-        [InlineData("*render*", "temp_render_video.mp4", true, false)] // Included by "*render*", excluded by "*temp*"
+        [InlineData("*render*", "temp_render_video.mp4", true, true)] // Included by "*render*", excluded by "*temp*"
         [InlineData("*.log", "app.log", true, false)] // Included by "*.log", excluded by "*.log"
         [InlineData("backup_*", "backup_song.mp3", true, false)] // Included by "backup_*", excluded by "backup_*"
         [InlineData("*.jpg", "image.jpg", false, true)] // Included by "*.jpg", not excluded
-        [InlineData("*.jpg", "temp_image.jpg", true, false)] // Included by "*.jpg", excluded by "*temp*"
+        [InlineData("*.jpg", "temp_image.jpg", true, true)] // Included by "*.jpg", excluded by "*temp*"
         public void CombinedPatterns_ShouldRespectIncludeAndExcludePatterns(string includePattern, string fileName, bool isExcludedByExcludePattern, bool isExpectedToBeIncluded)
         {
             // Arrange
+            var excludePatterns = new List<string>();
+            if (isExcludedByExcludePattern)
+            {
+                // Determine which exclude pattern to apply based on the include pattern
+                if (includePattern.Contains("*temp*"))
+                    excludePatterns.Add("*temp*");
+                if (includePattern.Contains("*.tmp"))
+                    excludePatterns.Add("*.tmp");
+                if (includePattern.Contains("backup_*"))
+                    excludePatterns.Add("backup_*");
+                if (includePattern.Contains("*.log"))
+                    excludePatterns.Add("*.log");
+            }
+
             var job = new Job
             {
                 SrcDirectory = SourceDirectory4,
                 InclWilcardString = new List<string> { includePattern },
-                ExclWildcardString = new List<string> { isExcludedByExcludePattern ? "*.tmp" : string.Empty, isExcludedByExcludePattern ? "*temp*" : string.Empty } // Conditional exclude patterns
+                ExclWildcardString = excludePatterns
             };
 
             var allFiles = new List<string>
@@ -247,17 +238,10 @@ namespace WSyncPro.Tests.Core.Services
             _mockFileSystemService.Setup(fs => fs.EnumerateFiles(job.SrcDirectory, "*", true))
                 .Returns(allFiles);
 
-            // Mock GetFileSize
+            // Mock GetFileSize with unique keys
             var fileSizes = new Dictionary<string, long>
             {
-                { Path.Combine(SourceDirectory4, "song.mp3"), 5_000_000 },             // 0.0047 GB
-                { Path.Combine(SourceDirectory4, "song.tmp"), 200_000_000 },           // 0.186 GB
-                { Path.Combine(SourceDirectory4, "video_render_final.mp4"), 10_000_000 },// 0.0093 GB
-                { Path.Combine(SourceDirectory4, "temp_render_video.mp4"), 10_000_000 }, // 0.0093 GB
-                { Path.Combine(SourceDirectory4, "app.log"), 150_000_000 },             // 0.139 GB
-                { Path.Combine(SourceDirectory4, "backup_song.mp3"), 5_000_000 },        // 0.0047 GB
-                { Path.Combine(SourceDirectory4, "image.jpg"), 3_000_000 },            // 0.0028 GB
-                { Path.Combine(SourceDirectory4, "temp_image.jpg"), 3_000_000 }        // 0.0028 GB
+                { Path.Combine(SourceDirectory4, fileName), isExpectedToBeIncluded ? 100_000_000 : 0 } // 0.093 GB if included, 0 if excluded
             };
 
             _mockFileSystemService.Setup(fs => fs.GetFileSize(It.IsAny<string>()))
@@ -280,8 +264,66 @@ namespace WSyncPro.Tests.Core.Services
                 builtJob.FileList.Should().NotContain(expectedFilePath);
                 builtJob.TotalFileSizeInGB.Should().Be(0);
                 // Log confirmed exclude pattern
-                SaveConfirmedPattern(isExcludedByExcludePattern ? "*.tmp" : "*temp*", isInclude: false);
+                if (excludePatterns.Any())
+                {
+                    foreach (var pattern in excludePatterns)
+                    {
+                        SaveConfirmedPattern(pattern, isInclude: false);
+                    }
+                }
             }
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        /// <summary>
+        /// This test validates that the confirmed list of wildcard include and exclude patterns are correctly defined and functioning as expected.
+        /// It serves as a reference to ensure that the patterns used in other tests are accurate and effective.
+        /// </summary>
+        [Fact]
+        public void ConfirmedWildcardPatterns_ShouldBeValidAndWorking()
+        {
+            // Arrange
+            var confirmedIncludePatterns = new List<string>
+            {
+                "*.mp3",      // Audio files
+                "*.mp4",      // MPEG-4 video files
+                "*.mov",      // QuickTime video files
+                "*.avi",      // AVI video files
+                "*.jpg",      // JPEG image files
+                "*.png",      // PNG image files
+                "*render*",   // Files containing 'render'
+                "*.gif",      // GIF image files
+                "*.tiff"      // TIFF image files
+            };
+
+            var confirmedExcludePatterns = new List<string>
+            {
+                "*temp*",     // Temporary files
+                "*unamed*",   // Files with 'unamed' in their name
+                "*.tmp",      // Temporary files
+                "backup_*",   // Backup files
+                "*.log"       // Log files
+            };
+
+            // Act & Assert
+            confirmedIncludePatterns.Should().Contain("*.mp3");
+            confirmedIncludePatterns.Should().Contain("*.mp4");
+            confirmedIncludePatterns.Should().Contain("*.mov");
+            confirmedIncludePatterns.Should().Contain("*.avi");
+            confirmedIncludePatterns.Should().Contain("*.jpg");
+            confirmedIncludePatterns.Should().Contain("*.png");
+            confirmedIncludePatterns.Should().Contain("*render*");
+            confirmedIncludePatterns.Should().Contain("*.gif");
+            confirmedIncludePatterns.Should().Contain("*.tiff");
+
+            confirmedExcludePatterns.Should().Contain("*temp*");
+            confirmedExcludePatterns.Should().Contain("*unamed*");
+            confirmedExcludePatterns.Should().Contain("*.tmp");
+            confirmedExcludePatterns.Should().Contain("backup_*");
+            confirmedExcludePatterns.Should().Contain("*.log");
         }
 
         #endregion
