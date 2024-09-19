@@ -4,6 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using WSyncPro.Core.Managers;
+using WSyncPro.Models;
+using WSyncPro.Models.Enums;
+using WSyncPro.Models.State;
 
 namespace WSyncPro.Core.Services
 {
@@ -16,10 +20,11 @@ namespace WSyncPro.Core.Services
         private readonly SemaphoreSlim _trashFolderSemaphore = new SemaphoreSlim(1, 1);
         private string _trashFolder;
 
+        private readonly AppStateManager _appStateManager = AppStateManager.Instance;
+
         /// <summary>
         /// Asynchronously gets the TrashFolder path.
         /// </summary>
-        /// <returns>The current TrashFolder path.</returns>
         public async Task<string> GetTrashFolderAsync()
         {
             await _trashFolderSemaphore.WaitAsync();
@@ -36,8 +41,6 @@ namespace WSyncPro.Core.Services
         /// <summary>
         /// Asynchronously sets the TrashFolder path.
         /// </summary>
-        /// <param name="value">The new TrashFolder path.</param>
-        /// <returns>A Task representing the asynchronous operation.</returns>
         public async Task SetTrashFolderAsync(string value)
         {
             await _trashFolderSemaphore.WaitAsync();
@@ -51,7 +54,10 @@ namespace WSyncPro.Core.Services
             }
         }
 
-        public async Task CopyFileAsync(string srcFilePath, string dstFilePath, bool force = false, bool ifNewer = true)
+        /// <summary>
+        /// Copies a file and updates the job progress.
+        /// </summary>
+        public async Task CopyFileAsync(string srcFilePath, string dstFilePath, bool force = false, bool ifNewer = true, Job job = null)
         {
             if (force || (ifNewer && IsSourceNewer(srcFilePath, dstFilePath)))
             {
@@ -66,30 +72,65 @@ namespace WSyncPro.Core.Services
                 {
                     await sourceStream.CopyToAsync(destinationStream);
                 }
+
+                // Update job progress
+                await ReportProgressAsync(job, srcFilePath, true);
             }
         }
 
-        public async Task CopyFilesAsync(List<string> srcFilePaths, string dstFolder, bool force = false, bool ifNewer = true)
+        /// <summary>
+        /// Copies multiple files and updates the job progress.
+        /// </summary>
+        public async Task CopyFilesAsync(List<string> srcFilePaths, string dstFolder, bool force = false, bool ifNewer = true, Job job = null)
         {
+            if (job != null)
+            {
+                InitializeJobProgress(job, srcFilePaths.Count);
+            }
+
             var tasks = srcFilePaths.Select(src =>
-                CopyFileAsync(src, Path.Combine(dstFolder, Path.GetFileName(src)), force, ifNewer));
+                CopyFileAsync(src, Path.Combine(dstFolder, Path.GetFileName(src)), force, ifNewer, job));
             await Task.WhenAll(tasks);
+
+            if (job != null)
+            {
+                CompleteJob(job);
+            }
         }
 
-        public async Task MoveFileAsync(string srcFilePath, string dstFilePath, bool force = false, bool ifNewer = true)
+        /// <summary>
+        /// Moves a file and updates the job progress.
+        /// </summary>
+        public async Task MoveFileAsync(string srcFilePath, string dstFilePath, bool force = false, bool ifNewer = true, Job job = null)
         {
-            await CopyFileAsync(srcFilePath, dstFilePath, force, ifNewer);
-            await DeleteFileAsync(srcFilePath);
+            await CopyFileAsync(srcFilePath, dstFilePath, force, ifNewer, job);
+            await DeleteFileAsync(srcFilePath, job);
         }
 
-        public async Task MoveFilesAsync(List<string> srcFilePaths, string dstFolder, bool force = false, bool ifNewer = true)
+        /// <summary>
+        /// Moves multiple files and updates the job progress.
+        /// </summary>
+        public async Task MoveFilesAsync(List<string> srcFilePaths, string dstFolder, bool force = false, bool ifNewer = true, Job job = null)
         {
+            if (job != null)
+            {
+                InitializeJobProgress(job, srcFilePaths.Count);
+            }
+
             var tasks = srcFilePaths.Select(src =>
-                MoveFileAsync(src, Path.Combine(dstFolder, Path.GetFileName(src)), force, ifNewer));
+                MoveFileAsync(src, Path.Combine(dstFolder, Path.GetFileName(src)), force, ifNewer, job));
             await Task.WhenAll(tasks);
+
+            if (job != null)
+            {
+                CompleteJob(job);
+            }
         }
 
-        public async Task<bool> DeleteFileAsync(string srcFilePath)
+        /// <summary>
+        /// Deletes a file and updates the job progress.
+        /// </summary>
+        public async Task<bool> DeleteFileAsync(string srcFilePath, Job job = null)
         {
             try
             {
@@ -112,6 +153,10 @@ namespace WSyncPro.Core.Services
                     File.Delete(srcFilePath);
                     Console.WriteLine($"Deleted file: {srcFilePath}");
                 }
+
+                // Update job progress
+                await ReportProgressAsync(job, srcFilePath, true);
+
                 return true;
             }
             catch (Exception ex)
@@ -125,7 +170,6 @@ namespace WSyncPro.Core.Services
             }
         }
 
-
         private bool IsSourceNewer(string srcFilePath, string dstFilePath)
         {
             if (!File.Exists(dstFilePath))
@@ -137,14 +181,64 @@ namespace WSyncPro.Core.Services
             return srcInfo.LastWriteTime > dstInfo.LastWriteTime;
         }
 
-        // Changed from private to protected virtual to allow overriding in tests
         protected virtual bool HasEnoughSpace(string destinationPath)
         {
-            // Implement logic to check if there's enough space in the trash folder.
-            // This could involve checking available disk space against the file size.
             var fileInfo = new FileInfo(destinationPath);
             var availableSpace = new DriveInfo(Path.GetPathRoot(destinationPath)).AvailableFreeSpace;
             return fileInfo.Length <= availableSpace;
+        }
+
+        /// <summary>
+        /// Initializes the job's progress by setting the total number of files.
+        /// </summary>
+        private void InitializeJobProgress(Job job, int totalFiles)
+        {
+            var progress = new JobProgress
+            {
+                JobId = job.Id,
+                JobName = job.Name,
+                TotalFilesToProcess = totalFiles,
+                StartTime = DateTime.UtcNow,
+                Status = JobStatus.Running
+            };
+
+            job.AddProgress(progress);
+            _appStateManager.UpdateJobAsync(job).Wait();
+        }
+
+        /// <summary>
+        /// Marks the job as completed.
+        /// </summary>
+        private void CompleteJob(Job job)
+        {
+            var progress = job.ProgressHistory.Last();
+            progress.Status = JobStatus.Completed;
+            progress.LastUpdated = DateTime.UtcNow;
+            _appStateManager.UpdateJobAsync(job).Wait();
+        }
+
+        /// <summary>
+        /// Updates the job progress during file operations.
+        /// </summary>
+        private async Task ReportProgressAsync(Job job, string filePath, bool isSuccess)
+        {
+            if (job == null) return;
+
+            var progress = job.ProgressHistory.LastOrDefault();
+            if (progress != null)
+            {
+                if (isSuccess)
+                {
+                    progress.FilesProcessedSuccessfully++;
+                }
+                else
+                {
+                    progress.FailedFiles.Add(filePath);
+                }
+
+                progress.LastUpdated = DateTime.UtcNow;
+                await _appStateManager.UpdateJobAsync(job);
+            }
         }
     }
 }

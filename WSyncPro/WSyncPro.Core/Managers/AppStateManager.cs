@@ -1,8 +1,8 @@
-﻿// AppStateManager.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using WSyncPro.Core.Services;
@@ -12,79 +12,52 @@ using WSyncPro.Models.State;
 
 namespace WSyncPro.Core.Managers
 {
-    /// <summary>
-    /// Manages the application's state, including loading, saving, and providing access to the current state.
-    /// Implements the Singleton pattern to ensure a single instance throughout the application.
-    /// </summary>
     public sealed class AppStateManager
     {
-        private static readonly Lazy<AppStateManager> lazy =
-            new Lazy<AppStateManager>(() => new AppStateManager());
+        private static readonly Lazy<AppStateManager> lazy = new Lazy<AppStateManager>(() => new AppStateManager());
 
-        /// <summary>
-        /// Gets the singleton instance of the <see cref="AppStateManager"/>.
-        /// </summary>
-        public static AppStateManager Instance { get { return lazy.Value; } }
+        public static AppStateManager Instance => lazy.Value;
 
-        /// <summary>
-        /// Gets the list of loaded jobs.
-        /// </summary>
         public List<Job> Jobs { get; private set; }
 
-        /// <summary>
-        /// Holds the current snapshot of the application's state.
-        /// </summary>
         private AppStateSnapShot _currentAppState;
 
-        /// <summary>
-        /// Path to the file where the app state is saved.
-        /// </summary>
-        private string _appStateFilePath;
-
-        /// <summary>
-        /// Service responsible for serializing and deserializing objects to and from JSON files.
-        /// </summary>
+        private readonly string _appStateFilePath;
+        private readonly string _logFilePath;
         private readonly FileSerialisationServiceJson _serializationService;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppStateManager"/> class.
-        /// Loads the existing app state or initializes a new one if none exists.
-        /// </summary>
+        // List for in-memory logging
+        private List<string> _logEntries = new List<string>();
+
         private AppStateManager()
         {
-            // Initialize the jobs list
             Jobs = new List<Job>();
 
-            // Define the path to the app state file
             string appDataDirectory = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "WSyncPro");
 
-            // Ensure the directory exists
             if (!Directory.Exists(appDataDirectory))
             {
                 Directory.CreateDirectory(appDataDirectory);
             }
 
             _appStateFilePath = Path.Combine(appDataDirectory, "AppState.json");
+            _logFilePath = Path.Combine(appDataDirectory, "SyncLog.txt");
 
-            // Initialize the serialization service
             _serializationService = new FileSerialisationServiceJson();
 
-            // Load the existing app state if available
-            LoadAppState();
+            LoadAppStateAsync().Wait();
         }
 
-        /// <summary>
-        /// Updates the current application state based on the loaded jobs and their progress.
-        /// </summary>
-        public void UpdateAppState()
+        public async Task UpdateAppStateAsync()
         {
             var newAppState = new AppStateSnapShot
             {
                 Guid = Guid.NewGuid(),
                 TimeStamp = DateTime.UtcNow,
-                Jobs = Jobs.ToList() // Copy jobs
+                Jobs = Jobs.ToList()
             };
 
             foreach (var job in Jobs)
@@ -97,34 +70,52 @@ namespace WSyncPro.Core.Managers
                 newAppState.JobStateList[job.Id] = job.ProgressHistory.ToList();
             }
 
-            // Check if the new state differs from the current state
             if (!IsAppStateEqual(_currentAppState, newAppState))
             {
-                _currentAppState = newAppState;
-                SaveAppState();
+                await _semaphore.WaitAsync();
+                try
+                {
+                    _currentAppState = newAppState;
+                    await SaveAppStateAsync();
+                }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
         }
 
-        /// <summary>
-        /// Retrieves the current application state snapshot.
-        /// </summary>
-        /// <returns>The current <see cref="AppStateSnapShot"/>.</returns>
-        public AppStateSnapShot GetAppState()
+        public AppStateSnapShot GetAppState() => _currentAppState;
+
+        public async Task UpdateJobAsync(Job job)
         {
-            return _currentAppState;
+            await _semaphore.WaitAsync();
+            try
+            {
+                var existingJob = Jobs.FirstOrDefault(j => j.Id == job.Id);
+                if (existingJob != null)
+                {
+                    var index = Jobs.IndexOf(existingJob);
+                    Jobs[index] = job;
+                }
+                else
+                {
+                    Jobs.Add(job);
+                }
+
+                await UpdateAppStateAsync();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
-        /// <summary>
-        /// Saves the current application state to a JSON file.
-        /// The state is only saved if it has changed since the last save.
-        /// </summary>
-        private void SaveAppState()
+        private async Task SaveAppStateAsync()
         {
             try
             {
-                // Serialize the current app state
-                bool saveResult = _serializationService.SaveClassToFileAsync(_appStateFilePath, _currentAppState).Result;
-
+                bool saveResult = await _serializationService.SaveClassToFileAsync(_appStateFilePath, _currentAppState);
                 if (saveResult)
                 {
                     Console.WriteLine("App state saved successfully.");
@@ -136,22 +127,18 @@ namespace WSyncPro.Core.Managers
             }
             catch (Exception ex)
             {
-                // Handle exceptions (e.g., logging)
                 Console.WriteLine($"Error saving app state: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Loads the most recent application state from the JSON file.
-        /// If no state exists, initializes a new snapshot.
-        /// </summary>
-        public void LoadAppState()
+        public async Task LoadAppStateAsync()
         {
+            await _semaphore.WaitAsync();
             try
             {
                 if (File.Exists(_appStateFilePath))
                 {
-                    _currentAppState = _serializationService.GetFileAsClassAsync<AppStateSnapShot>(_appStateFilePath).Result;
+                    _currentAppState = await _serializationService.GetFileAsClassAsync<AppStateSnapShot>(_appStateFilePath);
                     Console.WriteLine("App state loaded successfully.");
                 }
                 else
@@ -164,19 +151,10 @@ namespace WSyncPro.Core.Managers
                     Console.WriteLine("No existing app state found. Initialized a new state.");
                 }
 
-                // Reconstruct Jobs list from JobStateList
-                if (_currentAppState.Jobs != null)
-                {
-                    Jobs = _currentAppState.Jobs.ToList();
-                }
-                else
-                {
-                    Jobs = new List<Job>();
-                }
+                Jobs = _currentAppState?.Jobs?.ToList() ?? new List<Job>();
             }
             catch (Exception ex)
             {
-                // Handle exceptions (e.g., logging)
                 Console.WriteLine($"Error loading app state: {ex.Message}");
                 _currentAppState = new AppStateSnapShot
                 {
@@ -184,14 +162,33 @@ namespace WSyncPro.Core.Managers
                     TimeStamp = DateTime.UtcNow
                 };
             }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
-        /// <summary>
-        /// Determines whether two <see cref="AppStateSnapShot"/> instances are equal.
-        /// </summary>
-        /// <param name="state1">The first app state snapshot.</param>
-        /// <param name="state2">The second app state snapshot.</param>
-        /// <returns><c>true</c> if the states are equal; otherwise, <c>false</c>.</returns>
+        public void LogMessage(string message)
+        {
+            var timestampedMessage = $"{DateTime.UtcNow}: {message}";
+            _logEntries.Add(timestampedMessage);
+
+            // Optionally write to a log file as well
+            try
+            {
+                File.AppendAllLines(_logFilePath, new[] { timestampedMessage });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to write log entry to file: {ex.Message}");
+            }
+        }
+
+        public List<string> GetLog(int? tailCount = null)
+        {
+            return tailCount.HasValue ? _logEntries.TakeLast(tailCount.Value).ToList() : new List<string>(_logEntries);
+        }
+
         private bool IsAppStateEqual(AppStateSnapShot state1, AppStateSnapShot state2)
         {
             if (state1 == null && state2 == null)
@@ -209,7 +206,6 @@ namespace WSyncPro.Core.Managers
             if (state1.Jobs.Count != state2.Jobs.Count)
                 return false;
 
-            // Compare each job
             foreach (var job in state1.Jobs)
             {
                 var correspondingJob = state2.Jobs.FirstOrDefault(j => j.Id == job.Id);

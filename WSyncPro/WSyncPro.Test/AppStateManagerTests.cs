@@ -1,5 +1,4 @@
-﻿// AppStateManagerTests.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -119,13 +118,13 @@ namespace WSyncPro.Test.Managers
             SetJobProgressHistory(job3, new List<JobProgress> { jobProgress3 });
 
             // Act
-            _appStateManager.UpdateAppState();
+            await _appStateManager.UpdateAppStateAsync();
 
             // Clear the Jobs list to simulate application restart
             _appStateManager.Jobs.Clear();
 
             // Reload the app state
-            _appStateManager.LoadAppState();
+            await _appStateManager.LoadAppStateAsync();
 
             var retrievedAppState = _appStateManager.GetAppState();
 
@@ -144,7 +143,7 @@ namespace WSyncPro.Test.Managers
         }
 
         [Fact]
-        public void IsAppStateEqual_ShouldReturnTrue_ForIdenticalStates()
+        public async Task IsAppStateEqual_ShouldReturnTrue_ForIdenticalStates()
         {
             // Arrange
             var appStateManager = _appStateManager;
@@ -226,7 +225,7 @@ namespace WSyncPro.Test.Managers
         }
 
         [Fact]
-        public void IsAppStateEqual_ShouldReturnFalse_ForDifferentStates()
+        public async Task IsAppStateEqual_ShouldReturnFalse_ForDifferentStates()
         {
             // Arrange
             var appStateManager = _appStateManager;
@@ -258,7 +257,6 @@ namespace WSyncPro.Test.Managers
                                 TotalFilesToProcess = 250,
                                 FilesProcessedSuccessfully = 200,
                                 FilesCurrentlyProcessed = 20,
-
                                 Status = JobStatus.Running,
                                 StartTime = DateTime.UtcNow.AddHours(-5),
                                 LastUpdated = DateTime.UtcNow.AddMinutes(-15)
@@ -347,7 +345,7 @@ namespace WSyncPro.Test.Managers
             // Attempt to update and save the app state
             try
             {
-                _appStateManager.UpdateAppState();
+                await _appStateManager.UpdateAppStateAsync();
             }
             catch
             {

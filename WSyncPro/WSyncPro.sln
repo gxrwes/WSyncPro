@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.Core", "WSyncPro.Core\WSyncPro.Core.csproj", "{4315EA29-932F-4936-97A5-33DDC1038F8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Core", "WSyncPro.Core\WSyncPro.Core.csproj", "{4315EA29-932F-4936-97A5-33DDC1038F8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.Models", "WSyncPro.Models\WSyncPro.Models.csproj", "{26210517-E9A2-4C46-B4EB-09DAD299E3C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Models", "WSyncPro.Models\WSyncPro.Models.csproj", "{26210517-E9A2-4C46-B4EB-09DAD299E3C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.Test", "WSyncPro.Test\WSyncPro.Test.csproj", "{04E55BF1-2BD6-46DE-AB9E-98A12A285DE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Test", "WSyncPro.Test\WSyncPro.Test.csproj", "{04E55BF1-2BD6-46DE-AB9E-98A12A285DE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
