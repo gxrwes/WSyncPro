@@ -2,8 +2,11 @@
 {
     public partial class MainWindowViewModel : ViewModelBase
     {
-#pragma warning disable CA1822 // Mark members as static
+        public ImportViewModel ImportVM { get; } = new ImportViewModel();
+        public SyncViewModel SyncVM { get; } = new SyncViewModel();
+        public SettingsViewModel SettingsVM { get; } = new SettingsViewModel();
+
+        // Optionally, you can keep this greeting or remove it
         public string Greeting => "Welcome to Avalonia!";
-#pragma warning restore CA1822 // Mark members as static
     }
 }
