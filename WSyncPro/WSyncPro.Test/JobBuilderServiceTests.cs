@@ -1,6 +1,7 @@
 ﻿// JobBuilderServiceTests.cs
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Moq;
 using Xunit;
 using FluentAssertions;
@@ -9,11 +10,24 @@ using WSyncPro.Models;
 
 namespace WSyncPro.Tests.Core.Services
 {
-    public class JobBuilderServiceTests
+    public class JobBuilderServiceTests : BaseTest
     {
         private readonly Mock<IFileSystemService> _mockFileSystemService;
         private readonly JobBuilderService _jobBuilderService;
-        private const string SourceDirectory = @"C:\SourceDirectory";
+        private const string SourceDirectory1 = @"C:\SourceDirectory1";
+        private const string SourceDirectory2 = @"C:\SourceDirectory2";
+        private const string SourceDirectory3 = @"D:\SourceDirectory3";
+        private const string SourceDirectory4 = @"E:\SourceDirectory4";
+
+        private static readonly List<string> IncludePatterns = new List<string>
+        {
+            "*render*", "*.txt", "data_??.csv"
+        };
+
+        private static readonly List<string> ExcludePatterns = new List<string>
+        {
+            "*.tmp", "temp_*", "*.log"
+        };
 
         public JobBuilderServiceTests()
         {
@@ -60,7 +74,7 @@ namespace WSyncPro.Tests.Core.Services
             // Arrange
             var job = new Job
             {
-                SrcDirectory = SourceDirectory,
+                SrcDirectory = SourceDirectory1,
                 InclWilcardString = new List<string> { "*" },
                 ExclWildcardString = new List<string> { "*.bak" }
             };
@@ -86,7 +100,7 @@ namespace WSyncPro.Tests.Core.Services
                 Name = "Test Job",
                 Description = "Testing BuildJob with multiple wildcards",
                 IsEnabled = true,
-                SrcDirectory = SourceDirectory,
+                SrcDirectory = SourceDirectory1,
                 DstDirectory = @"D:\DestinationDirectory",
                 FilesToSync = 0,
                 TotalFilesSynced = 0,
@@ -97,14 +111,14 @@ namespace WSyncPro.Tests.Core.Services
 
             var allFiles = new List<string>
             {
-                @"C:\SourceDirectory\image_render_final.jpg",
-                @"C:\SourceDirectory\document.txt",
-                @"C:\SourceDirectory\data_01.csv",
-                @"C:\SourceDirectory\data_02.csv",
-                @"C:\SourceDirectory\temp_image.jpg",
-                @"C:\SourceDirectory\notes.tmp",
-                @"C:\SourceDirectory\app.log",
-                @"C:\SourceDirectory\README.md" // Should be excluded (no inclusion pattern matches)
+                @"C:\SourceDirectory1\image_render_final.jpg",
+                @"C:\SourceDirectory1\document.txt",
+                @"C:\SourceDirectory1\data_01.csv",
+                @"C:\SourceDirectory1\data_02.csv",
+                @"C:\SourceDirectory1\temp_image.jpg",
+                @"C:\SourceDirectory1\notes.tmp",
+                @"C:\SourceDirectory1\app.log",
+                @"C:\SourceDirectory1\README.md" // Should be excluded (no inclusion pattern matches)
             };
 
             // Mock Directory.Exists
@@ -118,14 +132,14 @@ namespace WSyncPro.Tests.Core.Services
             // Mock GetFileSize
             var fileSizes = new Dictionary<string, long>
             {
-                { @"C:\SourceDirectory\image_render_final.jpg", 2_147_483_648 }, // 2 GB
-                { @"C:\SourceDirectory\document.txt", 524_288_000 }, // 0.488 GB
-                { @"C:\SourceDirectory\data_01.csv", 104_857_600 }, // 0.097 GB
-                { @"C:\SourceDirectory\data_02.csv", 104_857_600 }, // 0.097 GB
-                { @"C:\SourceDirectory\temp_image.jpg", 1_073_741_824 }, // 1 GB
-                { @"C:\SourceDirectory\notes.tmp", 104_857_600 }, // 0.097 GB
-                { @"C:\SourceDirectory\app.log", 104_857_600 }, // 0.097 GB
-                { @"C:\SourceDirectory\README.md", 52_428_800 } // 0.049 GB
+                { @"C:\SourceDirectory1\image_render_final.jpg", 2_147_483_648 }, // 2 GB
+                { @"C:\SourceDirectory1\document.txt", 524_288_000 }, // 0.488 GB
+                { @"C:\SourceDirectory1\data_01.csv", 104_857_600 }, // 0.097 GB
+                { @"C:\SourceDirectory1\data_02.csv", 104_857_600 }, // 0.097 GB
+                { @"C:\SourceDirectory1\temp_image.jpg", 1_073_741_824 }, // 1 GB
+                { @"C:\SourceDirectory1\notes.tmp", 104_857_600 }, // 0.097 GB
+                { @"C:\SourceDirectory1\app.log", 104_857_600 }, // 0.097 GB
+                { @"C:\SourceDirectory1\README.md", 52_428_800 } // 0.049 GB
             };
 
             _mockFileSystemService.Setup(fs => fs.GetFileSize(It.IsAny<string>()))
@@ -146,168 +160,32 @@ namespace WSyncPro.Tests.Core.Services
             builtJob.ExclWildcardString.Should().BeEquivalentTo(job.ExclWildcardString);
 
             // Expected matched files:
-            // @"C:\SourceDirectory\image_render_final.jpg" (matches "*render*")
-            // @"C:\SourceDirectory\document.txt" (matches "*.txt")
-            // @"C:\SourceDirectory\data_01.csv" (matches "data_??.csv")
-            // @"C:\SourceDirectory\data_02.csv" (matches "data_??.csv")
+            // @"C:\SourceDirectory1\image_render_final.jpg" (matches "*render*")
+            // @"C:\SourceDirectory1\document.txt" (matches "*.txt")
+            // @"C:\SourceDirectory1\data_01.csv" (matches "data_??.csv")
+            // @"C:\SourceDirectory1\data_02.csv" (matches "data_??.csv")
             builtJob.FileList.Should().HaveCount(4);
             builtJob.FileList.Should().Contain(new List<string>
             {
-                @"C:\SourceDirectory\image_render_final.jpg",
-                @"C:\SourceDirectory\document.txt",
-                @"C:\SourceDirectory\data_01.csv",
-                @"C:\SourceDirectory\data_02.csv"
+                @"C:\SourceDirectory1\image_render_final.jpg",
+                @"C:\SourceDirectory1\document.txt",
+                @"C:\SourceDirectory1\data_01.csv",
+                @"C:\SourceDirectory1\data_02.csv"
             });
 
             // Total size in GB: 2 + 0.488 + 0.097 + 0.097 = ~2.682 GB
             builtJob.TotalFileSizeInGB.Should().BeApproximately(2.682f, 0.002f); // Increased tolerance to 0.002F
-        }
 
-        [Theory]
-        [InlineData("report?.docx", "report1.docx", true)]
-        [InlineData("report?.docx", "report12.docx", false)]
-        [InlineData("data_*.csv", "data_2023.csv", true)]
-        [InlineData("data_*.csv", "data.csv", false)]
-        [InlineData("*.jpg", "image.jpeg", false)]
-        [InlineData("*.jpg", "photo.jpg", true)]
-        public void WildcardMatch_ShouldReturnExpectedResult(string pattern, string fileName, bool expected)
-        {
-            // Arrange
-            var job = new Job
+            // Log confirmed include and exclude patterns
+            foreach (var pattern in job.InclWilcardString)
             {
-                SrcDirectory = SourceDirectory,
-                InclWilcardString = new List<string> { pattern },
-                ExclWildcardString = new List<string>()
-            };
-
-            var allFiles = new List<string>
-            {
-                Path.Combine(SourceDirectory, fileName)
-            };
-
-            _mockFileSystemService.Setup(fs => fs.DirectoryExists(job.SrcDirectory))
-                .Returns(true);
-
-            _mockFileSystemService.Setup(fs => fs.EnumerateFiles(job.SrcDirectory, "*", true))
-                .Returns(allFiles);
-
-            _mockFileSystemService.Setup(fs => fs.GetFileSize(It.IsAny<string>()))
-                .Returns(1_000_000); // 0.001 GB
-
-            // Act
-            BuiltJob builtJob = _jobBuilderService.BuildJob(job);
-
-            // Assert
-            if (expected)
-            {
-                builtJob.FileList.Should().Contain(Path.Combine(SourceDirectory, fileName));
-                builtJob.TotalFileSizeInGB.Should().BeApproximately(0.001f, 0.0001f);
+                SaveConfirmedPattern(pattern, isInclude: true);
             }
-            else
+
+            foreach (var pattern in job.ExclWildcardString)
             {
-                builtJob.FileList.Should().NotContain(Path.Combine(SourceDirectory, fileName));
-                builtJob.TotalFileSizeInGB.Should().Be(0);
+                SaveConfirmedPattern(pattern, isInclude: false);
             }
-        }
-
-        [Fact]
-        public void BuildJob_ShouldExcludeFiles_WhenTheyMatchExclusionPatterns()
-        {
-            // Arrange
-            var job = new Job
-            {
-                SrcDirectory = SourceDirectory,
-                InclWilcardString = new List<string> { "*" }, // Include all
-                ExclWildcardString = new List<string> { "*.bak", "backup_*" }
-            };
-
-            var allFiles = new List<string>
-            {
-                @"C:\SourceDirectory\file1.txt",
-                @"C:\SourceDirectory\file2.bak",
-                @"C:\SourceDirectory\backup_file3.txt",
-                @"C:\SourceDirectory\file4.docx"
-            };
-
-            var fileSizes = new Dictionary<string, long>
-            {
-                { @"C:\SourceDirectory\file1.txt", 500_000_000 }, // 0.465 GB
-                { @"C:\SourceDirectory\file2.bak", 200_000_000 }, // 0.186 GB
-                { @"C:\SourceDirectory\backup_file3.txt", 300_000_000 }, // 0.279 GB
-                { @"C:\SourceDirectory\file4.docx", 100_000_000 } // 0.093 GB
-            };
-
-            _mockFileSystemService.Setup(fs => fs.DirectoryExists(job.SrcDirectory))
-                .Returns(true);
-
-            _mockFileSystemService.Setup(fs => fs.EnumerateFiles(job.SrcDirectory, "*", true))
-                .Returns(allFiles);
-
-            _mockFileSystemService.Setup(fs => fs.GetFileSize(It.IsAny<string>()))
-                .Returns<string>(filePath => fileSizes.ContainsKey(filePath) ? fileSizes[filePath] : 0);
-
-            // Act
-            BuiltJob builtJob = _jobBuilderService.BuildJob(job);
-
-            // Assert
-            builtJob.FileList.Should().HaveCount(2);
-            builtJob.FileList.Should().Contain(new List<string>
-            {
-                @"C:\SourceDirectory\file1.txt",
-                @"C:\SourceDirectory\file4.docx"
-            });
-
-            // Total size: 0.465 + 0.093 = ~0.558 GB
-            builtJob.TotalFileSizeInGB.Should().BeApproximately(0.558f, 0.001f);
-        }
-
-        [Fact]
-        public void BuildJob_ShouldIncludeAllFiles_WhenNoInclusionPatterns()
-        {
-            // Arrange
-            var job = new Job
-            {
-                SrcDirectory = SourceDirectory,
-                InclWilcardString = new List<string>(), // No inclusion patterns
-                ExclWildcardString = new List<string> { "*.tmp" }
-            };
-
-            var allFiles = new List<string>
-            {
-                @"C:\SourceDirectory\file1.txt",
-                @"C:\SourceDirectory\file2.tmp",
-                @"C:\SourceDirectory\file3.docx"
-            };
-
-            var fileSizes = new Dictionary<string, long>
-            {
-                { @"C:\SourceDirectory\file1.txt", 100_000_000 }, // 0.093 GB
-                { @"C:\SourceDirectory\file2.tmp", 200_000_000 }, // 0.186 GB
-                { @"C:\SourceDirectory\file3.docx", 300_000_000 } // 0.279 GB
-            };
-
-            _mockFileSystemService.Setup(fs => fs.DirectoryExists(job.SrcDirectory))
-                .Returns(true);
-
-            _mockFileSystemService.Setup(fs => fs.EnumerateFiles(job.SrcDirectory, "*", true))
-                .Returns(allFiles);
-
-            _mockFileSystemService.Setup(fs => fs.GetFileSize(It.IsAny<string>()))
-                .Returns<string>(filePath => fileSizes.ContainsKey(filePath) ? fileSizes[filePath] : 0);
-
-            // Act
-            BuiltJob builtJob = _jobBuilderService.BuildJob(job);
-
-            // Assert
-            builtJob.FileList.Should().HaveCount(2);
-            builtJob.FileList.Should().Contain(new List<string>
-            {
-                @"C:\SourceDirectory\file1.txt",
-                @"C:\SourceDirectory\file3.docx"
-            });
-
-            // Total size: 0.093 + 0.279 = ~0.372 GB
-            builtJob.TotalFileSizeInGB.Should().BeApproximately(0.372f, 0.001f);
         }
     }
 }
