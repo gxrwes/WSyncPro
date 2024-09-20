@@ -22,4 +22,9 @@
 		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\WSyncPro.Core\WSyncPro.Core.csproj" />
+		<ProjectReference Include="..\WSyncPro.Models\WSyncPro.Models.csproj" />
+	</ItemGroup>
 </Project>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using WSyncPro.Core.Data;
 using WSyncPro.Core.Services;
 using WSyncPro.Models;
 using WSyncPro.Models.Enums;
@@ -15,6 +16,8 @@ namespace WSyncPro.Core.Managers
     public sealed class AppStateManager
     {
         private static readonly Lazy<AppStateManager> lazy = new Lazy<AppStateManager>(() => new AppStateManager());
+
+        private SettingsModel _settings;
 
         public static AppStateManager Instance => lazy.Value;
 
@@ -27,8 +30,45 @@ namespace WSyncPro.Core.Managers
         private readonly FileSerialisationServiceJson _serializationService;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
-        // List for in-memory logging
         private List<string> _logEntries = new List<string>();
+
+        public async Task LoadSettings()
+        {
+            await _semaphore.WaitAsync();
+            try
+            {
+                _settings = await _serializationService.GetFileAsClassAsync<SettingsModel>("Config/settings.json");
+            }
+            catch (Exception e)
+            {
+                _logEntries.Add(e.Message);
+                _logEntries.Add("Failed to load settings, reverting to defaults");
+                _settings = new SettingsModel();
+                _settings.Version = WSyncPro.Core.Data.Version.GetVersion;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task SaveSettings()
+        {
+            await _semaphore.WaitAsync();
+            try
+            {
+                await _serializationService.SaveClassToFileAsync("Config/settings.json", _settings);
+            }
+            catch (Exception e)
+            {
+                _logEntries.Add(e.Message);
+                _logEntries.Add("Something went wrong when trying to save settings...");
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
         private AppStateManager()
         {
@@ -47,7 +87,7 @@ namespace WSyncPro.Core.Managers
             _logFilePath = Path.Combine(appDataDirectory, "SyncLog.txt");
 
             _serializationService = new FileSerialisationServiceJson();
-
+            LoadSettings().Wait();
             LoadAppStateAsync().Wait();
         }
 
@@ -173,7 +213,6 @@ namespace WSyncPro.Core.Managers
             var timestampedMessage = $"{DateTime.UtcNow}: {message}";
             _logEntries.Add(timestampedMessage);
 
-            // Optionally write to a log file as well
             try
             {
                 File.AppendAllLines(_logFilePath, new[] { timestampedMessage });
@@ -237,4 +276,5 @@ namespace WSyncPro.Core.Managers
             return true;
         }
     }
+
 }
