@@ -1,0 +1,34 @@
+﻿@using Blazorise
+@using Blazorise.Bootstrap5
+@using Blazorise.Icons.FontAwesome
+
+<NavBar ThemeContrast="ThemeContrast.Dark" Background="Background.Dark">
+    <NavBarBrand>
+        WSyncPro.App
+    </NavBarBrand>
+
+    <NavBarToggler />
+
+    <BarMenu>
+        <BarStart>
+            <BarItem>
+                <NavLink Match="NavLinkMatch.All" To="">
+                    <Blazorise.Icons.FontAwesome.Icon Name="IconName.Home" Style="Solid" />
+                    Home
+                </NavLink>
+            </BarItem>
+            <BarItem>
+                <NavLink To="counter">
+                    <Blazorise.Icons.FontAwesome.Icon Name="IconName.Add" Style="Solid" />
+                    Counter
+                </NavLink>
+            </BarItem>
+            <BarItem>
+                <NavLink To="weather">
+                    <Blazorise.Icons.FontAwesome.Icon Name="IconName.Globe" Style="Solid" />
+                    Weather
+                </NavLink>
+            </BarItem>
+        </BarStart>
+    </BarMenu>
+</NavBar>
