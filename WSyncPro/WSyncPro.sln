@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Models", "WSyncPro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Test", "WSyncPro.Test\WSyncPro.Test.csproj", "{04E55BF1-2BD6-46DE-AB9E-98A12A285DE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.Ui", "WSyncPro.Ui\WSyncPro.Ui.csproj", "{BA1C2F13-5C93-4A4B-982E-C1E8ABADAF74}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.App", "WSyncPro.App\WSyncPro.App.csproj", "{CE4B3437-2381-4EAA-A77B-7A4EE954926C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,12 @@ Global
 		{04E55BF1-2BD6-46DE-AB9E-98A12A285DE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04E55BF1-2BD6-46DE-AB9E-98A12A285DE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04E55BF1-2BD6-46DE-AB9E-98A12A285DE5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA1C2F13-5C93-4A4B-982E-C1E8ABADAF74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA1C2F13-5C93-4A4B-982E-C1E8ABADAF74}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA1C2F13-5C93-4A4B-982E-C1E8ABADAF74}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA1C2F13-5C93-4A4B-982E-C1E8ABADAF74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE4B3437-2381-4EAA-A77B-7A4EE954926C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE4B3437-2381-4EAA-A77B-7A4EE954926C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE4B3437-2381-4EAA-A77B-7A4EE954926C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{CE4B3437-2381-4EAA-A77B-7A4EE954926C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE4B3437-2381-4EAA-A77B-7A4EE954926C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE4B3437-2381-4EAA-A77B-7A4EE954926C}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

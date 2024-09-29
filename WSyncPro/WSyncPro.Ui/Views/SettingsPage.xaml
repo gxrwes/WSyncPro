@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WSyncPro.Ui.ViewModels"
+             x:Class="WSyncPro.Ui.Views.SettingsPage"
+             Title="Settings">
+
+    <ContentPage.BindingContext>
+        <vm:SettingsViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Padding="10" Spacing="15">
+
+                <!-- Header -->
+                <Label Text="Application Settings"
+                       FontAttributes="Bold"
+                       FontSize="Large"
+                       HorizontalOptions="Center" />
+
+                <!-- Default Import Path -->
+                <Label Text="Default Import Path" />
+                <Entry Text="{Binding Settings.DefaultImportPath}" Placeholder="Enter default import path" />
+
+                <!-- Trash Directory -->
+                <Label Text="Trash Directory" />
+                <Entry Text="{Binding Settings.TrashDirecotry}" Placeholder="Enter trash directory" />
+
+                <!-- Version (Read-Only) -->
+                <Label Text="Version" />
+                <Entry Text="{Binding Settings.Version}" IsReadOnly="True" />
+
+                <!-- About -->
+                <Label Text="About" />
+                <Editor Text="{Binding Settings.About}" HeightRequest="100" />
+
+                <!-- Save Button -->
+                <Button Text="Save Settings" Command="{Binding SaveSettingsCommand}" />
+
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

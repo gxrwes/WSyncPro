@@ -9,7 +9,7 @@ namespace WSyncPro.Core.Data
     internal static class Version
     {
         private static readonly int Major = 0;
-        private static readonly int Minor = 0;
+        private static readonly int Minor = 1;
         private static readonly int Patch = 0;
         private static readonly int Build = 0;
 

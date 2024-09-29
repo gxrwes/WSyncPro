@@ -32,6 +32,8 @@ namespace WSyncPro.Core.Managers
 
         private List<string> _logEntries = new List<string>();
 
+        public List<Job> GetJobs() => Jobs;
+        public SettingsModel GetSettings() => _settings;
         public async Task LoadSettings()
         {
             await _semaphore.WaitAsync();
