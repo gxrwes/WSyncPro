@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Util\\WSyncPro.Util.csproj": {}
+    "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj": {}
   },
   "projects": {
-    "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Util\\WSyncPro.Util.csproj": {
+    "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Util\\WSyncPro.Util.csproj",
-        "projectName": "WSyncPro.Util",
-        "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Util\\WSyncPro.Util.csproj",
+        "projectUniqueName": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj",
+        "projectName": "WSyncPro.Models",
+        "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj",
         "packagesPath": "C:\\Users\\wesle\\.nuget\\packages\\",
-        "outputPath": "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Util\\obj\\",
+        "outputPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

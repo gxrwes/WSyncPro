@@ -1,46 +1,11 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {
-      "WSyncPro.Models/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v8.0",
-        "compile": {
-          "bin/placeholder/WSyncPro.Models.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/WSyncPro.Models.dll": {}
-        }
-      },
-      "WSyncPro.Util/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v8.0",
-        "compile": {
-          "bin/placeholder/WSyncPro.Util.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/WSyncPro.Util.dll": {}
-        }
-      }
-    }
+    "net8.0": {}
   },
-  "libraries": {
-    "WSyncPro.Models/1.0.0": {
-      "type": "project",
-      "path": "../WSyncPro.Models/WSyncPro.Models.csproj",
-      "msbuildProject": "../WSyncPro.Models/WSyncPro.Models.csproj"
-    },
-    "WSyncPro.Util/1.0.0": {
-      "type": "project",
-      "path": "../WSyncPro.Util/WSyncPro.Util.csproj",
-      "msbuildProject": "../WSyncPro.Util/WSyncPro.Util.csproj"
-    }
-  },
+  "libraries": {},
   "projectFileDependencyGroups": {
-    "net8.0": [
-      "WSyncPro.Models >= 1.0.0",
-      "WSyncPro.Util >= 1.0.0"
-    ]
+    "net8.0": []
   },
   "packageFolders": {
     "C:\\Users\\wesle\\.nuget\\packages\\": {},
@@ -49,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Core\\WSyncPro.Core.csproj",
-      "projectName": "WSyncPro.Core",
-      "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Core\\WSyncPro.Core.csproj",
+      "projectUniqueName": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj",
+      "projectName": "WSyncPro.Models",
+      "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj",
       "packagesPath": "C:\\Users\\wesle\\.nuget\\packages\\",
-      "outputPath": "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Core\\obj\\",
+      "outputPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -74,14 +39,7 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {
-            "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj": {
-              "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj"
-            },
-            "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Util\\WSyncPro.Util.csproj": {
-              "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\Project\\WSyncPro\\WSyncPro.Util\\WSyncPro.Util.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {
