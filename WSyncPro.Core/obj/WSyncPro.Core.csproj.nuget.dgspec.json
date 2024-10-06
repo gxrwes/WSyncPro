@@ -169,7 +169,11 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj": {
+                "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.Models\\WSyncPro.Models.csproj"
+              }
+            }
           }
         },
         "warningProperties": {

@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WSyncPro.Models\WSyncPro.Models.csproj" />
+  </ItemGroup>
+
 </Project>

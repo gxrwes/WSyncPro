@@ -1,12 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using WSyncPro.Models.Content;
+using WSyncPro.Models.State;
 
 namespace WSyncPro.Core.Managers
 {
-    internal class StateManager
+    public sealed class StateManager
     {
+        private static readonly Lazy<StateManager> lazy = new Lazy<StateManager>(() => new StateManager());
+
+        public static StateManager Instance => lazy.Value;
+
+        public Dictionary<SyncJob, SyncJobState> JobStates { get; set; }
+
+        private StateManager()
+        {
+            JobStates = new Dictionary<SyncJob, SyncJobState>();
+        }
     }
 }
