@@ -44,6 +44,13 @@ namespace WSyncPro.Core.Services
             {
                 try
                 {
+                    // Apply exclusion filter and skip excluded files
+                    if (job.FilterExclude != null && job.FilterExclude.Any(pattern => IsFileMatchingPattern(wObject.Name, pattern)))
+                    {
+                        ignoredItems++;
+                        continue;
+                    }
+
                     // Check if the file in source is newer than the file in destination (if it exists)
                     var destinationFilePath = Path.Combine(job.DstDirectory, wObject.Name);
 
@@ -92,6 +99,13 @@ namespace WSyncPro.Core.Services
             {
                 await RunSyncAsync(job);
             }
+        }
+
+        private bool IsFileMatchingPattern(string fileName, string pattern)
+        {
+            // Convert wildcard pattern to regex pattern for matching
+            var regexPattern = "^" + System.Text.RegularExpressions.Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$";
+            return System.Text.RegularExpressions.Regex.IsMatch(fileName, regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
     }
 }

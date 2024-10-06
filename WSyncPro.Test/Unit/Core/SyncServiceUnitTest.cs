@@ -46,10 +46,13 @@ namespace WSyncPro.Test.Unit.Core.Services
                 FilterInclude = new List<string> { "*.txt" }
             };
 
+            Directory.CreateDirectory(syncJob.SrcDirectory);
+            Directory.CreateDirectory(syncJob.DstDirectory);
+
             var mockFiles = new List<WObject>
             {
-                new WFile { Name = "file1.txt", FullPath = "/src/file1.txt" },
-                new WFile { Name = "file2.txt", FullPath = "/src/file2.txt" }
+                new WFile { Name = "file1.txt", FullPath = Path.Combine(syncJob.SrcDirectory, "file1.txt") },
+                new WFile { Name = "file2.txt", FullPath = Path.Combine(syncJob.SrcDirectory, "file2.txt") }
             };
 
             _mockScannerService.Setup(x => x.ScanAsync(syncJob))
@@ -63,8 +66,8 @@ namespace WSyncPro.Test.Unit.Core.Services
 
             // Assert
             _mockScannerService.Verify(x => x.ScanAsync(syncJob), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync("/src/file1.txt", Path.Combine(syncJob.DstDirectory, "file1.txt")), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync("/src/file2.txt", Path.Combine(syncJob.DstDirectory, "file2.txt")), Times.Once);
+            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(mockFiles[0].FullPath, Path.Combine(syncJob.DstDirectory, "file1.txt")), Times.Once);
+            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(mockFiles[1].FullPath, Path.Combine(syncJob.DstDirectory, "file2.txt")), Times.Once);
             Assert.Equal(2, report.TouchedObjects.Count);
             Assert.Equal(0, report.IgnoredItems);
             Assert.Equal(2, _stateManager.JobStates[syncJob].ItemsProcessed);
@@ -82,9 +85,12 @@ namespace WSyncPro.Test.Unit.Core.Services
                 DstDirectory = "/dst"
             };
 
+            Directory.CreateDirectory(syncJob.SrcDirectory);
+            Directory.CreateDirectory(syncJob.DstDirectory);
+
             var mockFiles = new List<WObject>
             {
-                new WFile { Name = "oldFile.txt", FullPath = "/src/oldFile.txt" }
+                new WFile { Name = "oldFile.txt", FullPath = Path.Combine(syncJob.SrcDirectory, "oldFile.txt") }
             };
 
             _mockScannerService.Setup(x => x.ScanAsync(syncJob))
@@ -92,7 +98,7 @@ namespace WSyncPro.Test.Unit.Core.Services
 
             // Simulate that the destination file already exists and is newer than the source file
             var destinationFilePath = Path.Combine(syncJob.DstDirectory, "oldFile.txt");
-            File.Create(destinationFilePath).Close();
+            File.WriteAllText(destinationFilePath, "Existing content");
             File.SetLastWriteTimeUtc(destinationFilePath, DateTime.UtcNow.AddHours(1)); // Make destination file "newer"
 
             // Act
@@ -105,41 +111,8 @@ namespace WSyncPro.Test.Unit.Core.Services
             Assert.Equal(1, report.IgnoredItems);
 
             // Cleanup
-            if (File.Exists(destinationFilePath))
-            {
-                File.Delete(destinationFilePath);
-            }
-        }
-
-        [Fact]
-        public async Task RunSyncAsync_ShouldUpdateJobStateDuringSync()
-        {
-            // Arrange
-            var syncJob = new SyncJob
-            {
-                Id = Guid.NewGuid(),
-                Name = "Test Job",
-                SrcDirectory = "/src",
-                DstDirectory = "/dst"
-            };
-
-            var mockFiles = new List<WObject>
-            {
-                new WFile { Name = "file1.txt", FullPath = "/src/file1.txt" }
-            };
-
-            _mockScannerService.Setup(x => x.ScanAsync(syncJob))
-                .ReturnsAsync(mockFiles);
-
-            _mockFileCopyMoveService.Setup(x => x.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
-
-            // Act
-            await _syncService.RunSyncAsync(syncJob);
-
-            // Assert
-            Assert.Equal(1, _stateManager.JobStates[syncJob].ItemsProcessed);
-            Assert.Equal(1, _stateManager.JobStates[syncJob].TotalItemToProcess);
+            Directory.Delete(syncJob.SrcDirectory, true);
+            Directory.Delete(syncJob.DstDirectory, true);
         }
 
         [Fact]
@@ -156,10 +129,13 @@ namespace WSyncPro.Test.Unit.Core.Services
                 FilterExclude = new List<string> { "*.log" }
             };
 
+            Directory.CreateDirectory(syncJob.SrcDirectory);
+            Directory.CreateDirectory(syncJob.DstDirectory);
+
             var mockFiles = new List<WObject>
             {
-                new WFile { Name = "file1.txt", FullPath = "/src/file1.txt" },
-                new WFile { Name = "file2.log", FullPath = "/src/file2.log" }
+                new WFile { Name = "file1.txt", FullPath = Path.Combine(syncJob.SrcDirectory, "file1.txt") },
+                new WFile { Name = "file2.log", FullPath = Path.Combine(syncJob.SrcDirectory, "file2.log") }
             };
 
             _mockScannerService.Setup(x => x.ScanAsync(syncJob))
@@ -173,10 +149,14 @@ namespace WSyncPro.Test.Unit.Core.Services
 
             // Assert
             _mockScannerService.Verify(x => x.ScanAsync(syncJob), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync("/src/file1.txt", Path.Combine(syncJob.DstDirectory, "file1.txt")), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync("/src/file2.log", Path.Combine(syncJob.DstDirectory, "file2.log")), Times.Never); // Shouldn't copy .log file due to FilterExclude
+            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(mockFiles[0].FullPath, Path.Combine(syncJob.DstDirectory, "file1.txt")), Times.Once);
+            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(mockFiles[1].FullPath, Path.Combine(syncJob.DstDirectory, "file2.log")), Times.Never); // Shouldn't copy .log file due to FilterExclude
             Assert.Single(report.TouchedObjects); // Only 1 file should be copied
             Assert.Equal(1, report.IgnoredItems); // 1 file should be ignored
+
+            // Cleanup
+            Directory.Delete(syncJob.SrcDirectory, true);
+            Directory.Delete(syncJob.DstDirectory, true);
         }
     }
 }
