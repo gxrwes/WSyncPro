@@ -1,166 +1,63 @@
-@page "/syncjob"
-@using System.Text.Json
-@using WSyncPro.Models.Content
-@using WSyncPro.Core.Managers
-@using WSyncPro.Util.Files
-@inject IFileLoader FileLoader
-@inject NavigationManager Navigation
-
-<h3>SyncJob Management</h3>
-<button @onclick="ShowRunSelectedJobsPopup" class="btn btn-primary">Run selected jobs</button>
-<button @onclick="CreateNewJob" class="btn btn-secondary">Create New Job</button>
-
-<div class="syncjob-table-container">
-    <table class="syncjob-table">
-        <thead>
-            <tr>
-                <th>Select</th>
-                <th>Job Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var job in SyncJobs)
-            {
-                <tr>
-                    <td><input type="checkbox" @bind="job.Selected" /></td>
-                    <td><input type="text" @bind="job.Name" /></td>
-                    <td><input type="text" @bind="job.Description" /></td>
-                    <td>@StateManager.Instance.JobStates.TryGetValue(job, out var state) ? state.Status.ToString() : "Unknown"</td>
-                    <td><button @onclick="() => EditJob(job)" class="btn btn-sm btn-info">Edit</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-<!-- Job Execution Progress Modal -->
-@if (showRunJobsPopup)
-
-{
-    <div class="modal">
-        <div class="modal-content">
-            <h4>Running Jobs</h4>
-            @foreach (var job in SyncJobs.Where(j => j.Selected))
-
-            {
-                <div>
-                    <h5>@job.Name</h5>
-                    <progress value="@GetJobProgress(job)" max="100"></progress>
-                    <p>@StateManager.Instance.JobStates.TryGetValue(job, out var state) ? $"Processed {state.ItemsProcessed}/{state.TotalItemToProcess} items" : "Waiting"</p>
-                </div>
-            }
-            <button @onclick="CloseRunJobsPopup" class="btn btn-danger">Close</button>
-        </div>
-    </div>
+.syncjob-table-container {
+    overflow-y: auto;
+    height: 400px; /* Adjust as needed */
+    margin-top: 20px;
+    border: 1px solid #ccc;
 }
 
-@code {
-    private List<SyncJob> SyncJobs = new();
+.syncjob-table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    private bool showRunJobsPopup;
+.syncjob-table th, .syncjob-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
 
+.syncjob-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
 
+.syncjob-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
 
-    protected override async Task OnInitializedAsync()
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    {
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    width: 50%;
+}
 
-        // Load jobs from joblist.json in wwwroot
+.btn {
+    margin: 5px;
+}
 
-        var joblistPath = Path.Combine("wwwroot", "jobs", "joblist.json");
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
 
-        try
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
 
-        {
-
-            SyncJobs = await FileLoader.LoadFileAndParse<List<SyncJob>>(joblistPath);
-
-        }
-
-        catch (Exception ex)
-
-        {
-
-            Console.WriteLine($"Error loading sync jobs: {ex.Message}");
-
-        }
-
-    }
-
-
-
-    private void ShowRunSelectedJobsPopup()
-
-    {
-
-        showRunJobsPopup = true;
-
-    }
-
-
-
-    private void CloseRunJobsPopup()
-
-    {
-
-        showRunJobsPopup = false;
-
-    }
-
-
-
-    private void CreateNewJob()
-
-    {
-
-        var newJob = new SyncJob
-
-            {
-
-                Id = Guid.NewGuid(),
-
-                Name = "New Job",
-
-                Description = "New job description",
-
-                Status = WSyncPro.Models.Enum.Status.Pending
-
-            };
-
-        SyncJobs.Add(newJob);
-
-    }
-
-
-
-    private void EditJob(SyncJob job)
-
-    {
-
-        // Open a separate edit page for the job (or implement an inline edit UI)
-
-        Navigation.NavigateTo($"/editjob/{job.Id}");
-
-    }
-
-
-
-    private int GetJobProgress(SyncJob job)
-
-    {
-
-        if (StateManager.Instance.JobStates.TryGetValue(job, out var state))
-
-        {
-
-            return (int)((state.ItemsProcessed / (double)state.TotalItemToProcess) * 100);
-
-        }
-
-        return 0;
-
-    }
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
 }

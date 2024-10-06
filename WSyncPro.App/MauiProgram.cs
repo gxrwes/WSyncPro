@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using WSyncPro.Util.Files;
 
 namespace WSyncPro.App
 {
@@ -16,9 +17,12 @@ namespace WSyncPro.App
 
             builder.Services.AddMauiBlazorWebView();
 
+            // Register services
+            builder.Services.AddSingleton<IFileLoader, FileLoader>();
+
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+            builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

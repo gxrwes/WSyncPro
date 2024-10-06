@@ -76,7 +76,9 @@
 
         {
 
-            SyncJobs = await FileLoader.LoadFileAndParse<List<SyncJob>>(joblistPath);
+            var fileContent = await FileLoader.LoadFileAsStringAsync(joblistPath);
+
+            SyncJobs = JsonSerializer.Deserialize<List<SyncJob>>(fileContent);
 
         }
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WSyncPro.Models.Enum;
 
 namespace WSyncPro.Models.Content
@@ -17,5 +14,8 @@ namespace WSyncPro.Models.Content
         public string DstDirectory { get; set; }
         public List<string> FilterInclude { get; set; }
         public List<string> FilterExclude { get; set; }
+
+        // Add the missing property
+        public bool Selected { get; set; } // Indicates whether the job is selected in the UI
     }
 }
