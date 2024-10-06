@@ -1,0 +1,14 @@
+[
+  {
+    "Id": "1d53a4e0-6e56-4d2f-9934-5a4ecf1a9093",
+    "Name": "Backup Job 1",
+    "Description": "Backup important files from folder A to folder B.",
+    "Status": "Pending"
+  },
+  {
+    "Id": "b5a66f6b-ec9c-45ef-92f0-5e40e75e8d76",
+    "Name": "Sync Job 2",
+    "Description": "Sync media files from folder C to folder D.",
+    "Status": "InProgress"
+  }
+]
