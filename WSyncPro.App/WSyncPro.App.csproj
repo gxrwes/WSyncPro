@@ -78,4 +78,10 @@
       <ProjectReference Include="..\WSyncPro.Util\WSyncPro.Util.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Update="wwwroot\jobs\joblist.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

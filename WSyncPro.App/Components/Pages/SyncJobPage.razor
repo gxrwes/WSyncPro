@@ -1,6 +1,7 @@
 @page "/syncjob"
 @using System.Text.Json
 @using WSyncPro.Models.Content
+@using WSyncPro.Models.State
 @using WSyncPro.Core.Managers
 @using WSyncPro.Util.Files
 @inject IFileLoader FileLoader
@@ -18,6 +19,10 @@
                 <th>Job Name</th>
                 <th>Description</th>
                 <th>Status</th>
+                <th>Source Directory</th>
+                <th>Destination Directory</th>
+                <th>Include Filters</th>
+                <th>Exclude Filters</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -28,7 +33,15 @@
                     <td><input type="checkbox" @bind="job.Selected" /></td>
                     <td><input type="text" @bind="job.Name" /></td>
                     <td><input type="text" @bind="job.Description" /></td>
-                    <td>@StateManager.Instance.JobStates.TryGetValue(job, out var state) ? state.Status.ToString() : "Unknown"</td>
+                    <td>@GetJobStatus(job)</td>
+                    <td><input type="text" @bind="job.SrcDirectory" /></td>
+                    <td><input type="text" @bind="job.DstDirectory" /></td>
+                    <td>
+                        <textarea value="@FilterIncludeTemps[job.Id]" @oninput="(e) => OnFilterIncludeInput(job, e.Value?.ToString())"></textarea>
+                    </td>
+                    <td>
+                        <textarea value="@FilterExcludeTemps[job.Id]" @oninput="(e) => OnFilterExcludeInput(job, e.Value?.ToString())"></textarea>
+                    </td>
                     <td><button @onclick="() => EditJob(job)" class="btn btn-sm btn-info">Edit</button></td>
                 </tr>
             }
@@ -49,7 +62,7 @@
                 <div>
                     <h5>@job.Name</h5>
                     <progress value="@GetJobProgress(job)" max="100"></progress>
-                    <p>@StateManager.Instance.JobStates.TryGetValue(job, out var state) ? $"Processed {state.ItemsProcessed}/{state.TotalItemToProcess} items" : "Waiting"</p>
+                    <p>@GetJobProgressText(job)</p>
                 </div>
             }
             <button @onclick="CloseRunJobsPopup" class="btn btn-danger">Close</button>
@@ -64,29 +77,33 @@
 
 
 
+    // Dictionaries to store temporary filter text per job
+
+    private Dictionary<Guid, string> FilterIncludeTemps = new();
+
+    private Dictionary<Guid, string> FilterExcludeTemps = new();
+
+
+
     protected override async Task OnInitializedAsync()
 
     {
 
-        // Load jobs from joblist.json in wwwroot
+        // Load jobs from the state manager
 
-        var joblistPath = Path.Combine("wwwroot", "jobs", "joblist.json");
+        SyncJobs = StateManager.Instance.JobStates.Keys.ToList();
 
-        try
 
-        {
 
-            var fileContent = await FileLoader.LoadFileAsStringAsync(joblistPath);
+        // Initialize temporary filter text for each job
 
-            SyncJobs = JsonSerializer.Deserialize<List<SyncJob>>(fileContent);
-
-        }
-
-        catch (Exception ex)
+        foreach (var job in SyncJobs)
 
         {
 
-            Console.WriteLine($"Error loading sync jobs: {ex.Message}");
+            FilterIncludeTemps[job.Id] = ConvertListToString(job.FilterInclude);
+
+            FilterExcludeTemps[job.Id] = ConvertListToString(job.FilterExclude);
 
         }
 
@@ -99,6 +116,8 @@
     {
 
         showRunJobsPopup = true;
+
+        // Optionally, you can start running the selected jobs here
 
     }
 
@@ -128,11 +147,33 @@
 
                 Description = "New job description",
 
-                Status = WSyncPro.Models.Enum.Status.Pending
+                Status = WSyncPro.Models.Enum.Status.Pending,
+
+                SrcDirectory = string.Empty,
+
+                DstDirectory = string.Empty,
+
+                FilterInclude = new List<string>(),
+
+                FilterExclude = new List<string>(),
+
+                Selected = false
 
             };
 
+
+
         SyncJobs.Add(newJob);
+
+        StateManager.Instance.JobStates[newJob] = new SyncJobState();
+
+
+
+        // Initialize temporary filters for the new job
+
+        FilterIncludeTemps[newJob.Id] = string.Empty;
+
+        FilterExcludeTemps[newJob.Id] = string.Empty;
 
     }
 
@@ -142,7 +183,7 @@
 
     {
 
-        // Open a separate edit page for the job (or implement an inline edit UI)
+        // Navigate to the edit page for the job
 
         Navigation.NavigateTo($"/editjob/{job.Id}");
 
@@ -154,15 +195,105 @@
 
     {
 
+        // Adjust this method based on the properties available in SyncJobState
+
         if (StateManager.Instance.JobStates.TryGetValue(job, out var state))
 
         {
 
-            return (int)((state.ItemsProcessed / (double)state.TotalItemToProcess) * 100);
+            // Assuming SyncJobState has properties ItemsProcessed and TotalItemsToProcess
+
+
+
+            if (state.TotalItemToProcess > 0)
+
+
+
+            {
+
+
+
+                return (int)((state.ItemsProcessed / (double)state.TotalItemToProcess) * 100);
+
+
+
+            }
 
         }
 
         return 0;
+
+    }
+
+
+
+    private string GetJobProgressText(SyncJob job)
+
+    {
+
+        if (StateManager.Instance.JobStates.TryGetValue(job, out var state))
+
+        {
+
+            // Assuming SyncJobState has properties ItemsProcessed and TotalItemsToProcess
+
+            return $"Processed {state.ItemsProcessed}/{state.TotalItemToProcess} items";
+
+        }
+
+        return "Waiting";
+
+    }
+
+
+
+    private string GetJobStatus(SyncJob job)
+
+    {
+
+        // Get status from the SyncJob object
+
+        return job.Status.ToString();
+
+    }
+
+
+
+    // Helper method to convert a list to a newline-separated string
+
+    private string ConvertListToString(List<string> list)
+
+    {
+
+        return list != null ? string.Join('\n', list) : string.Empty;
+
+    }
+
+
+
+    // Handle input event for Include Filters
+
+    private void OnFilterIncludeInput(SyncJob job, string value)
+
+    {
+
+        FilterIncludeTemps[job.Id] = value;
+
+        job.FilterInclude = value?.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+
+    }
+
+
+
+    // Handle input event for Exclude Filters
+
+    private void OnFilterExcludeInput(SyncJob job, string value)
+
+    {
+
+        FilterExcludeTemps[job.Id] = value;
+
+        job.FilterExclude = value?.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
 
     }
 }
