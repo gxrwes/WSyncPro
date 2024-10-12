@@ -58,14 +58,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Components\Pages\SyncJobPage.razor.css" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Components\Pages\SyncJobPage.razor.css" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
@@ -76,12 +68,6 @@
       <ProjectReference Include="..\WSyncPro.Core\WSyncPro.Core.csproj" />
       <ProjectReference Include="..\WSyncPro.Models\WSyncPro.Models.csproj" />
       <ProjectReference Include="..\WSyncPro.Util\WSyncPro.Util.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Update="wwwroot\jobs\joblist.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
 
 </Project>

@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Storage;
+using WSyncPro.Core.Managers;
+using WSyncPro.Util.Services;
 using WSyncPro.Util.Files;
 
 namespace WSyncPro.App
@@ -17,13 +20,22 @@ namespace WSyncPro.App
 
             builder.Services.AddMauiBlazorWebView();
 
-            // Register services
-            builder.Services.AddSingleton<IFileLoader, FileLoader>();
-
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
+
+            // Construct the file path using MAUI's FileSystem
+            string jobListFilePath = Path.Combine(FileSystem.AppDataDirectory, "joblist.json");
+
+            // Register StateManager as a singleton service
+            builder.Services.AddSingleton<IStateManager>(provider => new StateManager(jobListFilePath));
+
+            // Register IFileCopyMoveService
+            builder.Services.AddSingleton<IFileCopyMoveService, FileCopyMoveService>();
+
+            // Register IFileLoader
+            builder.Services.AddSingleton<IFileLoader, FileLoader>();
 
             return builder.Build();
         }

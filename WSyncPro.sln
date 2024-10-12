@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.Core", "WSyncPro.Core\WSyncPro.Core.csproj", "{CAB7925C-6077-4D79-AA30-66FE26BF1E0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Core", "WSyncPro.Core\WSyncPro.Core.csproj", "{CAB7925C-6077-4D79-AA30-66FE26BF1E0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.Models", "WSyncPro.Models\WSyncPro.Models.csproj", "{A6C2ACE2-90F3-41AD-8CA6-C14E059A30AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Models", "WSyncPro.Models\WSyncPro.Models.csproj", "{A6C2ACE2-90F3-41AD-8CA6-C14E059A30AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.Test", "WSyncPro.Test\WSyncPro.Test.csproj", "{84A52737-EB7D-487B-9867-6071701B6AAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Test", "WSyncPro.Test\WSyncPro.Test.csproj", "{84A52737-EB7D-487B-9867-6071701B6AAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.Util", "WSyncPro.Util\WSyncPro.Util.csproj", "{D265DD33-12B5-44DF-8D61-4A18A99B5983}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Util", "WSyncPro.Util\WSyncPro.Util.csproj", "{D265DD33-12B5-44DF-8D61-4A18A99B5983}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.App", "WSyncPro.App\WSyncPro.App.csproj", "{B81DDC54-D591-4AE5-985C-226F2E87E249}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.App", "WSyncPro.App\WSyncPro.App.csproj", "{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,12 +35,12 @@ Global
 		{D265DD33-12B5-44DF-8D61-4A18A99B5983}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D265DD33-12B5-44DF-8D61-4A18A99B5983}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D265DD33-12B5-44DF-8D61-4A18A99B5983}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B81DDC54-D591-4AE5-985C-226F2E87E249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B81DDC54-D591-4AE5-985C-226F2E87E249}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B81DDC54-D591-4AE5-985C-226F2E87E249}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{B81DDC54-D591-4AE5-985C-226F2E87E249}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B81DDC54-D591-4AE5-985C-226F2E87E249}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B81DDC54-D591-4AE5-985C-226F2E87E249}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
