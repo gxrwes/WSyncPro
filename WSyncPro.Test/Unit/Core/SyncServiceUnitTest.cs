@@ -1,162 +1,200 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Moq;
-using WSyncPro.Core.Managers;
 using WSyncPro.Core.Services;
 using WSyncPro.Models.Content;
+using WSyncPro.Models.Enum;
 using WSyncPro.Models.Data;
-using WSyncPro.Models.State;
+using WSyncPro.Util.Files;
 using WSyncPro.Util.Services;
 using Xunit;
 
-namespace WSyncPro.Test.Unit.Core.Services
+namespace WSyncPro.Test.Unit.Core
 {
     public class SyncServiceUnitTest
     {
-        private readonly Mock<IDirectoryScannerService> _mockScannerService;
-        private readonly Mock<IFileCopyMoveService> _mockFileCopyMoveService;
-        private readonly StateManager _stateManager;
+        private readonly Mock<IFileLoader> _fileLoaderMock;
+        private readonly Mock<IDirectoryScannerService> _directoryScannerServiceMock;
+        private readonly Mock<IFileCopyMoveService> _fileCopyMoveServiceMock;
         private readonly SyncService _syncService;
 
         public SyncServiceUnitTest()
         {
-            _mockScannerService = new Mock<IDirectoryScannerService>();
-            _mockFileCopyMoveService = new Mock<IFileCopyMoveService>();
-            _stateManager = StateManager.Instance;
-
-            _syncService = new SyncService(_mockScannerService.Object, _mockFileCopyMoveService.Object, _stateManager);
-
-            // Reset the state manager's JobStates dictionary before each test
-            _stateManager.JobStates.Clear();
+            _fileLoaderMock = new Mock<IFileLoader>();
+            _directoryScannerServiceMock = new Mock<IDirectoryScannerService>();
+            _fileCopyMoveServiceMock = new Mock<IFileCopyMoveService>();
+            _syncService = new SyncService(_fileLoaderMock.Object, _directoryScannerServiceMock.Object, _fileCopyMoveServiceMock.Object);
         }
 
         [Fact]
-        public async Task RunSyncAsync_ShouldScanDirectoryAndCopyFiles()
+        [Trait("Category", "Unit Test")]
+
+        public async Task AddJob_ShouldAddNewJob()
         {
             // Arrange
-            var syncJob = new SyncJob
-            {
-                Id = Guid.NewGuid(),
-                Name = "Test Job",
-                SrcDirectory = "/src",
-                DstDirectory = "/dst",
-                FilterInclude = new List<string> { "*.txt" }
-            };
-
-            Directory.CreateDirectory(syncJob.SrcDirectory);
-            Directory.CreateDirectory(syncJob.DstDirectory);
-
-            var mockFiles = new List<WObject>
-            {
-                new WFile { Name = "file1.txt", FullPath = Path.Combine(syncJob.SrcDirectory, "file1.txt") },
-                new WFile { Name = "file2.txt", FullPath = Path.Combine(syncJob.SrcDirectory, "file2.txt") }
-            };
-
-            _mockScannerService.Setup(x => x.ScanAsync(syncJob))
-                .ReturnsAsync(mockFiles);
-
-            _mockFileCopyMoveService.Setup(x => x.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+            var job = new SyncJob { Id = Guid.NewGuid(), Name = "Job1", Status = Status.Pending };
 
             // Act
-            var report = await _syncService.RunSyncAsync(syncJob);
+            await _syncService.AddJob(job);
+            var jobs = await _syncService.GetAllJobs();
 
             // Assert
-            _mockScannerService.Verify(x => x.ScanAsync(syncJob), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(mockFiles[0].FullPath, Path.Combine(syncJob.DstDirectory, "file1.txt")), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(mockFiles[1].FullPath, Path.Combine(syncJob.DstDirectory, "file2.txt")), Times.Once);
-            Assert.Equal(2, report.TouchedObjects.Count);
-            Assert.Equal(0, report.IgnoredItems);
-            Assert.Equal(2, _stateManager.JobStates[syncJob].ItemsProcessed);
+            Assert.Single(jobs);
+            Assert.Equal("Job1", jobs[0].Name);
         }
 
         [Fact]
-        public async Task RunSyncAsync_ShouldIgnoreOlderFiles()
+        [Trait("Category", "Unit Test")]
+
+        public async Task AddJob_ShouldUpdateExistingJob()
         {
             // Arrange
-            var syncJob = new SyncJob
-            {
-                Id = Guid.NewGuid(),
-                Name = "Test Job",
-                SrcDirectory = "/src",
-                DstDirectory = "/dst"
-            };
+            var jobId = Guid.NewGuid();
+            var job = new SyncJob { Id = jobId, Name = "Job1", Status = Status.Pending };
+            var updatedJob = new SyncJob { Id = jobId, Name = "UpdatedJob", Status = Status.Running };
 
-            Directory.CreateDirectory(syncJob.SrcDirectory);
-            Directory.CreateDirectory(syncJob.DstDirectory);
-
-            var mockFiles = new List<WObject>
-            {
-                new WFile { Name = "oldFile.txt", FullPath = Path.Combine(syncJob.SrcDirectory, "oldFile.txt") }
-            };
-
-            _mockScannerService.Setup(x => x.ScanAsync(syncJob))
-                .ReturnsAsync(mockFiles);
-
-            // Simulate that the destination file already exists and is newer than the source file
-            var destinationFilePath = Path.Combine(syncJob.DstDirectory, "oldFile.txt");
-            File.WriteAllText(destinationFilePath, "Existing content");
-            File.SetLastWriteTimeUtc(destinationFilePath, DateTime.UtcNow.AddHours(1)); // Make destination file "newer"
+            await _syncService.AddJob(job);
 
             // Act
-            var report = await _syncService.RunSyncAsync(syncJob);
+            await _syncService.AddJob(updatedJob);
+            var jobs = await _syncService.GetAllJobs();
 
             // Assert
-            _mockScannerService.Verify(x => x.ScanAsync(syncJob), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            Assert.Empty(report.TouchedObjects); // No files should be copied
-            Assert.Equal(1, report.IgnoredItems);
-
-            // Cleanup
-            Directory.Delete(syncJob.SrcDirectory, true);
-            Directory.Delete(syncJob.DstDirectory, true);
+            Assert.Single(jobs);
+            Assert.Equal("UpdatedJob", jobs[0].Name);
+            Assert.Equal(Status.Running, jobs[0].Status);
         }
 
         [Fact]
-        public async Task RunSyncAsync_ShouldGenerateCorrectReport()
+        [Trait("Category", "Unit Test")]
+
+        public async Task LoadJoblistFromFile_ShouldLoadJobsFromFile()
         {
             // Arrange
-            var syncJob = new SyncJob
+            var joblistFilePath = "joblist.json";
+            var jobList = new List<SyncJob>
             {
-                Id = Guid.NewGuid(),
-                Name = "Test Job",
-                SrcDirectory = "/src",
-                DstDirectory = "/dst",
-                FilterInclude = new List<string> { "*.txt" },
-                FilterExclude = new List<string> { "*.log" }
+                new SyncJob { Id = Guid.NewGuid(), Name = "Job1", Status = Status.Running },
+                new SyncJob { Id = Guid.NewGuid(), Name = "Job2", Status = Status.Pending }
             };
 
-            Directory.CreateDirectory(syncJob.SrcDirectory);
-            Directory.CreateDirectory(syncJob.DstDirectory);
-
-            var mockFiles = new List<WObject>
-            {
-                new WFile { Name = "file1.txt", FullPath = Path.Combine(syncJob.SrcDirectory, "file1.txt") },
-                new WFile { Name = "file2.log", FullPath = Path.Combine(syncJob.SrcDirectory, "file2.log") }
-            };
-
-            _mockScannerService.Setup(x => x.ScanAsync(syncJob))
-                .ReturnsAsync(mockFiles);
-
-            _mockFileCopyMoveService.Setup(x => x.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+            _fileLoaderMock.Setup(fl => fl.LoadFileAndParseAsync<List<SyncJob>>(joblistFilePath))
+                .ReturnsAsync(jobList);
 
             // Act
-            var report = await _syncService.RunSyncAsync(syncJob);
+            await _syncService.LoadJoblistFromFile(joblistFilePath);
+            var jobs = await _syncService.GetAllJobs();
 
             // Assert
-            _mockScannerService.Verify(x => x.ScanAsync(syncJob), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(mockFiles[0].FullPath, Path.Combine(syncJob.DstDirectory, "file1.txt")), Times.Once);
-            _mockFileCopyMoveService.Verify(x => x.CopyFileAsync(mockFiles[1].FullPath, Path.Combine(syncJob.DstDirectory, "file2.log")), Times.Never); // Shouldn't copy .log file due to FilterExclude
-            Assert.Single(report.TouchedObjects); // Only 1 file should be copied
-            Assert.Equal(1, report.IgnoredItems); // 1 file should be ignored
+            Assert.Equal(2, jobs.Count);
+            Assert.Equal("Job1", jobs[0].Name);
+            Assert.Equal("Job2", jobs[1].Name);
+        }
 
-            // Cleanup
-            Directory.Delete(syncJob.SrcDirectory, true);
-            Directory.Delete(syncJob.DstDirectory, true);
+        [Fact]
+        [Trait("Category", "Unit Test")]
+
+        public async Task SaveJoblistToFile_ShouldSaveJobsToFile()
+        {
+            // Arrange
+            var joblistFilePath = "joblist.json";
+            var jobList = new List<SyncJob>
+            {
+                new SyncJob { Id = Guid.NewGuid(), Name = "Job1", Status = Status.Running },
+                new SyncJob { Id = Guid.NewGuid(), Name = "Job2", Status = Status.Pending }
+            };
+
+            foreach (var job in jobList)
+            {
+                await _syncService.AddJob(job);
+            }
+
+            // Act
+            await _syncService.SaveJoblistToFile(joblistFilePath);
+
+            // Assert
+            _fileLoaderMock.Verify(fl => fl.SaveToFileAsObjectAsync(joblistFilePath, It.Is<List<SyncJob>>(jobs => jobs.Count == 2)), Times.Once);
+        }
+
+        [Fact]
+        [Trait("Category", "Unit Test")]
+
+        public async Task RunAllEnabledJobs_ShouldProcessEnabledJobs()
+        {
+            // Arrange
+            var job1 = new SyncJob
+            {
+                Id = Guid.NewGuid(),
+                Name = "Job1",
+                SrcDirectory = "/source1",
+                DstDirectory = "/dest1",
+                Status = Status.Running
+            };
+
+            var job2 = new SyncJob
+            {
+                Id = Guid.NewGuid(),
+                Name = "Job2",
+                SrcDirectory = "/source2",
+                DstDirectory = "/dest2",
+                Status = Status.Disabled
+            };
+
+            var filesToSync = new List<WObject>
+    {
+        new WFile { Name = "file1.txt", FullPath = "/source1/file1.txt" }
+    };
+
+            await _syncService.AddJob(job1);
+            await _syncService.AddJob(job2);
+
+            _directoryScannerServiceMock.Setup(ds => ds.ScanAsync(job1)).ReturnsAsync(filesToSync);
+            _fileCopyMoveServiceMock.Setup(fs => fs.CopyFileAsync(It.Is<string>(s => s.EndsWith("file1.txt")),
+                                                                 It.Is<string>(s => s.EndsWith("file1.txt"))))
+                                     .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _syncService.RunAllEnabledJobs();
+
+            // Assert
+            Assert.Equal(job1.Id, result.Item1);
+            Assert.Equal(1, result.Item2);
+            Assert.Equal("Jobs Completed", result.Item3);
+
+            _directoryScannerServiceMock.Verify(ds => ds.ScanAsync(job1), Times.Once);
+            _fileCopyMoveServiceMock.Verify(fs => fs.CopyFileAsync(It.Is<string>(s => s.EndsWith("file1.txt")),
+                                                                  It.Is<string>(s => s.EndsWith("file1.txt"))), Times.Once);
+        }
+
+
+        [Fact]
+        [Trait("Category", "Unit Test")]
+
+        public async Task RunAllEnabledJobs_ShouldNotProcessDisabledJobs()
+        {
+            // Arrange
+            var job = new SyncJob
+            {
+                Id = Guid.NewGuid(),
+                Name = "DisabledJob",
+                SrcDirectory = "/source",
+                DstDirectory = "/dest",
+                Status = Status.Disabled
+            };
+
+            await _syncService.AddJob(job);
+
+            // Act
+            var result = await _syncService.RunAllEnabledJobs();
+
+            // Assert
+            Assert.Equal(Guid.Empty, result.Item1);
+            Assert.Equal(0, result.Item2);
+            Assert.Equal("Jobs Completed", result.Item3);
+
+            _directoryScannerServiceMock.Verify(ds => ds.ScanAsync(It.IsAny<SyncJob>()), Times.Never);
+            _fileCopyMoveServiceMock.Verify(fs => fs.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
     }
 }

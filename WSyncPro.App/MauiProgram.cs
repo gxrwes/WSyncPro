@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Storage;
-using WSyncPro.Core.Managers;
 using WSyncPro.Util.Services;
 using WSyncPro.Util.Files;
+using WSyncPro.Core.Services;
 
 namespace WSyncPro.App
 {
@@ -25,17 +25,11 @@ namespace WSyncPro.App
             builder.Logging.AddDebug();
 #endif
 
-            // Construct the file path using MAUI's FileSystem
-            string jobListFilePath = Path.Combine(FileSystem.AppDataDirectory, "joblist.json");
-
-            // Register StateManager as a singleton service
-            builder.Services.AddSingleton<IStateManager>(provider => new StateManager(jobListFilePath));
-
-            // Register IFileCopyMoveService
+            // Register all necessary services for SyncService
             builder.Services.AddSingleton<IFileCopyMoveService, FileCopyMoveService>();
-
-            // Register IFileLoader
             builder.Services.AddSingleton<IFileLoader, FileLoader>();
+            builder.Services.AddSingleton<IDirectoryScannerService, DirectoryScannerService>();
+            builder.Services.AddSingleton<ISyncService, SyncService>();
 
             return builder.Build();
         }

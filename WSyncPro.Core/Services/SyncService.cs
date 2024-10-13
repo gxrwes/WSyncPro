@@ -1,111 +1,121 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using WSyncPro.Core.Managers;
 using WSyncPro.Models.Content;
 using WSyncPro.Models.Data;
-using WSyncPro.Models.State;
+using WSyncPro.Models.Enum;
+using WSyncPro.Util.Files;
 using WSyncPro.Util.Services;
 
 namespace WSyncPro.Core.Services
 {
-    public class SyncService
+    public class SyncService : ISyncService
     {
-        private readonly IDirectoryScannerService _scannerService;
+        private readonly IFileLoader _fileLoader;
+        private readonly IDirectoryScannerService _directoryScannerService;
         private readonly IFileCopyMoveService _fileCopyMoveService;
-        private readonly StateManager _stateManager;
+        private List<SyncJob> _jobs = new List<SyncJob>();
 
-        public SyncService(IDirectoryScannerService scannerService, IFileCopyMoveService fileCopyMoveService, StateManager stateManager)
+        public SyncService(IFileLoader fileLoader, IDirectoryScannerService directoryScannerService, IFileCopyMoveService fileCopyMoveService)
         {
-            _scannerService = scannerService;
+            _fileLoader = fileLoader;
+            _directoryScannerService = directoryScannerService;
             _fileCopyMoveService = fileCopyMoveService;
-            _stateManager = stateManager;
         }
 
-        public async Task<SyncJobReport> RunSyncAsync(SyncJob job)
+        public Task AddJob(SyncJob job)
         {
-            if (job == null)
-                throw new ArgumentNullException(nameof(job));
-
-            // Initialize job state
-            var jobState = new SyncJobState();
-            _stateManager.JobStates[job] = jobState;
-
-            var touchedObjects = new List<WObject>();
-            var ignoredItems = 0;
-
-            // Step 1: Scan directory and find all matching files
-            var scannedObjects = await _scannerService.ScanAsync(job);
-            jobState.TotalItemToProcess = scannedObjects.Count;
-
-            foreach (var wObject in scannedObjects)
+            if (_jobs.Any(j => j.Id == job.Id))
             {
-                try
-                {
-                    // Apply exclusion filter and skip excluded files
-                    if (job.FilterExclude != null && job.FilterExclude.Any(pattern => IsFileMatchingPattern(wObject.Name, pattern)))
-                    {
-                        ignoredItems++;
-                        continue;
-                    }
-
-                    // Check if the file in source is newer than the file in destination (if it exists)
-                    var destinationFilePath = Path.Combine(job.DstDirectory, wObject.Name);
-
-                    // Only process files that are newer or do not exist at the destination
-                    if (wObject is WFile file)
-                    {
-                        var destinationFileExists = File.Exists(destinationFilePath);
-                        var shouldCopy = !destinationFileExists ||
-                                         File.GetLastWriteTimeUtc(file.FullPath) > File.GetLastWriteTimeUtc(destinationFilePath);
-
-                        if (shouldCopy)
-                        {
-                            await _fileCopyMoveService.CopyFileAsync(file.FullPath, destinationFilePath);
-                            touchedObjects.Add(wObject);
-                            jobState.ItemsProcessed++;
-                        }
-                        else
-                        {
-                            ignoredItems++;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    jobState._loglines.Add($"Failed to copy/move file '{wObject.Name}': {ex.Message}");
-                }
+                var existingJob = _jobs.First(j => j.Id == job.Id);
+                existingJob.Name = job.Name;
+                existingJob.Description = job.Description;
+                existingJob.Status = job.Status;
+                existingJob.SrcDirectory = job.SrcDirectory;
+                existingJob.DstDirectory = job.DstDirectory;
+                existingJob.FilterInclude = job.FilterInclude;
+                existingJob.FilterExclude = job.FilterExclude;
+                existingJob.Selected = job.Selected;
             }
-
-            // Step 2: Generate a report
-            var report = new SyncJobReport
+            else
             {
-                SyncJob = job,
-                TouchedObjects = touchedObjects,
-                DateTime = DateTime.UtcNow,
-                IgnoredItems = ignoredItems
-            };
-
-            jobState._loglines.Add($"Sync job '{job.Name}' completed at {report.DateTime}. Processed {jobState.ItemsProcessed}/{jobState.TotalItemToProcess} items.");
-
-            return report;
+                _jobs.Add(job);
+            }
+            return Task.CompletedTask;
         }
 
-        public async Task RunSyncAsync(List<SyncJob> jobs)
+        public Task AddJob(List<SyncJob> jobs)
         {
             foreach (var job in jobs)
             {
-                await RunSyncAsync(job);
+                if (_jobs.Any(j => j.Id == job.Id))
+                {
+                    var existingJob = _jobs.First(j => j.Id == job.Id);
+                    existingJob.Name = job.Name;
+                    existingJob.Description = job.Description;
+                    existingJob.Status = job.Status;
+                    existingJob.SrcDirectory = job.SrcDirectory;
+                    existingJob.DstDirectory = job.DstDirectory;
+                    existingJob.FilterInclude = job.FilterInclude;
+                    existingJob.FilterExclude = job.FilterExclude;
+                    existingJob.Selected = job.Selected;
+                }
+                else
+                {
+                    _jobs.Add(job);
+                }
             }
+            return Task.CompletedTask;
         }
 
-        private bool IsFileMatchingPattern(string fileName, string pattern)
+        public Task<List<SyncJob>> GetAllJobs()
         {
-            // Convert wildcard pattern to regex pattern for matching
-            var regexPattern = "^" + System.Text.RegularExpressions.Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$";
-            return System.Text.RegularExpressions.Regex.IsMatch(fileName, regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            return Task.FromResult(_jobs);
+        }
+
+        public Task<SyncJob> GetJobById(int id)
+        {
+            var job = _jobs.FirstOrDefault(j => j.Id.GetHashCode() == id);
+            return Task.FromResult(job);
+        }
+
+        public async Task LoadJoblistFromFile(string joblistFilePath)
+        {
+            var loadedJobs = await _fileLoader.LoadFileAndParseAsync<List<SyncJob>>(joblistFilePath);
+            _jobs = loadedJobs ?? new List<SyncJob>();
+        }
+
+        public async Task SaveJoblistToFile(string joblistFilePath)
+        {
+            await _fileLoader.SaveToFileAsObjectAsync(joblistFilePath, _jobs);
+        }
+
+        public async Task<(Guid jobId, int filesProcessed, string message)> RunAllEnabledJobs()
+        {
+            int totalProcessedFiles = 0;
+            Guid lastProcessedJobId = Guid.Empty;
+
+            foreach (var job in _jobs.Where(j => j.Status == Status.Running))
+            {
+                var objectsToSync = await _directoryScannerService.ScanAsync(job);
+
+                foreach (var wObject in objectsToSync)
+                {
+                    var sourcePath = wObject.FullPath;
+                    var destinationPath = System.IO.Path.Combine(job.DstDirectory, wObject.Name);
+
+                    if (wObject is WFile wFile && job.Status == Status.Running)
+                    {
+                        await _fileCopyMoveService.CopyFileAsync(sourcePath, destinationPath);
+                        totalProcessedFiles++;
+                    }
+                }
+
+                lastProcessedJobId = job.Id;
+            }
+
+            return (lastProcessedJobId, totalProcessedFiles, "Jobs Completed");
         }
     }
 }
