@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Test", "WSyncPro.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Util", "WSyncPro.Util\WSyncPro.Util.csproj", "{D265DD33-12B5-44DF-8D61-4A18A99B5983}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSyncPro.App", "WSyncPro.App\WSyncPro.App.csproj", "{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.App", "WSyncPro.App\WSyncPro.App.csproj", "{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

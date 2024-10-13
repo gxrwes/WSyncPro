@@ -2,35 +2,38 @@
 @using WSyncPro.Core.Services
 @using WSyncPro.Models.Content
 @using WSyncPro.Util.Files
-
 @inject ISyncService SyncService
 @inject IFileLoader FileLoader
 @inject NavigationManager NavigationManager
 
 <h3>Sync Jobs</h3>
 
-@if (syncJobs == null)
-{
-    <p>Loading...</p>
-}
-else if (syncJobs.Count == 0)
-{
-    <p>No sync jobs found.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Source Directory</th>
+            <th>Destination Directory</th>
+            <th>Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (syncJobs == null)
+        {
             <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Source Directory</th>
-                <th>Destination Directory</th>
-                <th>Edit</th>
+                <td colspan="6">Loading...</td>
             </tr>
-        </thead>
-        <tbody>
+        }
+        else if (syncJobs.Count == 0)
+        {
+            <tr>
+                <td colspan="6">No sync jobs found.</td>
+            </tr>
+        }
+        else
+        {
             @foreach (var job in syncJobs)
             {
                 <tr>
@@ -40,15 +43,17 @@ else
                     <td>@job.SrcDirectory</td>
                     <td>@job.DstDirectory</td>
                     <td>
-                        <button @onclick="() => OpenEditJob(job)">Edit</button>
+                        <button class="btn btn-secondary" @onclick="() => OpenEditJob(job)">Edit</button>
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
+        }
+    </tbody>
+</table>
 
-    <button class="btn btn-primary" @onclick="RunSync">Run Sync</button>
-}
+<!-- New buttons -->
+<button class="btn btn-success" @onclick="OpenCreateJob">Create New Job</button>
+<button class="btn btn-primary" @onclick="RunSync">Run Sync</button>
 
 @code {
     private List<SyncJob> syncJobs;
@@ -61,15 +66,26 @@ else
 
     private void OpenEditJob(SyncJob job)
     {
-        // Implement logic to open the job edit window (can be a modal or a new page)
-        // For now, we'll just navigate to the Edit page with the job ID
+        // Navigate to the job edit page with the job ID
         NavigationManager.NavigateTo($"/sync/edit/{job.Id}");
+    }
+
+    private void OpenCreateJob()
+    {
+        // Navigate to the job creation page (could be a modal instead)
+        NavigationManager.NavigateTo("/sync/create");
     }
 
     private async Task RunSync()
     {
         var result = await SyncService.RunAllEnabledJobs();
-        // Display result (you can show a message or update the UI accordingly)
+        // Display result or update UI accordingly
         Console.WriteLine($"Job {result.Item1} processed {result.Item2} files. Status: {result.Item3}");
+    }
+
+    // Save jobs to the file when updated, created, or added
+    public async Task SaveJobsToFile()
+    {
+        await SyncService.SaveJoblistToFile("syncJobConfig.json");
     }
 }

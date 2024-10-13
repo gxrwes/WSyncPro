@@ -74,11 +74,12 @@ namespace WSyncPro.Core.Services
             return Task.FromResult(_jobs);
         }
 
-        public Task<SyncJob> GetJobById(int id)
+        public Task<SyncJob> GetJobById(Guid id)
         {
-            var job = _jobs.FirstOrDefault(j => j.Id.GetHashCode() == id);
+            var job = _jobs.FirstOrDefault(j => j.Id == id);
             return Task.FromResult(job);
         }
+
 
         public async Task LoadJoblistFromFile(string joblistFilePath)
         {
