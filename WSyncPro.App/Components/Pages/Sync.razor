@@ -1,0 +1,75 @@
+﻿@page "/sync"
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Content
+@using WSyncPro.Util.Files
+
+@inject ISyncService SyncService
+@inject IFileLoader FileLoader
+@inject NavigationManager NavigationManager
+
+<h3>Sync Jobs</h3>
+
+@if (syncJobs == null)
+{
+    <p>Loading...</p>
+}
+else if (syncJobs.Count == 0)
+{
+    <p>No sync jobs found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Source Directory</th>
+                <th>Destination Directory</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var job in syncJobs)
+            {
+                <tr>
+                    <td>@job.Name</td>
+                    <td>@job.Description</td>
+                    <td>@job.Status</td>
+                    <td>@job.SrcDirectory</td>
+                    <td>@job.DstDirectory</td>
+                    <td>
+                        <button @onclick="() => OpenEditJob(job)">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" @onclick="RunSync">Run Sync</button>
+}
+
+@code {
+    private List<SyncJob> syncJobs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load sync jobs from the syncJobConfig.json file
+        syncJobs = await SyncService.GetAllJobs();
+    }
+
+    private void OpenEditJob(SyncJob job)
+    {
+        // Implement logic to open the job edit window (can be a modal or a new page)
+        // For now, we'll just navigate to the Edit page with the job ID
+        NavigationManager.NavigateTo($"/sync/edit/{job.Id}");
+    }
+
+    private async Task RunSync()
+    {
+        var result = await SyncService.RunAllEnabledJobs();
+        // Display result (you can show a message or update the UI accordingly)
+        Console.WriteLine($"Job {result.Item1} processed {result.Item2} files. Status: {result.Item3}");
+    }
+}
