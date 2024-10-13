@@ -2,12 +2,15 @@
 @using WSyncPro.Core.Services
 @using WSyncPro.Models.Content
 @using WSyncPro.Util.Files
+@using Microsoft.Extensions.Logging
 @inject ISyncService SyncService
 @inject IFileLoader FileLoader
 @inject NavigationManager NavigationManager
+@inject ILogger<Sync> Logger
 
 <h3>Sync Jobs</h3>
 
+<!-- Job Table -->
 <table class="table">
     <thead>
         <tr>
@@ -51,41 +54,88 @@
     </tbody>
 </table>
 
-<!-- New buttons -->
+<!-- Log Filtering -->
+<div class="mb-3">
+    <label for="logLevel" class="form-label">Log Level</label>
+    <select id="logLevel" class="form-select" @bind="selectedLogLevel">
+        @foreach (var level in Enum.GetValues<LogLevel>())
+        {
+            <option value="@level">@level</option>
+        }
+    </select>
+</div>
+
+<!-- Log Output -->
+<div class="log-output" style="border: 1px solid #ddd; height: 200px; overflow-y: auto;">
+    @foreach (var logMessage in filteredLogMessages)
+    {
+        <div>@logMessage</div>
+    }
+</div>
+
+<!-- Buttons -->
 <button class="btn btn-success" @onclick="OpenCreateJob">Create New Job</button>
 <button class="btn btn-primary" @onclick="RunSync">Run Sync</button>
 
 @code {
     private List<SyncJob> syncJobs;
+    private LogLevel selectedLogLevel = LogLevel.Information;
+    private List<string> logMessages = new List<string>();
+    private List<string> filteredLogMessages = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
         // Load sync jobs from the syncJobConfig.json file
         syncJobs = await SyncService.GetAllJobs();
+
+        // Subscribe to logs
+        Logger.LogInformation("Sync page loaded.");
+
+        // Initialize log filtering
+        FilterLogMessages();
     }
 
     private void OpenEditJob(SyncJob job)
     {
-        // Navigate to the job edit page with the job ID
         NavigationManager.NavigateTo($"/sync/edit/{job.Id}");
     }
 
     private void OpenCreateJob()
     {
-        // Navigate to the job creation page (could be a modal instead)
         NavigationManager.NavigateTo("/sync/create");
     }
 
     private async Task RunSync()
     {
         var result = await SyncService.RunAllEnabledJobs();
-        // Display result or update UI accordingly
-        Console.WriteLine($"Job {result.Item1} processed {result.Item2} files. Status: {result.Item3}");
+        Logger.LogInformation($"Job {result.jobId} processed {result.filesProcessed} files. Status: {result.message}");
+
+        // Refresh the log messages after running sync
+        FilterLogMessages();
     }
 
-    // Save jobs to the file when updated, created, or added
-    public async Task SaveJobsToFile()
+    private void FilterLogMessages()
     {
-        await SyncService.SaveJoblistToFile("syncJobConfig.json");
+        // Filter log messages based on the selected log level
+        filteredLogMessages = logMessages
+            .Where(msg => GetLogLevelFromMessage(msg) >= selectedLogLevel)
+            .ToList();
+    }
+
+    private LogLevel GetLogLevelFromMessage(string logMessage)
+    {
+        // Simple parser to determine log level from log message
+        if (logMessage.Contains("[Error]")) return LogLevel.Error;
+        if (logMessage.Contains("[Warning]")) return LogLevel.Warning;
+        if (logMessage.Contains("[Information]")) return LogLevel.Information;
+        if (logMessage.Contains("[Debug]")) return LogLevel.Debug;
+        return LogLevel.Trace;
+    }
+
+    // Log message event (this is where you would wire up live log updates if using SignalR, etc.)
+    private void AddLogMessage(string logMessage)
+    {
+        logMessages.Add(logMessage);
+        FilterLogMessages();
     }
 }
