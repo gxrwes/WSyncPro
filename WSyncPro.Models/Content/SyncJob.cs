@@ -16,6 +16,6 @@ namespace WSyncPro.Models.Content
         public List<string> FilterExclude { get; set; }
 
         // Add the missing property
-        public bool Selected { get; set; } // Indicates whether the job is selected in the UI
+        public bool Enabled { get; set; } // Indicates whether the job is selected in the UI
     }
 }

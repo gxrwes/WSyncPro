@@ -1,8 +1,8 @@
 ﻿@page "/sync"
+@using Microsoft.Extensions.Logging
 @using WSyncPro.Core.Services
 @using WSyncPro.Models.Content
 @using WSyncPro.Util.Files
-@using Microsoft.Extensions.Logging
 @inject ISyncService SyncService
 @inject IFileLoader FileLoader
 @inject NavigationManager NavigationManager
@@ -19,6 +19,7 @@
             <th>Status</th>
             <th>Source Directory</th>
             <th>Destination Directory</th>
+            <th>Enabled</th> <!-- New column for enabled status -->
             <th>Edit</th>
         </tr>
     </thead>
@@ -26,13 +27,13 @@
         @if (syncJobs == null)
         {
             <tr>
-                <td colspan="6">Loading...</td>
+                <td colspan="7">Loading...</td>
             </tr>
         }
         else if (syncJobs.Count == 0)
         {
             <tr>
-                <td colspan="6">No sync jobs found.</td>
+                <td colspan="7">No sync jobs found.</td>
             </tr>
         }
         else
@@ -45,6 +46,7 @@
                     <td>@job.Status</td>
                     <td>@job.SrcDirectory</td>
                     <td>@job.DstDirectory</td>
+                    <td>@(job.Enabled ? "Yes" : "No")</td> <!-- Display if the job is enabled -->
                     <td>
                         <button class="btn btn-secondary" @onclick="() => OpenEditJob(job)">Edit</button>
                     </td>

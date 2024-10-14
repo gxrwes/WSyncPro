@@ -39,7 +39,7 @@ namespace WSyncPro.Core.Services
                 existingJob.DstDirectory = job.DstDirectory;
                 existingJob.FilterInclude = job.FilterInclude;
                 existingJob.FilterExclude = job.FilterExclude;
-                existingJob.Selected = job.Selected;
+                existingJob.Enabled = job.Enabled;
 
                 _logger.LogInformation($"Updated existing job: {job.Name}");
             }
@@ -65,7 +65,7 @@ namespace WSyncPro.Core.Services
                     existingJob.DstDirectory = job.DstDirectory;
                     existingJob.FilterInclude = job.FilterInclude;
                     existingJob.FilterExclude = job.FilterExclude;
-                    existingJob.Selected = job.Selected;
+                    existingJob.Enabled = job.Enabled;
 
                     _logger.LogInformation($"Updated existing job: {job.Name}");
                 }
@@ -111,7 +111,7 @@ namespace WSyncPro.Core.Services
             int totalProcessedFiles = 0;
             Guid lastProcessedJobId = Guid.Empty;
 
-            foreach (var job in _jobs.Where(j => j.Status == Status.Running))
+            foreach (var job in _jobs.Where(j => j.Enabled))
             {
                 _logger.LogInformation($"Running job: {job.Name}");
                 var objectsToSync = await _directoryScannerService.ScanAsync(job);

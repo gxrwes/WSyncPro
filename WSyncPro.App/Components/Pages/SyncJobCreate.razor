@@ -44,6 +44,20 @@
         <textarea id="FilterExclude" class="form-control" rows="3" @bind="filterExcludeText"></textarea>
     </div>
 
+    <div class="mb-3">
+        <label>Job Status</label>
+        <InputRadioGroup @bind-Value="newJob.Enabled">
+            <div>
+                <InputRadio Value="true" /> Enabled
+            </div>
+            <div>
+                <InputRadio Value="false" /> Disabled
+            </div>
+        </InputRadioGroup>
+    </div>
+
+
+
     <button type="submit" class="btn btn-success">Create Job</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
 </EditForm>

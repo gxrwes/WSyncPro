@@ -13,6 +13,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Util", "WSyncPro.U
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.App", "WSyncPro.App\WSyncPro.App.csproj", "{2A68209D-A5E5-49A1-BB4A-E5610BBC61DD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestDirectory", "TestDirectory", "{8647F10A-77D0-4AC5-8A52-8738653AF180}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SRC", "SRC", "{9B845A7E-975C-420A-ABA1-376904A6B0B8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DST", "DST", "{3191DB01-0597-4947-8387-419FBD2DC7EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +50,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9B845A7E-975C-420A-ABA1-376904A6B0B8} = {8647F10A-77D0-4AC5-8A52-8738653AF180}
+		{3191DB01-0597-4947-8387-419FBD2DC7EA} = {8647F10A-77D0-4AC5-8A52-8738653AF180}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C6280B96-89A7-4FC4-B5EC-D9046DC65F51}

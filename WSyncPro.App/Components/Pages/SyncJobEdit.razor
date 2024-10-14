@@ -44,6 +44,19 @@
         <textarea id="FilterExclude" class="form-control" rows="3" @bind="filterExcludeText"></textarea>
     </div>
 
+    <div class="mb-3">
+        <label>Job Status</label>
+        <InputRadioGroup @bind-Value="job.Enabled">
+            <div>
+                <InputRadio Value="true" /> Enabled
+            </div>
+            <div>
+                <InputRadio Value="false" /> Disabled
+            </div>
+        </InputRadioGroup>
+    </div>
+
+
     <button type="submit" class="btn btn-success">Save Changes</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
 </EditForm>
@@ -92,8 +105,7 @@
     {
         try
         {
-            // Logic for opening the file picker dialog to select the source directory
-            job.SrcDirectory = "/path/to/source"; // Placeholder: Use actual picker result
+            job.SrcDirectory = "/path/to/source"; // Placeholder: Implement picker logic
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -105,8 +117,7 @@
     {
         try
         {
-            // Logic for opening the file picker dialog to select the destination directory
-            job.DstDirectory = "/path/to/destination"; // Placeholder: Use actual picker result
+            job.DstDirectory = "/path/to/destination"; // Placeholder: Implement picker logic
         }
         catch (UnauthorizedAccessException ex)
         {
