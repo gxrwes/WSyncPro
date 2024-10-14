@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using WSyncPro.Core.Services;
@@ -9,7 +10,6 @@ using WSyncPro.Models.Data;
 using WSyncPro.Util.Files;
 using WSyncPro.Util.Services;
 using Xunit;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace WSyncPro.Test.Unit.Core
@@ -27,16 +27,19 @@ namespace WSyncPro.Test.Unit.Core
             _directoryScannerServiceMock = new Mock<IDirectoryScannerService>();
             _fileCopyMoveServiceMock = new Mock<IFileCopyMoveService>();
 
-            // Fix the logger mock by using Microsoft.Extensions.Logging.ILogger
+            // Initialize the logger mock
             var loggerMock = new Mock<ILogger<SyncService>>();
 
-            // Pass the correct ILogger mock to SyncService
-            _syncService = new SyncService(_fileLoaderMock.Object, _directoryScannerServiceMock.Object, _fileCopyMoveServiceMock.Object, loggerMock.Object);
+            // Instantiate the SyncService with mocks
+            _syncService = new SyncService(
+                _fileLoaderMock.Object,
+                _directoryScannerServiceMock.Object,
+                _fileCopyMoveServiceMock.Object,
+                loggerMock.Object);
         }
 
         [Fact]
         [Trait("Category", "Unit Test")]
-
         public async Task AddJob_ShouldAddNewJob()
         {
             // Arrange
@@ -53,7 +56,6 @@ namespace WSyncPro.Test.Unit.Core
 
         [Fact]
         [Trait("Category", "Unit Test")]
-
         public async Task AddJob_ShouldUpdateExistingJob()
         {
             // Arrange
@@ -75,7 +77,6 @@ namespace WSyncPro.Test.Unit.Core
 
         [Fact]
         [Trait("Category", "Unit Test")]
-
         public async Task LoadJoblistFromFile_ShouldLoadJobsFromFile()
         {
             // Arrange
@@ -101,7 +102,6 @@ namespace WSyncPro.Test.Unit.Core
 
         [Fact]
         [Trait("Category", "Unit Test")]
-
         public async Task SaveJoblistToFile_ShouldSaveJobsToFile()
         {
             // Arrange
@@ -121,7 +121,9 @@ namespace WSyncPro.Test.Unit.Core
             await _syncService.SaveJoblistToFile(joblistFilePath);
 
             // Assert
-            _fileLoaderMock.Verify(fl => fl.SaveToFileAsObjectAsync(joblistFilePath, It.Is<List<SyncJob>>(jobs => jobs.Count == 2)), Times.Once);
+            _fileLoaderMock.Verify(fl => fl.SaveToFileAsObjectAsync(
+                joblistFilePath,
+                It.Is<List<SyncJob>>(jobs => jobs.Count == 2)), Times.Once);
         }
 
         [Fact]
@@ -136,7 +138,7 @@ namespace WSyncPro.Test.Unit.Core
                 SrcDirectory = "/source1",
                 DstDirectory = "/dest1",
                 Status = Status.Running,
-                Enabled = true // Mark the job as enabled
+                Enabled = true
             };
 
             var job2 = new SyncJob
@@ -146,39 +148,58 @@ namespace WSyncPro.Test.Unit.Core
                 SrcDirectory = "/source2",
                 DstDirectory = "/dest2",
                 Status = Status.Disabled,
-                Enabled = false // Job is disabled
+                Enabled = false
             };
 
             var filesToSync = new List<WObject>
-    {
-        new WFile { Name = "file1.txt", FullPath = "/source1/file1.txt" }
-    };
+            {
+                new WFile { Name = "file1.txt", FullPath = "/source1/file1.txt" }
+            };
 
             await _syncService.AddJob(job1);
             await _syncService.AddJob(job2);
 
-            _directoryScannerServiceMock.Setup(ds => ds.ScanAsync(job1)).ReturnsAsync(filesToSync);
-            _fileCopyMoveServiceMock.Setup(fs => fs.CopyFileAsync(It.Is<string>(s => s.EndsWith("file1.txt")),
-                                                                 It.Is<string>(s => s.EndsWith("file1.txt"))))
-                                     .Returns(Task.CompletedTask);
+            _directoryScannerServiceMock.Setup(ds => ds.ScanAsync(job1))
+                .ReturnsAsync(filesToSync);
+
+            _fileCopyMoveServiceMock.Setup(fs => fs.CopyFileAsync(
+                It.Is<string>(s => s.EndsWith("file1.txt")),
+                It.Is<string>(s => s.EndsWith("file1.txt"))))
+                .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _syncService.RunAllEnabledJobs();
+            var syncSummary = await _syncService.RunAllEnabledJobs();
 
             // Assert
-            Assert.Equal(job1.Id, result.Item1); // Ensure the correct job ID is returned
-            Assert.Equal(1, result.Item2);       // Ensure 1 file was processed
-            Assert.Equal("Jobs Completed", result.Item3); // Ensure the result message is correct
+            Assert.NotNull(syncSummary);
+            Assert.Equal(1, syncSummary.TotalJobs); // Only the enabled job
+            Assert.Equal(1, syncSummary.TotalJobsCompleted);
+            Assert.Equal(1, syncSummary.TotalFilesProcessed);
+
+            // Verify job summary for job1
+            var jobSummary = syncSummary.JobSummaries.FirstOrDefault(js => js.JobId == job1.Id);
+            Assert.NotNull(jobSummary);
+            Assert.Equal(job1.Name, jobSummary.JobName);
+            Assert.Equal(1, jobSummary.FilesProcessed);
+            Assert.Equal(0, jobSummary.FilesFailed);
+
+            // Verify that job2 (disabled) was not processed
+            var disabledJobSummary = syncSummary.JobSummaries.FirstOrDefault(js => js.JobId == job2.Id);
+            Assert.Null(disabledJobSummary);
 
             _directoryScannerServiceMock.Verify(ds => ds.ScanAsync(job1), Times.Once);
-            _fileCopyMoveServiceMock.Verify(fs => fs.CopyFileAsync(It.Is<string>(s => s.EndsWith("file1.txt")),
-                                                                  It.Is<string>(s => s.EndsWith("file1.txt"))), Times.Once);
-        }
+            _directoryScannerServiceMock.Verify(ds => ds.ScanAsync(job2), Times.Never);
 
+            _fileCopyMoveServiceMock.Verify(fs => fs.CopyFileAsync(
+                It.Is<string>(s => s.EndsWith("file1.txt")),
+                It.Is<string>(s => s.EndsWith("file1.txt"))), Times.Once);
+
+            _fileCopyMoveServiceMock.Verify(fs => fs.CopyFileAsync(
+                It.IsAny<string>(), It.IsAny<string>()), Times.Once); // Only once for job1
+        }
 
         [Fact]
         [Trait("Category", "Unit Test")]
-
         public async Task RunAllEnabledJobs_ShouldNotProcessDisabledJobs()
         {
             // Arrange
@@ -188,18 +209,21 @@ namespace WSyncPro.Test.Unit.Core
                 Name = "DisabledJob",
                 SrcDirectory = "/source",
                 DstDirectory = "/dest",
-                Status = Status.Disabled
+                Status = Status.Disabled,
+                Enabled = false
             };
 
             await _syncService.AddJob(job);
 
             // Act
-            var result = await _syncService.RunAllEnabledJobs();
+            var syncSummary = await _syncService.RunAllEnabledJobs();
 
             // Assert
-            Assert.Equal(Guid.Empty, result.Item1);
-            Assert.Equal(0, result.Item2);
-            Assert.Equal("Jobs Completed", result.Item3);
+            Assert.NotNull(syncSummary);
+            Assert.Equal(0, syncSummary.TotalJobs);
+            Assert.Equal(0, syncSummary.TotalJobsCompleted);
+            Assert.Equal(0, syncSummary.TotalFilesProcessed);
+            Assert.Empty(syncSummary.JobSummaries);
 
             _directoryScannerServiceMock.Verify(ds => ds.ScanAsync(It.IsAny<SyncJob>()), Times.Never);
             _fileCopyMoveServiceMock.Verify(fs => fs.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);

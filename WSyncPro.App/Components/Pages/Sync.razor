@@ -2,6 +2,7 @@
 @using Microsoft.Extensions.Logging
 @using WSyncPro.Core.Services
 @using WSyncPro.Models.Content
+@using WSyncPro.Models.Reporting
 @using WSyncPro.Util.Files
 @inject ISyncService SyncService
 @inject IFileLoader FileLoader
@@ -19,7 +20,6 @@
             <th>Status</th>
             <th>Source Directory</th>
             <th>Destination Directory</th>
-            <th>Enabled</th> <!-- New column for enabled status -->
             <th>Edit</th>
         </tr>
     </thead>
@@ -27,13 +27,13 @@
         @if (syncJobs == null)
         {
             <tr>
-                <td colspan="7">Loading...</td>
+                <td colspan="6">Loading...</td>
             </tr>
         }
         else if (syncJobs.Count == 0)
         {
             <tr>
-                <td colspan="7">No sync jobs found.</td>
+                <td colspan="6">No sync jobs found.</td>
             </tr>
         }
         else
@@ -46,7 +46,6 @@
                     <td>@job.Status</td>
                     <td>@job.SrcDirectory</td>
                     <td>@job.DstDirectory</td>
-                    <td>@(job.Enabled ? "Yes" : "No")</td> <!-- Display if the job is enabled -->
                     <td>
                         <button class="btn btn-secondary" @onclick="() => OpenEditJob(job)">Edit</button>
                     </td>
@@ -56,10 +55,68 @@
     </tbody>
 </table>
 
+<!-- Progress Display -->
+@if (isSyncRunning)
+{
+    <div class="progress-container">
+        <p><strong>Sync in progress...</strong></p>
+        <p>@progress.Message</p>
+        @if (!string.IsNullOrEmpty(progress.JobName))
+        {
+            <p>Job @progress.CurrentJobIndex of @progress.TotalJobs: @progress.JobName</p>
+        }
+        @if (progress.TotalFiles > 0)
+        {
+            <p>File @progress.ProcessedFiles of @progress.TotalFiles</p>
+            <progress value="@progress.ProcessedFiles" max="@progress.TotalFiles"></progress>
+        }
+    </div>
+}
+
+<!-- Summary Display -->
+@if (syncSummary != null && !isSyncRunning)
+{
+    <div class="summary-container">
+        <h4>Sync Summary</h4>
+        <p>Total Jobs: @syncSummary.TotalJobsCompleted / @syncSummary.TotalJobs</p>
+        <p>Total Files Processed: @syncSummary.TotalFilesProcessed</p>
+        <p>Total Files Failed: @syncSummary.TotalFilesFailed</p>
+        <p>Total Time: @syncSummary.TotalTime.ToString(@"hh\:mm\:ss")</p>
+
+        <h5>Job Details:</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Files Processed</th>
+                    <th>Files Failed</th>
+                    <th>Job Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var job in syncSummary.JobSummaries)
+                {
+                    <tr>
+                        <td>@job.JobName</td>
+                        <td>@job.FilesProcessed / @job.TotalFiles</td>
+                        <td>@job.FilesFailed</td>
+                        <td>@job.JobTime.ToString(@"hh\:mm\:ss")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- Buttons -->
+<button class="btn btn-success" @onclick="OpenCreateJob">Create New Job</button>
+<button class="btn btn-light" @onclick="SaveJobs">Save Jobs</button>
+<button class="btn btn-primary" @onclick="RunSync" disabled="@isSyncRunning">Run Sync</button>
+
 <!-- Log Filtering -->
 <div class="mb-3">
     <label for="logLevel" class="form-label">Log Level</label>
-    <select id="logLevel" class="form-select" @bind="selectedLogLevel">
+    <select id="logLevel" class="form-select" @bind="SelectedLogLevel">
         @foreach (var level in Enum.GetValues<LogLevel>())
         {
             <option value="@level">@level</option>
@@ -75,23 +132,39 @@
     }
 </div>
 
-<!-- Buttons -->
-<button class="btn btn-success" @onclick="OpenCreateJob">Create New Job</button>
-<button class="btn btn-primary" @onclick="RunSync">Run Sync</button>
-
 @code {
+    @implements IDisposable
+
     private List<SyncJob> syncJobs;
-    private LogLevel selectedLogLevel = LogLevel.Information;
     private List<string> logMessages = new List<string>();
     private List<string> filteredLogMessages = new List<string>();
 
+    private ProgressChangedEventArgs progress = new ProgressChangedEventArgs();
+    private bool isSyncRunning = false;
+
+    private SyncSummary syncSummary;
+
+    private LogLevel _selectedLogLevel = LogLevel.Information;
+    private LogLevel SelectedLogLevel
+    {
+        get => _selectedLogLevel;
+        set
+        {
+            if (_selectedLogLevel != value)
+            {
+                _selectedLogLevel = value;
+                FilterLogMessages();
+            }
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        // Load sync jobs from the syncJobConfig.json file
+        // Load sync jobs
         syncJobs = await SyncService.GetAllJobs();
 
-        // Subscribe to logs
-        Logger.LogInformation("Sync page loaded.");
+        // Subscribe to SyncService progress events
+        SyncService.ProgressChanged += OnProgressChanged;
 
         // Initialize log filtering
         FilterLogMessages();
@@ -101,6 +174,10 @@
     {
         NavigationManager.NavigateTo($"/sync/edit/{job.Id}");
     }
+    private void SaveJobs()
+    {
+        SyncService.SaveJoblistToFile("x");
+    }
 
     private void OpenCreateJob()
     {
@@ -109,35 +186,64 @@
 
     private async Task RunSync()
     {
-        var result = await SyncService.RunAllEnabledJobs();
-        Logger.LogInformation($"Job {result.jobId} processed {result.filesProcessed} files. Status: {result.message}");
+        isSyncRunning = true;
+        progress = new ProgressChangedEventArgs();
+        syncSummary = null;
+        try
+        {
+            // Offload the sync operation to a background thread
+            syncSummary = await Task.Run(() => SyncService.RunAllEnabledJobs());
+            Logger.LogInformation($"Sync completed. Total files processed: {syncSummary.TotalFilesProcessed}");
 
-        // Refresh the log messages after running sync
-        FilterLogMessages();
+            // Refresh the log messages after running sync
+            FilterLogMessages();
+        }
+        finally
+        {
+            isSyncRunning = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async void OnProgressChanged(object sender, ProgressChangedEventArgs e)
+    {
+        progress = e;
+        // Update UI
+        await InvokeAsync(StateHasChanged);
     }
 
     private void FilterLogMessages()
     {
+        // For demonstration purposes, adding dummy log messages
+        // In a real application, you would retrieve these from your logging infrastructure
+
+        // Example log messages (you can remove this block in production)
+        logMessages.Clear(); // Clear previous messages to avoid duplication
+        logMessages.Add("[Information] Sync page loaded.");
+        logMessages.Add("[Information] Starting sync process.");
+        logMessages.Add("[Debug] Copying file X to destination.");
+        logMessages.Add("[Error] An error occurred.");
+
         // Filter log messages based on the selected log level
         filteredLogMessages = logMessages
-            .Where(msg => GetLogLevelFromMessage(msg) >= selectedLogLevel)
+            .Where(msg => GetLogLevelFromMessage(msg) >= SelectedLogLevel)
             .ToList();
     }
 
     private LogLevel GetLogLevelFromMessage(string logMessage)
     {
         // Simple parser to determine log level from log message
+        if (logMessage.Contains("[Critical]")) return LogLevel.Critical;
         if (logMessage.Contains("[Error]")) return LogLevel.Error;
         if (logMessage.Contains("[Warning]")) return LogLevel.Warning;
         if (logMessage.Contains("[Information]")) return LogLevel.Information;
         if (logMessage.Contains("[Debug]")) return LogLevel.Debug;
-        return LogLevel.Trace;
+        if (logMessage.Contains("[Trace]")) return LogLevel.Trace;
+        return LogLevel.None;
     }
 
-    // Log message event (this is where you would wire up live log updates if using SignalR, etc.)
-    private void AddLogMessage(string logMessage)
+    public void Dispose()
     {
-        logMessages.Add(logMessage);
-        FilterLogMessages();
+        SyncService.ProgressChanged -= OnProgressChanged;
     }
 }

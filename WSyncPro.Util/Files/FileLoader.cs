@@ -41,6 +41,19 @@ namespace WSyncPro.Util.Files
 
         public async Task SaveToFileAsStringAsync(string filePath, string content)
         {
+            if (!Path.IsPathRooted(filePath))
+            {
+                string baseDirectory = AppContext.BaseDirectory;
+                filePath = Path.Combine(baseDirectory, filePath);
+            }
+
+            // Ensure the directory exists
+            string directory = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             await File.WriteAllTextAsync(filePath, content);
         }
 

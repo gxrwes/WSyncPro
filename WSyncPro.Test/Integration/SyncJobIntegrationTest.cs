@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text.RegularExpressions; // Added for Regex
 using System.Threading.Tasks;
 using WSyncPro.Core.Services;
 using WSyncPro.Models.Content;
 using WSyncPro.Models.Enum;
+using WSyncPro.Models.Reporting;
 using WSyncPro.Util.Files;
 using WSyncPro.Util.Services;
 using Xunit;
@@ -156,52 +157,34 @@ namespace WSyncPro.Test.Integration
             // Extract the filename from the full path
             var filename = Path.GetFileName(path);
 
-            // Split the pattern by '*' and '?' wildcards into fragments
-            var fragments = pattern.Split(new[] { '*', '?' }, StringSplitOptions.RemoveEmptyEntries);
+            // Convert wildcard pattern to regex pattern
+            string regexPattern = "^" + Regex.Escape(pattern)
+                                        .Replace(@"\*", ".*")
+                                        .Replace(@"\?", ".") + "$";
 
-            int lastIndex = 0;
-            foreach (var fragment in fragments)
-            {
-                // Ensure each fragment is found in the filename in sequence
-                int currentIndex = filename.IndexOf(fragment, lastIndex, StringComparison.OrdinalIgnoreCase);
-                if (currentIndex == -1)
-                {
-                    return false; // Fragment not found in filename
-                }
-
-                // Move the last index to just after the current fragment
-                lastIndex = currentIndex + fragment.Length;
-            }
-
-            // If the pattern ends with '*' or '?', allow additional characters after the last fragment
-            if (pattern.EndsWith("*") || pattern.EndsWith("?"))
-            {
-                return true;
-            }
-
-            // Ensure that no extra characters are left after the final fragment in non-* patterns
-            return lastIndex == filename.Length;
+            return Regex.IsMatch(filename, regexPattern, RegexOptions.IgnoreCase);
         }
-
-
-
 
         private async Task RunAndVerifyJob(SyncJob job, Action<string[]> verifyAction)
         {
-            var result = await _syncService.RunAllEnabledJobs();
+            var syncSummary = await _syncService.RunAllEnabledJobs();
 
-            // Fail the test if no files were processed
-            Assert.True(result.filesProcessed > 0, $"Job '{job.Name}' failed to process files.");
+            // Find the job summary for the current job
+            var jobSummary = syncSummary.JobSummaries.FirstOrDefault(js => js.JobId == job.Id);
+
+            // Fail the test if no files were processed for this job
+            Assert.NotNull(jobSummary);
+            Assert.True(jobSummary.FilesProcessed > 0, $"Job '{job.Name}' failed to process files.");
 
             // Verify the expected result for the job
             string[] dstFiles = Directory.GetFiles(Path.Combine(testDirectory, dstDirectory));
             verifyAction(dstFiles);
 
             // Clean up after each test
-            SaveJobResultsToTempFile(job, result.filesProcessed);
+            SaveJobResultsToTempFile(job, jobSummary);
         }
 
-        private void SaveJobResultsToTempFile(SyncJob job, int filesProcessed)
+        private void SaveJobResultsToTempFile(SyncJob job, JobSummary jobSummary)
         {
             // Save job results to a temporary file
             string tempFilePath = Path.Combine(tempDirectory, $"temp_{job.Id}.md");
@@ -211,7 +194,9 @@ namespace WSyncPro.Test.Integration
                 writer.WriteLine($"- Description: {job.Description}");
                 writer.WriteLine($"- Filters Included: {string.Join(", ", job.FilterInclude)}");
                 writer.WriteLine($"- Filters Excluded: {string.Join(", ", job.FilterExclude)}");
-                writer.WriteLine($"- Files Processed: {filesProcessed}");
+                writer.WriteLine($"- Files Processed: {jobSummary.FilesProcessed}");
+                writer.WriteLine($"- Files Failed: {jobSummary.FilesFailed}");
+                writer.WriteLine($"- Job Time: {jobSummary.JobTime}");
                 writer.WriteLine();
             }
         }

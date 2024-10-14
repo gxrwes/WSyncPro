@@ -8,24 +8,35 @@ using WSyncPro.Models.Enum;
 using WSyncPro.Util.Files;
 using WSyncPro.Util.Services;
 using Microsoft.Extensions.Logging;
+using WSyncPro.Core.Services;
+using WSyncPro.Models.Reporting;
+using System.Diagnostics; // Ensure the namespace includes ProgressChangedEventArgs
 
 namespace WSyncPro.Core.Services
 {
     public class SyncService : ISyncService
     {
+        private const string JOB_LIST_FILE = "./joblist.json";
         private readonly IFileLoader _fileLoader;
         private readonly IDirectoryScannerService _directoryScannerService;
         private readonly IFileCopyMoveService _fileCopyMoveService;
         private readonly ILogger<SyncService> _logger;
         private List<SyncJob> _jobs = new List<SyncJob>();
 
-        public SyncService(IFileLoader fileLoader, IDirectoryScannerService directoryScannerService, IFileCopyMoveService fileCopyMoveService, ILogger<SyncService> logger)
+        public SyncService(
+            IFileLoader fileLoader,
+            IDirectoryScannerService directoryScannerService,
+            IFileCopyMoveService fileCopyMoveService,
+            ILogger<SyncService> logger)
         {
             _fileLoader = fileLoader;
             _directoryScannerService = directoryScannerService;
             _fileCopyMoveService = fileCopyMoveService;
             _logger = logger;
         }
+
+        // Implementing the event from the interface
+        public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
 
         public Task AddJob(SyncJob job)
         {
@@ -91,9 +102,10 @@ namespace WSyncPro.Core.Services
             return Task.FromResult(job);
         }
 
-        public async Task LoadJoblistFromFile(string joblistFilePath)
+        public async Task LoadJoblistFromFile(string joblistFilePath = JOB_LIST_FILE)
         {
-            _logger.LogInformation($"Loading jobs from file: {joblistFilePath}");
+            //ignore custome filepath for now till we have env handling
+            joblistFilePath = JOB_LIST_FILE; _logger.LogInformation($"Loading jobs from file: {joblistFilePath}");
             var loadedJobs = await _fileLoader.LoadFileAndParseAsync<List<SyncJob>>(joblistFilePath);
             _jobs = loadedJobs ?? new List<SyncJob>();
             _logger.LogInformation($"Loaded {_jobs.Count} jobs from file");
@@ -101,39 +113,118 @@ namespace WSyncPro.Core.Services
 
         public async Task SaveJoblistToFile(string joblistFilePath)
         {
+            //ignore custome filepath for now till we have env handling
+            joblistFilePath = JOB_LIST_FILE;
             _logger.LogInformation($"Saving jobs to file: {joblistFilePath}");
             await _fileLoader.SaveToFileAsObjectAsync(joblistFilePath, _jobs);
             _logger.LogInformation($"Saved {_jobs.Count} jobs to file");
         }
 
-        public async Task<(Guid jobId, int filesProcessed, string message)> RunAllEnabledJobs()
+        public async Task<SyncSummary> RunAllEnabledJobs()
         {
-            int totalProcessedFiles = 0;
-            Guid lastProcessedJobId = Guid.Empty;
+            var syncSummary = new SyncSummary();
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            foreach (var job in _jobs.Where(j => j.Enabled))
+            var enabledJobs = _jobs.Where(j => j.Enabled).ToList();
+            syncSummary.TotalJobs = enabledJobs.Count;
+            int currentJobIndex = 0;
+
+            foreach (var job in enabledJobs)
             {
+                currentJobIndex++;
                 _logger.LogInformation($"Running job: {job.Name}");
+
+                var jobSummary = new JobSummary
+                {
+                    JobId = job.Id,
+                    JobName = job.Name,
+                };
+                var jobStopwatch = Stopwatch.StartNew();
+
+                // Notify progress at the start of the job
+                ProgressChanged?.Invoke(this, new ProgressChangedEventArgs
+                {
+                    JobId = job.Id,
+                    JobName = job.Name,
+                    TotalJobs = syncSummary.TotalJobs,
+                    CurrentJobIndex = currentJobIndex,
+                    Message = $"Starting job {job.Name}"
+                });
+
                 var objectsToSync = await _directoryScannerService.ScanAsync(job);
+                jobSummary.TotalFiles = objectsToSync.Count();
+                int processedFiles = 0;
+                int failedFiles = 0;
 
                 foreach (var wObject in objectsToSync)
                 {
                     var sourcePath = wObject.FullPath;
                     var destinationPath = System.IO.Path.Combine(job.DstDirectory, wObject.Name);
 
-                    if (wObject is WFile wFile && job.Status == Status.Running)
+                    if (wObject is WFile wFile)
                     {
-                        await _fileCopyMoveService.CopyFileAsync(sourcePath, destinationPath);
-                        totalProcessedFiles++;
-                        _logger.LogDebug($"Copied file: {sourcePath} to {destinationPath}");
+                        try
+                        {
+                            await _fileCopyMoveService.CopyFileAsync(sourcePath, destinationPath);
+                            processedFiles++;
+                            syncSummary.TotalFilesProcessed++;
+                            _logger.LogDebug($"Copied file: {sourcePath} to {destinationPath}");
+                        }
+                        catch (Exception ex)
+                        {
+                            failedFiles++;
+                            syncSummary.TotalFilesFailed++;
+                            _logger.LogError($"Failed to copy file: {sourcePath} to {destinationPath}. Error: {ex.Message}");
+                        }
+
+                        // Notify progress for each file copied
+                        ProgressChanged?.Invoke(this, new ProgressChangedEventArgs
+                        {
+                            JobId = job.Id,
+                            JobName = job.Name,
+                            TotalJobs = syncSummary.TotalJobs,
+                            CurrentJobIndex = currentJobIndex,
+                            TotalFiles = jobSummary.TotalFiles,
+                            ProcessedFiles = processedFiles,
+                            Message = $"Processed file {wFile.Name}"
+                        });
                     }
                 }
 
-                lastProcessedJobId = job.Id;
+                jobStopwatch.Stop();
+                jobSummary.FilesProcessed = processedFiles;
+                jobSummary.FilesFailed = failedFiles;
+                jobSummary.JobTime = jobStopwatch.Elapsed;
+                syncSummary.JobSummaries.Add(jobSummary);
+
+                // Notify progress at the end of the job
+                ProgressChanged?.Invoke(this, new ProgressChangedEventArgs
+                {
+                    JobId = job.Id,
+                    JobName = job.Name,
+                    TotalJobs = syncSummary.TotalJobs,
+                    CurrentJobIndex = currentJobIndex,
+                    TotalFiles = jobSummary.TotalFiles,
+                    ProcessedFiles = processedFiles,
+                    Message = $"Completed job {job.Name}"
+                });
             }
 
-            _logger.LogInformation($"Completed running jobs. Total files processed: {totalProcessedFiles}");
-            return (lastProcessedJobId, totalProcessedFiles, "Jobs Completed");
+            stopwatch.Stop();
+            syncSummary.TotalJobsCompleted = syncSummary.JobSummaries.Count;
+            syncSummary.TotalTime = stopwatch.Elapsed;
+
+            _logger.LogInformation($"Completed running jobs. Total files processed: {syncSummary.TotalFilesProcessed}");
+
+            // Notify progress at the end of all jobs
+            ProgressChanged?.Invoke(this, new ProgressChangedEventArgs
+            {
+                Message = "All jobs completed",
+                TotalJobs = syncSummary.TotalJobs,
+                CurrentJobIndex = syncSummary.TotalJobsCompleted,
+            });
+            //await SaveJoblistToFile(JOB_LIST_FILE);
+            return syncSummary;
         }
     }
 }
