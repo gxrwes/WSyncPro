@@ -1,0 +1,107 @@
+﻿@page "/sync/create"
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Content
+@inject ISyncService SyncService
+@inject NavigationManager NavigationManager
+@using Microsoft.Maui.Storage
+@using System.IO
+
+<h3>Create New Sync Job</h3>
+
+<EditForm Model="@newJob" OnValidSubmit="CreateJob">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="Name" class="form-label">Job Name</label>
+        <InputText id="Name" class="form-control" @bind-Value="newJob.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Description" class="form-label">Description</label>
+        <InputText id="Description" class="form-control" @bind-Value="newJob.Description" />
+    </div>
+
+    <div class="mb-3">
+        <label for="SrcDirectory" class="form-label">Source Directory</label>
+        <InputText id="SrcDirectory" class="form-control" @bind-Value="newJob.SrcDirectory" />
+        <button class="btn btn-secondary" type="button" @onclick="PickSourceDirectory">Pick Source Directory</button>
+    </div>
+
+    <div class="mb-3">
+        <label for="DstDirectory" class="form-label">Destination Directory</label>
+        <InputText id="DstDirectory" class="form-control" @bind-Value="newJob.DstDirectory" />
+        <button class="btn btn-secondary" type="button" @onclick="PickDestinationDirectory">Pick Destination Directory</button>
+    </div>
+
+    <div class="mb-3">
+        <label for="FilterInclude" class="form-label">Include Filters (one per line)</label>
+        <textarea id="FilterInclude" class="form-control" rows="3" @bind="filterIncludeText"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="FilterExclude" class="form-label">Exclude Filters (one per line)</label>
+        <textarea id="FilterExclude" class="form-control" rows="3" @bind="filterExcludeText"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Create Job</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+    private SyncJob newJob = new SyncJob();
+    private string filterIncludeText = string.Empty;
+    private string filterExcludeText = string.Empty;
+
+    private async Task CreateJob()
+    {
+        try
+        {
+            // Set the file path to a safe directory (AppDataDirectory)
+            string filePath = Path.Combine(FileSystem.AppDataDirectory, "syncJobConfig.json");
+
+            // Split the text areas into lists of filters
+            newJob.FilterInclude = filterIncludeText.Split(Environment.NewLine).ToList();
+            newJob.FilterExclude = filterExcludeText.Split(Environment.NewLine).ToList();
+
+            await SyncService.AddJob(newJob);
+            await SyncService.SaveJoblistToFile(filePath);
+            NavigationManager.NavigateTo("/sync");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.WriteLine($"Error saving job: {ex.Message}");
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/sync");
+    }
+
+    private void PickSourceDirectory()
+    {
+        try
+        {
+            // Logic for opening the file picker dialog to select the source directory
+            newJob.SrcDirectory = "/path/to/source"; // Placeholder: Use actual picker result
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.WriteLine($"Error accessing source directory: {ex.Message}");
+        }
+    }
+
+    private void PickDestinationDirectory()
+    {
+        try
+        {
+            // Logic for opening the file picker dialog to select the destination directory
+            newJob.DstDirectory = "/path/to/destination"; // Placeholder: Use actual picker result
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.WriteLine($"Error accessing destination directory: {ex.Message}");
+        }
+    }
+}
