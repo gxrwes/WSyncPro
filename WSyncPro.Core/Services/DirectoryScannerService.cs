@@ -88,9 +88,15 @@ namespace WSyncPro.Core.Services
 
         private bool IsPatternMatch(string path, string pattern)
         {
+            // Extract the filename from the full path
+            var filename = Path.GetFileName(path);
+
             // Convert wildcard pattern to regex pattern
             var regexPattern = "^" + Regex.Escape(pattern).Replace("\\*", ".*").Replace("\\?", ".") + "$";
-            return Regex.IsMatch(path, regexPattern, RegexOptions.IgnoreCase);
+
+            // Perform the regex match on the filename only
+            return Regex.IsMatch(filename, regexPattern, RegexOptions.IgnoreCase);
         }
+
     }
 }

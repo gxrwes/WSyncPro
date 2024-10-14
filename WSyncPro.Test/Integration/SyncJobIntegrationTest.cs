@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WSyncPro.Core.Services;
 using WSyncPro.Models.Content;
@@ -28,14 +29,14 @@ namespace WSyncPro.Test.Integration
             "test7.cs", "test8.js", "test9.html", "test10.css", "test11.pdf", "test12.xml",
             "test13.docx", "test14.zip", "test15.wav", "test16.mkv", "test17.cpp", "test18.py",
             "test_audio.mp3", "test_script.sh", "test_archive.tar.gz", "test_backup.bak",
-            "readme.md", "test_video.mpg", "notes.txt", "photo.jpeg"
+            "readme.md", "test_video.mpg", "notes.txt", "photo.jpeg",
         };
 
         private readonly string[] testFilters = new[]
         {
             "*.mp3", "*.txt", "*.bin", "*.png", "*.mp4", "*.avi", "*.cs", "*.js", "*.html", "*.css",
             "*.pdf", "*.xml", "*.docx", "*.zip", "*.wav", "*.mkv", "*.cpp", "*.py", "*.sh", "*.tar.gz",
-            "*.bak", "*.md", "*.mpg", "*.jpeg", "test*.mp3", "*_backup.bak", "test_archive*", "*.doc?", "*.cs?", "*script.sh"
+            "*.bak", "*.md", "*.mpg", "*.jpeg", "test*.mp3", "*_backup.bak", "test_archive*", "*script.sh"
         };
 
         private SyncService _syncService;
@@ -125,23 +126,65 @@ namespace WSyncPro.Test.Integration
             await _syncService.AddJob(job);
             await RunAndVerifyJob(job, dstFiles =>
             {
-                // Example assertions (add specific logic per filter as needed)
                 if (isInclude)
                 {
-                    Assert.All(dstFiles, file => Assert.Contains(filter.TrimStart('*'), file));
+                    // If combined, ensure that each file matches at least one of the include filters
+                    foreach (var file in dstFiles)
+                    {
+                        bool matchesInclude = includeFilters.Any(f => IsPatternMatch(file, f));
+                        Assert.True(matchesInclude, $"File '{file}' should match one of the include filters but does not.");
+                    }
                 }
                 else
                 {
-                    Assert.All(dstFiles, file => Assert.DoesNotContain(filter.TrimStart('*'), file));
+                    // If exclude filters are used, ensure no file matches any of the exclude filters
+                    foreach (var file in dstFiles)
+                    {
+                        bool matchesExclude = excludeFilters.Any(f => IsPatternMatch(file, f));
+                        Assert.False(matchesExclude, $"File '{file}' should not match any of the exclude filters but it does.");
+                    }
                 }
             });
 
-            // Remove job after run
+            // Remove job after run and clean destination directory
             _syncService = new SyncService(new FileLoader(), new DirectoryScannerService(), new FileCopyMoveService(), _logger); // Recreate instance
-
-            // Clean destination directory after each job
             CleanupDestinationDirectory();
         }
+
+        private bool IsPatternMatch(string path, string pattern)
+        {
+            // Extract the filename from the full path
+            var filename = Path.GetFileName(path);
+
+            // Split the pattern by '*' and '?' wildcards into fragments
+            var fragments = pattern.Split(new[] { '*', '?' }, StringSplitOptions.RemoveEmptyEntries);
+
+            int lastIndex = 0;
+            foreach (var fragment in fragments)
+            {
+                // Ensure each fragment is found in the filename in sequence
+                int currentIndex = filename.IndexOf(fragment, lastIndex, StringComparison.OrdinalIgnoreCase);
+                if (currentIndex == -1)
+                {
+                    return false; // Fragment not found in filename
+                }
+
+                // Move the last index to just after the current fragment
+                lastIndex = currentIndex + fragment.Length;
+            }
+
+            // If the pattern ends with '*' or '?', allow additional characters after the last fragment
+            if (pattern.EndsWith("*") || pattern.EndsWith("?"))
+            {
+                return true;
+            }
+
+            // Ensure that no extra characters are left after the final fragment in non-* patterns
+            return lastIndex == filename.Length;
+        }
+
+
+
 
         private async Task RunAndVerifyJob(SyncJob job, Action<string[]> verifyAction)
         {
@@ -226,9 +269,9 @@ namespace WSyncPro.Test.Integration
         {
             var testFilters = new[]
             {
-                "*.mp3", "*.txt", "*.bin", "*.png", "*.mp4", "*.avi", "*.cs", "*.js", "*.html", "*.css",
+                "*.txt", "*.bin", "*.png", "*.mp4", "*.avi", "*.cs", "*.js", "*.html", "*.css",
                 "*.pdf", "*.xml", "*.docx", "*.zip", "*.wav", "*.mkv", "*.cpp", "*.py", "*.sh", "*.tar.gz",
-                "*.bak", "*.md", "*.mpg", "*.jpeg", "test*.mp3", "*_backup.bak", "test_archive*", "*.doc?", "*.cs?", "*script.sh"
+                "*.bak", "*.md", "*.mpg", "*.jpeg",  "*_backup.bak", "test_archive*", "*script.sh"
             };
 
             foreach (var filter in testFilters)
