@@ -2,7 +2,8 @@
 {
     public enum Status
     {
-        Pending, // Add Pending status
+        Undefined,
+        Pending,
         Running,
         Paused,
         Disabled,

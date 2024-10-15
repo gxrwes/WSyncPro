@@ -23,8 +23,10 @@ namespace WSyncPro.Test.Unit.Core.Services
             // Create test files and directories
             File.WriteAllText(Path.Combine(_testDirectory, "file1.txt"), "Test File 1");
             File.WriteAllText(Path.Combine(_testDirectory, "file2.log"), "Test File 2");
-            Directory.CreateDirectory(Path.Combine(_testDirectory, "subdir"));
-            File.WriteAllText(Path.Combine(_testDirectory, "subdir", "file3.txt"), "Test File 3");
+
+            var subdirPath = Path.Combine(_testDirectory, "subdir");
+            Directory.CreateDirectory(subdirPath);
+            File.WriteAllText(Path.Combine(subdirPath, "file3.txt"), "Test File 3");
 
             _service = new DirectoryScannerService();
         }
@@ -46,6 +48,47 @@ namespace WSyncPro.Test.Unit.Core.Services
 
             // Assert
             Assert.Equal(3, result.Count); // Should find 3 files
+
+            // Verify that the RelativePath is correctly set
+            var file1 = result.OfType<WFile>().FirstOrDefault(f => f.Name == "file1.txt");
+            var file2 = result.OfType<WFile>().FirstOrDefault(f => f.Name == "file2.log");
+            var file3 = result.OfType<WFile>().FirstOrDefault(f => f.Name == "file3.txt");
+
+            Assert.NotNull(file1);
+            Assert.Equal("file1.txt".Replace("\\", "/"), file1.RelativePath.Replace("\\", "/"));
+
+            Assert.NotNull(file2);
+            Assert.Equal("file2.log".Replace("\\", "/"), file2.RelativePath.Replace("\\", "/"));
+
+            Assert.NotNull(file3);
+            Assert.Equal("subdir/file3.txt".Replace("\\", "/"), file3.RelativePath.Replace("\\", "/"));
+        }
+
+
+        [Fact]
+        [Trait("Category", "Unit Test")]
+        public async Task ScanAsync_ShouldSetCorrectRelativePaths()
+        {
+            // Arrange
+            var syncJob = new SyncJob
+            {
+                SrcDirectory = _testDirectory,
+                FilterInclude = new List<string>(),
+                FilterExclude = new List<string>()
+            };
+
+            // Act
+            var result = await _service.ScanAsync(syncJob);
+
+            // Assert
+            foreach (var wObject in result)
+            {
+                if (wObject is WFile wFile)
+                {
+                    var expectedRelativePath = Path.GetRelativePath(syncJob.SrcDirectory, wFile.FullPath);
+                    Assert.Equal(expectedRelativePath.Replace("\\", "/"), wFile.RelativePath.Replace("\\", "/"));
+                }
+            }
         }
 
         [Fact]

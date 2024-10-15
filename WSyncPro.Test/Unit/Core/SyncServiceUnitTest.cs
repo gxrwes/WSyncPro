@@ -138,7 +138,8 @@ namespace WSyncPro.Test.Unit.Core
                 SrcDirectory = "/source1",
                 DstDirectory = "/dest1",
                 Status = Status.Running,
-                Enabled = true
+                Enabled = true,
+                includeDirectories = false // Set to false or ensure RelativePath is set
             };
 
             var job2 = new SyncJob
@@ -153,7 +154,12 @@ namespace WSyncPro.Test.Unit.Core
 
             var filesToSync = new List<WObject>
             {
-                new WFile { Name = "file1.txt", FullPath = "/source1/file1.txt" }
+                new WFile
+                {
+                    Name = "file1.txt",
+                    FullPath = "/source1/file1.txt",
+                    RelativePath = "file1.txt" // Ensure RelativePath is set if includeDirectories is true
+                }
             };
 
             await _syncService.AddJob(job1);

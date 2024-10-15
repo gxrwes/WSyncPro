@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WSyncPro.Models.Content;
@@ -8,9 +9,8 @@ using WSyncPro.Models.Enum;
 using WSyncPro.Util.Files;
 using WSyncPro.Util.Services;
 using Microsoft.Extensions.Logging;
-using WSyncPro.Core.Services;
 using WSyncPro.Models.Reporting;
-using System.Diagnostics; // Ensure the namespace includes ProgressChangedEventArgs
+using System.Diagnostics;
 
 namespace WSyncPro.Core.Services
 {
@@ -50,6 +50,7 @@ namespace WSyncPro.Core.Services
                 existingJob.DstDirectory = job.DstDirectory;
                 existingJob.FilterInclude = job.FilterInclude;
                 existingJob.FilterExclude = job.FilterExclude;
+                existingJob.includeDirectories = job.includeDirectories;
                 existingJob.Enabled = job.Enabled;
 
                 _logger.LogInformation($"Updated existing job: {job.Name}");
@@ -76,6 +77,7 @@ namespace WSyncPro.Core.Services
                     existingJob.DstDirectory = job.DstDirectory;
                     existingJob.FilterInclude = job.FilterInclude;
                     existingJob.FilterExclude = job.FilterExclude;
+                    existingJob.includeDirectories = job.includeDirectories;
                     existingJob.Enabled = job.Enabled;
 
                     _logger.LogInformation($"Updated existing job: {job.Name}");
@@ -104,8 +106,7 @@ namespace WSyncPro.Core.Services
 
         public async Task LoadJoblistFromFile(string joblistFilePath = JOB_LIST_FILE)
         {
-            //ignore custome filepath for now till we have env handling
-            joblistFilePath = JOB_LIST_FILE; _logger.LogInformation($"Loading jobs from file: {joblistFilePath}");
+            _logger.LogInformation($"Loading jobs from file: {joblistFilePath}");
             var loadedJobs = await _fileLoader.LoadFileAndParseAsync<List<SyncJob>>(joblistFilePath);
             _jobs = loadedJobs ?? new List<SyncJob>();
             _logger.LogInformation($"Loaded {_jobs.Count} jobs from file");
@@ -113,8 +114,6 @@ namespace WSyncPro.Core.Services
 
         public async Task SaveJoblistToFile(string joblistFilePath)
         {
-            //ignore custome filepath for now till we have env handling
-            joblistFilePath = JOB_LIST_FILE;
             _logger.LogInformation($"Saving jobs to file: {joblistFilePath}");
             await _fileLoader.SaveToFileAsObjectAsync(joblistFilePath, _jobs);
             _logger.LogInformation($"Saved {_jobs.Count} jobs to file");
@@ -123,7 +122,7 @@ namespace WSyncPro.Core.Services
         public async Task<SyncSummary> RunAllEnabledJobs()
         {
             var syncSummary = new SyncSummary();
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
 
             var enabledJobs = _jobs.Where(j => j.Enabled).ToList();
             syncSummary.TotalJobs = enabledJobs.Count;
@@ -159,10 +158,29 @@ namespace WSyncPro.Core.Services
                 foreach (var wObject in objectsToSync)
                 {
                     var sourcePath = wObject.FullPath;
-                    var destinationPath = System.IO.Path.Combine(job.DstDirectory, wObject.Name);
 
                     if (wObject is WFile wFile)
                     {
+                        string destinationPath;
+
+                        if (job.includeDirectories)
+                        {
+                            // Replicate the directory structure
+                            destinationPath = Path.Combine(job.DstDirectory, wFile.RelativePath);
+
+                            // Ensure the destination directory exists
+                            var destinationDirectory = Path.GetDirectoryName(destinationPath);
+                            if (!Directory.Exists(destinationDirectory))
+                            {
+                                Directory.CreateDirectory(destinationDirectory);
+                            }
+                        }
+                        else
+                        {
+                            // Copy files directly into the destination directory
+                            destinationPath = Path.Combine(job.DstDirectory, wFile.Name);
+                        }
+
                         try
                         {
                             await _fileCopyMoveService.CopyFileAsync(sourcePath, destinationPath);
@@ -223,7 +241,7 @@ namespace WSyncPro.Core.Services
                 TotalJobs = syncSummary.TotalJobs,
                 CurrentJobIndex = syncSummary.TotalJobsCompleted,
             });
-            //await SaveJoblistToFile(JOB_LIST_FILE);
+
             return syncSummary;
         }
     }

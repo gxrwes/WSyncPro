@@ -29,6 +29,15 @@ namespace WSyncPro.Core.Services
 
         private async Task ScanDirectoryAsync(string directoryPath, SyncJob job, List<WObject> wObjects)
         {
+            // Calculate the relative path from the source directory
+            string relativeDirPath = Path.GetRelativePath(job.SrcDirectory, directoryPath);
+
+            // **Handle the case where relativeDirPath is "."**
+            if (relativeDirPath == ".")
+            {
+                relativeDirPath = string.Empty;
+            }
+
             // Get all files in the directory and filter them according to the SyncJob
             var files = Directory.EnumerateFiles(directoryPath)
                 .Where(file => ShouldIncludeFile(file, job.FilterInclude, job.FilterExclude));
@@ -36,6 +45,10 @@ namespace WSyncPro.Core.Services
             foreach (var file in files)
             {
                 var fileInfo = new FileInfo(file);
+
+                // Calculate the relative path for the file
+                string relativeFilePath = Path.Combine(relativeDirPath, fileInfo.Name);
+
                 var wFile = new WFile
                 {
                     Id = Guid.NewGuid(),
@@ -46,13 +59,14 @@ namespace WSyncPro.Core.Services
                     Filesize = fileInfo.Length,
                     Filetype = fileInfo.Extension,
                     FilesizeMultiplyer = FileSizeMultiplyer.Byte,
+                    RelativePath = relativeFilePath, // Store the relative path
                     WFileMetadata = new WFileMetadata
                     {
                         Metadata = new Dictionary<string, string>
-                        {
-                            { "CreationTime", fileInfo.CreationTime.ToString() },
-                            { "LastAccessTime", fileInfo.LastAccessTime.ToString() }
-                        }
+                {
+                    { "CreationTime", fileInfo.CreationTime.ToString() },
+                    { "LastAccessTime", fileInfo.LastAccessTime.ToString() }
+                }
                     }
                 };
 
@@ -68,6 +82,8 @@ namespace WSyncPro.Core.Services
                 await ScanDirectoryAsync(subDirectory, job, wObjects);
             }
         }
+
+
 
         private bool ShouldIncludeFile(string filePath, List<string> includeFilters, List<string> excludeFilters)
         {
