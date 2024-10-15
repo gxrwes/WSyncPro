@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Storage;
 using WSyncPro.Util.Services;
 using WSyncPro.Util.Files;
 using WSyncPro.Core.Services;
+
+#if WINDOWS
+//using WSyncPro.Platforms.Windows; // Namespace for Windows-specific implementations
+#endif
 
 namespace WSyncPro.App
 {
@@ -30,6 +33,9 @@ namespace WSyncPro.App
             builder.Services.AddSingleton<IFileLoader, FileLoader>();
             builder.Services.AddSingleton<IDirectoryScannerService, DirectoryScannerService>();
             builder.Services.AddSingleton<ISyncService, SyncService>();
+
+            // Register the FilePickerService
+            builder.Services.AddSingleton<IFilePickerService, FilePickerService>();
 
             return builder.Build();
         }

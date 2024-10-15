@@ -1,0 +1,17 @@
+[
+  {
+    "Id": "00000000-0000-0000-0000-000000000000",
+    "Name": "test",
+    "Description": "test",
+    "Status": "Pending",
+    "SrcDirectory": "C:\\DEVD\\TestDirectory\\src",
+    "DstDirectory": "C:\\DEVD\\TestDirectory\\dst",
+    "FilterInclude": [
+      "*.mp4"
+    ],
+    "FilterExclude": [
+      ""
+    ],
+    "Enabled": true
+  }
+]

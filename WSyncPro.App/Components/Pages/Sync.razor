@@ -108,9 +108,21 @@
     </div>
 }
 
+<!-- File Path Inputs -->
+<div class="mb-3">
+    <label for="saveFilePath" class="form-label">Save Job List File Path</label>
+    <input type="text" id="saveFilePath" class="form-control" @bind="saveFilePath" placeholder="Enter path to save job list" />
+</div>
+
+<div class="mb-3">
+    <label for="loadFilePath" class="form-label">Load Job List File Path</label>
+    <input type="text" id="loadFilePath" class="form-control" @bind="loadFilePath" placeholder="Enter path to load job list" />
+</div>
+
 <!-- Buttons -->
 <button class="btn btn-success" @onclick="OpenCreateJob">Create New Job</button>
 <button class="btn btn-light" @onclick="SaveJobs">Save Jobs</button>
+<button class="btn btn-light" @onclick="LoadJobs">Load Jobs</button>
 <button class="btn btn-primary" @onclick="RunSync" disabled="@isSyncRunning">Run Sync</button>
 
 <!-- Log Filtering -->
@@ -158,6 +170,10 @@
         }
     }
 
+    // File paths for saving and loading job lists
+    private string saveFilePath = "joblist.json";
+    private string loadFilePath = "joblist.json";
+
     protected override async Task OnInitializedAsync()
     {
         // Load sync jobs
@@ -174,14 +190,80 @@
     {
         NavigationManager.NavigateTo($"/sync/edit/{job.Id}");
     }
-    private void SaveJobs()
-    {
-        SyncService.SaveJoblistToFile("x");
-    }
 
     private void OpenCreateJob()
     {
         NavigationManager.NavigateTo("/sync/create");
+    }
+
+    private async Task SaveJobs()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(saveFilePath))
+            {
+                Logger.LogWarning("Save file path is empty.");
+                return;
+            }
+
+            await SaveCurrentJobsToExternalFile(saveFilePath);
+            Logger.LogInformation($"Jobs saved to {saveFilePath}");
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error saving jobs.");
+        }
+    }
+
+    private async Task LoadJobs()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(loadFilePath))
+            {
+                Logger.LogWarning("Load file path is empty.");
+                return;
+            }
+
+            await LoadCustomJobFile(loadFilePath);
+            syncJobs = await SyncService.GetAllJobs();
+            Logger.LogInformation($"Jobs loaded from {loadFilePath}");
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error loading jobs.");
+        }
+    }
+
+    private async Task SaveCurrentJobsToExternalFile(string filepath)
+    {
+        try
+        {
+            await FileLoader.SaveToFileAsObjectAsync(filepath, syncJobs);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error saving jobs to external file.");
+        }
+    }
+
+    private async Task LoadCustomJobFile(string filepath)
+    {
+        try
+        {
+            var tempJoblist = await FileLoader.LoadFileAndParseAsync<List<SyncJob>>(filepath);
+            if (tempJoblist != null && tempJoblist.Any())
+            {
+                foreach (var job in tempJoblist)
+                {
+                    await SyncService.AddJob(job);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Error loading jobs from external file.");
+        }
     }
 
     private async Task RunSync()
@@ -192,7 +274,7 @@
         try
         {
             // Offload the sync operation to a background thread
-            syncSummary = await Task.Run(() => SyncService.RunAllEnabledJobs());
+            syncSummary = await Task.Run(async () => await SyncService.RunAllEnabledJobs());
             Logger.LogInformation($"Sync completed. Total files processed: {syncSummary.TotalFilesProcessed}");
 
             // Refresh the log messages after running sync
