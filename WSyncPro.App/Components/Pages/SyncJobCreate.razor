@@ -55,7 +55,17 @@
             </div>
         </InputRadioGroup>
     </div>
-
+    <div class="mb-3">
+        <label>Keep Directories</label>
+        <InputRadioGroup @bind-Value="newJob.includeDirectories">
+            <div>
+                <InputRadio Value="true" /> Enabled
+            </div>
+            <div>
+                <InputRadio Value="false" /> Disabled
+            </div>
+        </InputRadioGroup>
+    </div>
 
 
     <button type="submit" class="btn btn-success">Create Job</button>
