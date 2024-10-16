@@ -11,53 +11,16 @@
 
 <h3>Sync Jobs</h3>
 
+<button class="btn btn-primary" @onclick="RunSync" disabled="@isSyncRunning">Run Sync</button>
 <!-- Job Table -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Source Directory</th>
-            <th>Destination Directory</th>
-            <th>Edit</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (syncJobs == null)
-        {
-            <tr>
-                <td colspan="6">Loading...</td>
-            </tr>
-        }
-        else if (syncJobs.Count == 0)
-        {
-            <tr>
-                <td colspan="6">No sync jobs found.</td>
-            </tr>
-        }
-        else
-        {
-            @foreach (var job in syncJobs)
-            {
-                <tr>
-                    <td>@job.Name</td>
-                    <td>@job.Description</td>
-                    <td>@job.Status</td>
-                    <td>@job.SrcDirectory</td>
-                    <td>@job.DstDirectory</td>
-                    <td>
-                        <button class="btn btn-secondary" @onclick="() => OpenEditJob(job)">Edit</button>
-                    </td>
-                </tr>
-            }
-        }
-    </tbody>
-</table>
+<JoblistContainer SyncJobs="@syncJobs"/>
+<button class="btn btn-success" @onclick="OpenCreateJob">Create New Job</button>
+
 
 <!-- Progress Display -->
 @if (isSyncRunning)
 {
+    
     <div class="progress-container">
         <p><strong>Sync in progress...</strong></p>
         <p>@progress.Message</p>
@@ -76,54 +39,22 @@
 <!-- Summary Display -->
 @if (syncSummary != null && !isSyncRunning)
 {
-    <div class="summary-container">
-        <h4>Sync Summary</h4>
-        <p>Total Jobs: @syncSummary.TotalJobsCompleted / @syncSummary.TotalJobs</p>
-        <p>Total Files Processed: @syncSummary.TotalFilesProcessed</p>
-        <p>Total Files Failed: @syncSummary.TotalFilesFailed</p>
-        <p>Total Time: @syncSummary.TotalTime.ToString(@"hh\:mm\:ss")</p>
-
-        <h5>Job Details:</h5>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Job Name</th>
-                    <th>Files Processed</th>
-                    <th>Files Failed</th>
-                    <th>Job Time</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var job in syncSummary.JobSummaries)
-                {
-                    <tr>
-                        <td>@job.JobName</td>
-                        <td>@job.FilesProcessed / @job.TotalFiles</td>
-                        <td>@job.FilesFailed</td>
-                        <td>@job.JobTime.ToString(@"hh\:mm\:ss")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    <SyncSummaryContainer SyncSummary="@syncSummary" />
 }
 
 <!-- File Path Inputs -->
-<div class="mb-3">
-    <label for="saveFilePath" class="form-label">Save Job List File Path</label>
-    <input type="text" id="saveFilePath" class="form-control" @bind="saveFilePath" placeholder="Enter path to save job list" />
+<div class="mb-1">
+    <input type="text" id="saveFilePath"  @bind="saveFilePath" placeholder="Enter path to save job list" />
+    <button class="btn btn-light" @onclick="SaveJobs">Save Jobs</button>
 </div>
 
-<div class="mb-3">
-    <label for="loadFilePath" class="form-label">Load Job List File Path</label>
-    <input type="text" id="loadFilePath" class="form-control" @bind="loadFilePath" placeholder="Enter path to load job list" />
+<div class="mb-1">
+    <input type="text" id="loadFilePath" @bind="loadFilePath" placeholder="Enter path to load job list" />
+    <button class="btn btn-light" @onclick="LoadJobs">Load Jobs</button>
 </div>
 
 <!-- Buttons -->
-<button class="btn btn-success" @onclick="OpenCreateJob">Create New Job</button>
-<button class="btn btn-light" @onclick="SaveJobs">Save Jobs</button>
-<button class="btn btn-light" @onclick="LoadJobs">Load Jobs</button>
-<button class="btn btn-primary" @onclick="RunSync" disabled="@isSyncRunning">Run Sync</button>
+
 
 <!-- Log Filtering -->
 <div class="mb-3">
