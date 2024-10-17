@@ -1,0 +1,25 @@
+.version-info-container {
+    max-width: 300px; /* Limits the width of the component */
+    padding: 10px;
+    border: 1px solid #ddd; /* Optional: Adds a subtle border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #f9f9f9; /* Optional: Light background color */
+    float: left; /* Aligns the component to the left side of the screen */
+}
+
+.version-info-table {
+    width: 100%; /* Ensures the table fits the container */
+    font-size: 12px; /* Reduces the text size */
+    line-height: 1.2; /* Reduces space between lines */
+}
+
+    .version-info-table th, .version-info-table td {
+        padding: 3px; /* Reduces padding to minimize space between rows */
+        text-align: left;
+    }
+
+h3 {
+    font-size: 16px; /* Adjusts the heading size */
+    text-align: center;
+    margin-bottom: 8px; /* Reduces space below the heading */
+}

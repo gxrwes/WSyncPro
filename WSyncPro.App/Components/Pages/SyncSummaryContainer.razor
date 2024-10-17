@@ -1,0 +1,48 @@
+@using WSyncPro.Models.Reporting
+@if(isLoaded)
+{
+    <div class="summary-container">
+        <h4>Sync Summary</h4>
+        <p>Total Jobs: @SyncSummary.TotalJobsCompleted / @SyncSummary.TotalJobs</p>
+        <p>Total Files Processed: @SyncSummary.TotalFilesProcessed</p>
+        <p>Total Files Failed: @SyncSummary.TotalFilesFailed</p>
+        <p>Total Time: @SyncSummary.TotalTime.ToString(@"hh\:mm\:ss")</p>
+
+        <h5>Job Details:</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Files Processed</th>
+                    <th>Files Failed</th>
+                    <th>Job Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var job in SyncSummary.JobSummaries)
+                {
+                    <tr>
+                        <td>@job.JobName</td>
+                        <td>@job.FilesProcessed / @job.TotalFiles</td>
+                        <td>@job.FilesFailed</td>
+                        <td>@job.JobTime.ToString(@"hh\:mm\:ss")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>Loading ...</p>
+}
+@code{
+    [Parameter]
+    public SyncSummary SyncSummary { get; set; } // Changed to a property
+    private bool isLoaded = false;
+    protected override async Task OnInitializedAsync()
+    {
+        isLoaded = true;
+    }
+
+}

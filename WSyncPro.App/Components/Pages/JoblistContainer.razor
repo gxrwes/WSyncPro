@@ -1,0 +1,72 @@
+@using WSyncPro.Models.Content
+@inject NavigationManager NavigationManager
+<!--JoblistContainer-->
+@if(isLoaded)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Source Directory</th>
+                <th>Destination Directory</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (SyncJobs == null)
+            {
+                <tr>
+                    <td colspan="6">Loading...</td>
+                </tr>
+            }
+            else if (SyncJobs.Count == 0)
+            {
+                <tr>
+                    <td colspan="6">No sync jobs found.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var job in SyncJobs)
+                {
+                    <tr>
+                        <td>@job.Name</td>
+                        <td>@job.Description</td>
+                        <td>@job.Status</td>
+                        <td>@job.SrcDirectory</td>
+                        <td>@job.DstDirectory</td>
+                        <td>
+                            <button class="btn btn-secondary" @onclick="() => OpenEditJob(job)">Edit</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+}
+else
+{
+    <p>Loading ... </p>
+}
+
+@code{
+    [Parameter]
+    public List<SyncJob> SyncJobs { get; set; } // Changed to a property
+    public bool isLoaded = false;
+    protected override async Task OnInitializedAsync()
+    {
+        if (SyncJobs == null)
+        {
+            SyncJobs = new List<SyncJob>();
+        }
+        isLoaded = true;
+    }
+
+    private void OpenEditJob(SyncJob job)
+    {
+        NavigationManager.NavigateTo($"/sync/edit/{job.Id}");
+    }
+}
