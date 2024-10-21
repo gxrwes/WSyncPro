@@ -8,5 +8,6 @@ namespace WSyncPro.Core.Services
     public interface IDirectoryScannerService
     {
         Task<List<WObject>> ScanAsync(SyncJob job);
+        Task<List<WObject>> ScanAsync(ImportProfile profile, string importPath);
     }
 }

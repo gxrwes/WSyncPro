@@ -3,7 +3,7 @@
     padding: 10px;
     border: 1px solid #ddd; /* Optional: Adds a subtle border */
     border-radius: 5px; /* Rounded corners */
-    background-color: #f9f9f9; /* Optional: Light background color */
+    background-color: rgb(128, 128, 128); /* Optional: Light background color */
     float: left; /* Aligns the component to the left side of the screen */
 }
 

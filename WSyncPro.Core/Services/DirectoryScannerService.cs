@@ -83,7 +83,17 @@ namespace WSyncPro.Core.Services
             }
         }
 
+        public async Task<List<WObject>> ScanAsync(ImportProfile profile, string path)
+        {
+            // create Fake SyncJob
+            SyncJob tempJob = new SyncJob();
+            tempJob.SrcDirectory = path;
+            tempJob.includeDirectories = profile.includeDirectories;
+            tempJob.FilterExclude = profile.FilterExclude;
+            tempJob.FilterInclude = profile.FilterInclude;
 
+            return await ScanAsync(tempJob);
+        }
 
         private bool ShouldIncludeFile(string filePath, List<string> includeFilters, List<string> excludeFilters)
         {

@@ -28,8 +28,6 @@ namespace WSyncPro.Core.Services
         Task<SyncJob> GetJobById(Guid id);
         Task AddJob(SyncJob job);
         Task AddJob(List<SyncJob> jobs);
-
-        // Updated method signature to return SyncSummary
         Task<SyncSummary> RunAllEnabledJobs();
     }
 }

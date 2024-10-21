@@ -1,9 +1,21 @@
 ﻿html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: rgb(46, 46, 46);
+    color: rgb(172, 172, 172)
 }
 
+h1, h2, h3 {
+    color: rgb(103, 34, 203)
+}
+
+
+td, tr {
+    color: rgb(172, 172, 172)
+}
+
+
 a, .btn-link {
-    color: #006bb7;
+    color: rgb(160, 0, 191);
 }
 
 .btn-primary {
