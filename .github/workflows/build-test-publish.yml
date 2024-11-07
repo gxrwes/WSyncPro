@@ -18,13 +18,13 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x' # Adjust this to match your project's .NET version
+          dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore the solution
+        run: dotnet restore ./WSyncPro.sln
 
-      - name: Build the solution
-        run: dotnet build --configuration Release --no-restore
+      - name: Build the solution for Windows
+        run: dotnet build ./WSyncPro.App/WSyncPro.App.csproj -c Release -f net8.0-windows10.0.19041.0 --no-restore
 
   test:
     name: Test
@@ -39,8 +39,14 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Restore the solution
+        run: dotnet restore ./WSyncPro.sln
+
+      - name: Build the test project
+        run: dotnet build ./WSyncPro.Test/WSyncPro.Test.csproj -c Debug
+
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test ./WSyncPro.Test/WSyncPro.Test.csproj --verbosity normal
 
   publish:
     name: Publish
@@ -55,6 +61,9 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
+
+      - name: Restore the solution
+        run: dotnet restore ./WSyncPro.sln
 
       - name: Publish the app
         run: |
