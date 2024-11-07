@@ -39,5 +39,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Restore the solution
+        run: dotnet restore ./WSyncPro.sln
+
+      - name: Build the test project
+        run: dotnet build ./WSyncPro.Test/WSyncPro.Test.csproj -c Debug
+
       - name: Run tests
-        run: dotnet test ./WSyncPro.Test/WSyncPro.Test.csproj --no-build --verbosity normal
+        run: dotnet test ./WSyncPro.Test/WSyncPro.Test.csproj --verbosity normal
