@@ -20,10 +20,10 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies (Windows only)
-        run: dotnet restore ./WSyncPro.App/WSyncPro.App.csproj -f net8.0-windows10.0.19041.0
+      - name: Restore the solution
+        run: dotnet restore ./WSyncPro.sln
 
-      - name: Build the solution (Windows only)
+      - name: Build the solution for Windows
         run: dotnet build ./WSyncPro.App/WSyncPro.App.csproj -c Release -f net8.0-windows10.0.19041.0 --no-restore
 
   test:
