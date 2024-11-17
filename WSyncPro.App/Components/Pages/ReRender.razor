@@ -1,0 +1,72 @@
+﻿@using Microsoft.Extensions.Logging
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Config
+@using WSyncPro.Models.Content
+@using WSyncPro.Models.Enum.ReRenderEnumCollection
+@inject ILogger<ReRender> Logger
+@inject IDirectoryScannerService Dss
+
+<h3>ReRender Jobs</h3>
+
+<div>
+    <label for="jobName">Job Name:</label>
+    <input id="jobName" type="text" @bind="RenderJob.Name" placeholder="Enter job name" class="form-control" />
+
+    <label for="srcDirectory">Source Directory/File:</label>
+    <input id="srcDirectory" type="text" @bind="RenderJob.SrcDirectory" placeholder="Enter source path" class="form-control" />
+
+    <label for="dstDirectory">Destination Directory:</label>
+    <input id="dstDirectory" type="text" @bind="RenderJob.DstDirectory" placeholder="Enter destination path" class="form-control" />
+
+    <label for="videoType">Video Type:</label>
+    <select id="videoType" @bind="RenderJob.VideoType" class="form-control">
+        @foreach (var videoType in VideoType.All)
+        {
+            <option value="@videoType">@videoType</option>
+        }
+    </select>
+
+    <div class="form-check">
+        <input type="checkbox" id="deleteOriginal" class="form-check-input" @bind="RenderJob.DeleteOriginal" />
+        <label class="form-check-label" for="deleteOriginal">Delete Original Files</label>
+    </div>
+</div>
+
+<div class="mt-3">
+    <button class="btn btn-primary" @onclick="RunReRender">Run ReRender</button>
+    <div class="mt-3">
+        <span class="text-success">@StatusMessage</span>
+    </div>
+</div>
+
+@code {
+    private RenderJob RenderJob = new RenderJob();
+    private string StatusMessage = string.Empty;
+
+    private async Task RunReRender()
+    {
+        try
+        {
+            RenderJob.IsRunning = true;
+            StatusMessage = "ReRender started...";
+            Logger.LogInformation("ReRender started for job: {JobName}", RenderJob.Name);
+
+            var reRenderService = new ReRenderService(Dss, // Replace with actual service
+                envCache: new WEnv()
+            );
+
+            await reRenderService.ReRender(RenderJob);
+
+            StatusMessage = "ReRender completed successfully!";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during ReRender execution.");
+            StatusMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            RenderJob.IsRunning = false;
+        }
+    }
+}
