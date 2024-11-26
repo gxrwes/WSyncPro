@@ -1,0 +1,92 @@
+@using WSyncPro.Models.Content
+@using WSyncPro.Models.Enum
+@using MudBlazor
+
+<MudPaper Class="p-4">
+    <!-- Name Field -->
+    <MudTextField @bind-Value="SyncJob.Name" Label="Name" Disabled="@(Editable == false)" />
+
+    <!-- Description Field -->
+    <MudTextField @bind-Value="SyncJob.Description" Label="Description" Disabled="@(Editable == false)" />
+
+    <!-- Status Dropdown -->
+    <MudSelect @bind-Value="SyncJob.Status" Label="Status" Disabled="@(Editable == false)">
+        @foreach (var status in Enum.GetValues<Status>())
+        {
+            <MudSelectItem Value="@status">@status</MudSelectItem>
+        }
+    </MudSelect>
+
+    <!-- Source and Destination Directories -->
+    <MudTextField @bind-Value="SyncJob.SrcDirectory" Label="Source Directory" Disabled="@(Editable == false)" />
+    <MudTextField @bind-Value="SyncJob.DstDirectory" Label="Destination Directory" Disabled="@(Editable == false)" />
+
+    <!-- Include Filters -->
+    <MudText Typo="Typo.h6" Class="mt-2">Include Filters</MudText>
+    <MudChipSet T="string" Disabled="@(Editable == false)">
+        @foreach (var filter in SyncJob.FilterInclude)
+        {
+            <MudChip T="string" Text="@filter" OnClose="chip => RemoveIncludeFilter(chip.Text)" />
+        }
+    </MudChipSet>
+    @if (Editable)
+    {
+        <MudTextField Label="Add Include Filter" @bind-Value="NewIncludeFilter" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Add" OnAdornmentClick="AddIncludeFilter" />
+    }
+
+    <!-- Exclude Filters -->
+    <MudText Typo="Typo.h6" Class="mt-4">Exclude Filters</MudText>
+    <MudChipSet T="string" Disabled="@(Editable == false)">
+        @foreach (var filter in SyncJob.FilterExclude)
+        {
+            <MudChip T="string" Text="@filter" OnClose="chip => RemoveExcludeFilter(chip.Text)" />
+        }
+    </MudChipSet>
+    @if (Editable)
+    {
+        <MudTextField Label="Add Exclude Filter" @bind-Value="NewExcludeFilter" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Add" OnAdornmentClick="AddExcludeFilter" />
+    }
+
+    <!-- Switches -->
+    <MudSwitch T="bool" @bind-Checked="SyncJob.includeDirectories" Label="Include Directories" Disabled="@(Editable == false)" />
+    <MudSwitch T="bool" @bind-Checked="SyncJob.Enabled" Label="Enabled" Disabled="@(Editable == false)" />
+</MudPaper>
+
+@code {
+    [Parameter]
+    public SyncJob SyncJob { get; set; } = new();
+
+    [Parameter]
+    public bool Editable { get; set; } = true;
+
+    private string NewIncludeFilter { get; set; }
+    private string NewExcludeFilter { get; set; }
+
+    private void AddIncludeFilter()
+    {
+        if (!string.IsNullOrWhiteSpace(NewIncludeFilter))
+        {
+            SyncJob.FilterInclude.Add(NewIncludeFilter);
+            NewIncludeFilter = string.Empty;
+        }
+    }
+
+    private void AddExcludeFilter()
+    {
+        if (!string.IsNullOrWhiteSpace(NewExcludeFilter))
+        {
+            SyncJob.FilterExclude.Add(NewExcludeFilter);
+            NewExcludeFilter = string.Empty;
+        }
+    }
+
+    private void RemoveIncludeFilter(string filter)
+    {
+        SyncJob.FilterInclude.Remove(filter);
+    }
+
+    private void RemoveExcludeFilter(string filter)
+    {
+        SyncJob.FilterExclude.Remove(filter);
+    }
+}
