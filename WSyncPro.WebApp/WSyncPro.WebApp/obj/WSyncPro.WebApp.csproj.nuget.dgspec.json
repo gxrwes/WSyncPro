@@ -152,14 +152,6 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Blazored.LocalStorage": {
-              "target": "Package",
-              "version": "[4.5.0, )"
-            },
-            "Blazored.Toast": {
-              "target": "Package",
-              "version": "[4.2.1, )"
-            },
             "Microsoft.AspNetCore.Components.WebAssembly.Server": {
               "target": "Package",
               "version": "[8.0.8, )"
@@ -183,10 +175,6 @@
             "MudBlazor": {
               "target": "Package",
               "version": "[7.15.0, )"
-            },
-            "Tewr.Blazor.FileReader": {
-              "target": "Package",
-              "version": "[3.3.2.23201, )"
             }
           },
           "imports": [

@@ -1,27 +1,35 @@
-﻿@using MudBlazor
+﻿
+
 @inherits LayoutComponentBase
 
-<MudLayout>
-    <!-- Sidebar -->
-    <MudDrawer Open="true" Anchor="Anchor.Left" Elevation="1" Variant="DrawerVariant.Responsive">
-        <MudText Typo="Typo.h5" Class="pl-3 pt-3">WSyncPro</MudText>
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+<div class="page">
+    <div class="sidebar">
         <NavMenu />
-    </MudDrawer>
+    </div>
 
-    <!-- Main Content -->
-    <MudMainContent Class="main-content">
-        <!-- Top Navigation Bar -->
-        <MudAppBar Color="Color.Primary" Elevation="4">
-            <MudText Typo="Typo.h6" Class="ml-2 text-white">WSyncPro WebApp</MudText>
-            <MudSpacer />
-            <MudButton Variant="Variant.Text" Class="text-white" Link="https://learn.microsoft.com/aspnet/core/" Target="_blank">
-                About
-            </MudButton>
-        </MudAppBar>
-
-        <!-- Main Content Body -->
-        <div class="content">
-            @Body
+    <main>
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
-    </MudMainContent>
-</MudLayout>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

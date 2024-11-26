@@ -46,38 +46,6 @@
           }
         }
       },
-      "Blazored.LocalStorage/4.5.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNetCore.Components.Web": "8.0.0"
-        },
-        "compile": {
-          "lib/net8.0/Blazored.LocalStorage.dll": {}
-        },
-        "runtime": {
-          "lib/net8.0/Blazored.LocalStorage.dll": {}
-        }
-      },
-      "Blazored.Toast/4.2.1": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNetCore.Components": "8.0.2",
-          "Microsoft.AspNetCore.Components.Web": "8.0.2",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0"
-        },
-        "compile": {
-          "lib/net8.0/Blazored.Toast.dll": {}
-        },
-        "runtime": {
-          "lib/net8.0/Blazored.Toast.dll": {}
-        },
-        "build": {
-          "buildTransitive/Blazored.Toast.props": {}
-        },
-        "buildMultiTargeting": {
-          "buildMultiTargeting/Blazored.Toast.props": {}
-        }
-      },
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -2036,29 +2004,6 @@
           }
         }
       },
-      "Tewr.Blazor.FileReader/3.3.2.23201": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.AspNetCore.Components.Web": "6.0.0",
-          "Microsoft.Bcl.AsyncInterfaces": "6.0.0"
-        },
-        "compile": {
-          "lib/net6.0/Tewr.Blazor.FileReader.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0/Tewr.Blazor.FileReader.dll": {
-            "related": ".xml"
-          }
-        },
-        "build": {
-          "buildTransitive/Tewr.Blazor.FileReader.props": {}
-        },
-        "buildMultiTargeting": {
-          "buildMultiTargeting/Tewr.Blazor.FileReader.props": {}
-        }
-      },
       "WSyncPro.WebApp.Client/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
@@ -2116,43 +2061,6 @@
         "azureicon.png",
         "lib/netstandard2.0/Azure.Identity.dll",
         "lib/netstandard2.0/Azure.Identity.xml"
-      ]
-    },
-    "Blazored.LocalStorage/4.5.0": {
-      "sha512": "6nZuJwA7zNIKx83IsObiHXZb09ponJOpCClU3en+hI8ZFvrOKXeOw+H7TegQZQrvdR1n9fkrVkEBQZg8vx6ZTw==",
-      "type": "package",
-      "path": "blazored.localstorage/4.5.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "README.md",
-        "blazored.localstorage.4.5.0.nupkg.sha512",
-        "blazored.localstorage.nuspec",
-        "icon.png",
-        "lib/net6.0/Blazored.LocalStorage.dll",
-        "lib/net7.0/Blazored.LocalStorage.dll",
-        "lib/net8.0/Blazored.LocalStorage.dll"
-      ]
-    },
-    "Blazored.Toast/4.2.1": {
-      "sha512": "RuSGS8m21IejQ8EKXjZYEcCbgZEhyP7VptvyHjdRDKkJ3wxCqANKWvDxSKuExSbk1NLD1tySe8OpPYsdCeqvcw==",
-      "type": "package",
-      "path": "blazored.toast/4.2.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "README.md",
-        "blazored.toast.4.2.1.nupkg.sha512",
-        "blazored.toast.nuspec",
-        "build/Blazored.Toast.props",
-        "build/Microsoft.AspNetCore.StaticWebAssets.props",
-        "buildMultiTargeting/Blazored.Toast.props",
-        "buildTransitive/Blazored.Toast.props",
-        "icon.png",
-        "lib/net6.0/Blazored.Toast.dll",
-        "lib/net7.0/Blazored.Toast.dll",
-        "lib/net8.0/Blazored.Toast.dll",
-        "staticwebassets/Blazored.Toast.bundle.scp.css"
       ]
     },
     "Humanizer.Core/2.14.1": {
@@ -5308,30 +5216,6 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Tewr.Blazor.FileReader/3.3.2.23201": {
-      "sha512": "6YJjdFsDH3DIqCMHNdJTXbvitwV56fojQA5uehfWouJ9Po/IoZJy5EtcYYoo4s+WsSj3TbqGZH2C7qNuOEkVaA==",
-      "type": "package",
-      "path": "tewr.blazor.filereader/3.3.2.23201",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "build/Microsoft.AspNetCore.StaticWebAssets.props",
-        "build/Tewr.Blazor.FileReader.props",
-        "buildMultiTargeting/Tewr.Blazor.FileReader.props",
-        "buildTransitive/Tewr.Blazor.FileReader.props",
-        "icon.png",
-        "lib/net5.0/Tewr.Blazor.FileReader.dll",
-        "lib/net5.0/Tewr.Blazor.FileReader.xml",
-        "lib/net6.0/Tewr.Blazor.FileReader.dll",
-        "lib/net6.0/Tewr.Blazor.FileReader.xml",
-        "lib/netstandard2.0/Tewr.Blazor.FileReader.dll",
-        "lib/netstandard2.0/Tewr.Blazor.FileReader.xml",
-        "staticwebassets/FileReaderComponent.js",
-        "staticwebassets/FileReaderComponent.js.map",
-        "tewr.blazor.filereader.3.3.2.23201.nupkg.sha512",
-        "tewr.blazor.filereader.nuspec"
-      ]
-    },
     "WSyncPro.WebApp.Client/1.0.0": {
       "type": "project",
       "path": "../WSyncPro.WebApp.Client/WSyncPro.WebApp.Client.csproj",
@@ -5340,15 +5224,12 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "Blazored.LocalStorage >= 4.5.0",
-      "Blazored.Toast >= 4.2.1",
       "Microsoft.AspNetCore.Components.WebAssembly.Server >= 8.0.8",
       "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore >= 8.0.8",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 8.0.8",
       "Microsoft.EntityFrameworkCore.SqlServer >= 8.0.8",
       "Microsoft.EntityFrameworkCore.Tools >= 8.0.8",
       "MudBlazor >= 7.15.0",
-      "Tewr.Blazor.FileReader >= 3.3.2.23201",
       "WSyncPro.WebApp.Client >= 1.0.0"
     ]
   },
@@ -5406,14 +5287,6 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
-          "Blazored.LocalStorage": {
-            "target": "Package",
-            "version": "[4.5.0, )"
-          },
-          "Blazored.Toast": {
-            "target": "Package",
-            "version": "[4.2.1, )"
-          },
           "Microsoft.AspNetCore.Components.WebAssembly.Server": {
             "target": "Package",
             "version": "[8.0.8, )"
@@ -5437,10 +5310,6 @@
           "MudBlazor": {
             "target": "Package",
             "version": "[7.15.0, )"
-          },
-          "Tewr.Blazor.FileReader": {
-            "target": "Package",
-            "version": "[3.3.2.23201, )"
           }
         },
         "imports": [

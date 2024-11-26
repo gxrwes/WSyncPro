@@ -1,15 +1,12 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using WSyncPro.WebApp.Client.Pages;
 using WSyncPro.WebApp.Components;
 using WSyncPro.WebApp.Components.Account;
 using WSyncPro.WebApp.Data;
 using MudBlazor.Services;
-using Blazored.LocalStorage;
-using Blazored.Toast;
-using Tewr.Blazor.FileReader;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,13 +39,11 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-// 3rdParty Libs
+// --------------
+// 3rd Party Libs
+// --------------
+
 builder.Services.AddMudServices();
-builder.Services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
-builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddBlazoredToast();
-
-
 
 var app = builder.Build();
 
