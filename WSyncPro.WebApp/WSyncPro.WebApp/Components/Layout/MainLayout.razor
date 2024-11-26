@@ -1,0 +1,27 @@
+﻿@using MudBlazor
+@inherits LayoutComponentBase
+
+<MudLayout>
+    <!-- Sidebar -->
+    <MudDrawer Open="true" Anchor="Anchor.Left" Elevation="1" Variant="DrawerVariant.Responsive">
+        <MudText Typo="Typo.h5" Class="pl-3 pt-3">WSyncPro</MudText>
+        <NavMenu />
+    </MudDrawer>
+
+    <!-- Main Content -->
+    <MudMainContent Class="main-content">
+        <!-- Top Navigation Bar -->
+        <MudAppBar Color="Color.Primary" Elevation="4">
+            <MudText Typo="Typo.h6" Class="ml-2 text-white">WSyncPro WebApp</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Class="text-white" Link="https://learn.microsoft.com/aspnet/core/" Target="_blank">
+                About
+            </MudButton>
+        </MudAppBar>
+
+        <!-- Main Content Body -->
+        <div class="content">
+            @Body
+        </div>
+    </MudMainContent>
+</MudLayout>
