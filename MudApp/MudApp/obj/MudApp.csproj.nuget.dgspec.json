@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp\\WSyncPro.WebApp.csproj": {}
+    "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp\\MudApp.csproj": {}
   },
   "projects": {
-    "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp.Client\\WSyncPro.WebApp.Client.csproj": {
+    "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp.Client\\MudApp.Client.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp.Client\\WSyncPro.WebApp.Client.csproj",
-        "projectName": "WSyncPro.WebApp.Client",
-        "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp.Client\\WSyncPro.WebApp.Client.csproj",
+        "projectUniqueName": "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp.Client\\MudApp.Client.csproj",
+        "projectName": "MudApp.Client",
+        "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp.Client\\MudApp.Client.csproj",
         "packagesPath": "C:\\Users\\wesle\\.nuget\\packages\\",
-        "outputPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp.Client\\obj\\",
+        "outputPath": "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp.Client\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -52,11 +52,7 @@
           "dependencies": {
             "Microsoft.AspNetCore.Components.WebAssembly": {
               "target": "Package",
-              "version": "[8.0.8, )"
-            },
-            "Microsoft.AspNetCore.Components.WebAssembly.Authentication": {
-              "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[8.*, )"
             },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
@@ -69,6 +65,10 @@
               "target": "Package",
               "version": "[8.0.8, )",
               "autoReferenced": true
+            },
+            "MudBlazor": {
+              "target": "Package",
+              "version": "[7.*, )"
             }
           },
           "imports": [
@@ -102,14 +102,14 @@
         }
       }
     },
-    "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp\\WSyncPro.WebApp.csproj": {
+    "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp\\MudApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp\\WSyncPro.WebApp.csproj",
-        "projectName": "WSyncPro.WebApp",
-        "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp\\WSyncPro.WebApp.csproj",
+        "projectUniqueName": "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp\\MudApp.csproj",
+        "projectName": "MudApp",
+        "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp\\MudApp.csproj",
         "packagesPath": "C:\\Users\\wesle\\.nuget\\packages\\",
-        "outputPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp\\obj\\",
+        "outputPath": "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -131,8 +131,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp.Client\\WSyncPro.WebApp.Client.csproj": {
-                "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\WSyncPro.WebApp\\WSyncPro.WebApp.Client\\WSyncPro.WebApp.Client.csproj"
+              "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp.Client\\MudApp.Client.csproj": {
+                "projectPath": "C:\\DEVD\\Repos\\WSyncPro\\MudApp\\MudApp.Client\\MudApp.Client.csproj"
               }
             }
           }
@@ -152,37 +152,9 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Blazored.LocalStorage": {
-              "target": "Package",
-              "version": "[4.5.0, )"
-            },
             "Microsoft.AspNetCore.Components.WebAssembly.Server": {
               "target": "Package",
-              "version": "[8.0.8, )"
-            },
-            "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[8.0.8, )"
-            },
-            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[8.0.8, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[8.0.8, )"
-            },
-            "Microsoft.EntityFrameworkCore.Tools": {
-              "target": "Package",
-              "version": "[8.0.8, )"
-            },
-            "MudBlazor": {
-              "target": "Package",
-              "version": "[7.15.0, )"
-            },
-            "Tewr.Blazor.FileReader": {
-              "target": "Package",
-              "version": "[3.3.2.23201, )"
+              "version": "[8.*, )"
             }
           },
           "imports": [

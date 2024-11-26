@@ -7,6 +7,13 @@ using WSyncPro.WebApp.Components;
 using WSyncPro.WebApp.Components.Account;
 using WSyncPro.WebApp.Data;
 using MudBlazor.Services;
+using Blazored.LocalStorage.Serialization;
+using Blazored.LocalStorage;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using Tewr.Blazor.FileReader;
+using MudBlazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +50,21 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 // 3rd Party Libs
 // --------------
 
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = false;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 10000;
+    config.SnackbarConfiguration.HideTransitionDuration = 500;
+    config.SnackbarConfiguration.ShowTransitionDuration = 500;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+});
+builder.Services.AddFileReaderService();
+
+builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();
 
