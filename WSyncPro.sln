@@ -11,9 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Test", "WSyncPro.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Util", "WSyncPro.Util\WSyncPro.Util.csproj", "{D265DD33-12B5-44DF-8D61-4A18A99B5983}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudApp", "WSyncPro.MudApp\MudApp\MudApp.csproj", "{5B8B75BB-8B42-4069-8115-A09A30406CA3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudApp.Client", "WSyncPro.MudApp\MudApp.Client\MudApp.Client.csproj", "{EAB8F9D9-36D8-4EE2-9D21-FEDFE2453338}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wetflix.App", "Wetflix.App\Wetflix.App.csproj", "{48506B34-906F-43EB-90A8-D9BBDC063979}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,14 +35,12 @@ Global
 		{D265DD33-12B5-44DF-8D61-4A18A99B5983}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D265DD33-12B5-44DF-8D61-4A18A99B5983}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D265DD33-12B5-44DF-8D61-4A18A99B5983}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5B8B75BB-8B42-4069-8115-A09A30406CA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5B8B75BB-8B42-4069-8115-A09A30406CA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B8B75BB-8B42-4069-8115-A09A30406CA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B8B75BB-8B42-4069-8115-A09A30406CA3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EAB8F9D9-36D8-4EE2-9D21-FEDFE2453338}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAB8F9D9-36D8-4EE2-9D21-FEDFE2453338}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAB8F9D9-36D8-4EE2-9D21-FEDFE2453338}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EAB8F9D9-36D8-4EE2-9D21-FEDFE2453338}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48506B34-906F-43EB-90A8-D9BBDC063979}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48506B34-906F-43EB-90A8-D9BBDC063979}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48506B34-906F-43EB-90A8-D9BBDC063979}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{48506B34-906F-43EB-90A8-D9BBDC063979}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48506B34-906F-43EB-90A8-D9BBDC063979}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48506B34-906F-43EB-90A8-D9BBDC063979}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
