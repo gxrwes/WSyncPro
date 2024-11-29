@@ -32,4 +32,9 @@
 		<ProjectReference Include="..\WSyncPro.Util\WSyncPro.Util.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Unit\Core\" />
+	  <Folder Include="Unit\Util\" />
+	</ItemGroup>
+
 </Project>

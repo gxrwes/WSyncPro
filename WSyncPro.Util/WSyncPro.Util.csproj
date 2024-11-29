@@ -15,4 +15,9 @@
 		<ProjectReference Include="..\WSyncPro.Models\WSyncPro.Models.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Files\" />
+	  <Folder Include="Services\" />
+	</ItemGroup>
+
 </Project>
