@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Text;
 using System.Threading.Tasks;
-using WSyncPro.Core.Test.TestModels;
+using WSyncPro.Util.Test.TestModels;
 
-namespace WSyncPro.Core.Test
+namespace WSyncPro.Util.Test
 {
     public class TestReporter : ITestReporter
     {

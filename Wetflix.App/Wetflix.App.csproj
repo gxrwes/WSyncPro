@@ -66,4 +66,10 @@
         <PackageReference Include="MudBlazor.ThemeManager" Version="2.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\WSyncPro.Core\WSyncPro.Core.csproj" />
+      <ProjectReference Include="..\WSyncPro.Models\WSyncPro.Models.csproj" />
+      <ProjectReference Include="..\WSyncPro.Util\WSyncPro.Util.csproj" />
+    </ItemGroup>
+
 </Project>

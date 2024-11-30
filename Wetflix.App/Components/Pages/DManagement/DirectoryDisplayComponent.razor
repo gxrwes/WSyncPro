@@ -1,5 +1,43 @@
-﻿<h3>DirectoryDisplayComponent</h3>
+﻿@using WSyncPro.Models.Files
+@using MudBlazor
+
+<MudPaper Width="300px" >
+    <MudList T="string">
+        @if (Directory != null)
+        {
+            <MudListSubheader>
+                Directories and Files
+            </MudListSubheader>
+            @foreach (var item in Directory.Items)
+            {
+                if (item is WDirectory subDirectory)
+                {
+                    <MudListItem Icon="@Icons.Material.Filled.Folder" Text="@subDirectory.Name" @bind-Expanded="_expanded">
+                        <NestedList>
+                            <DirectoryDisplayComponent Directory="@subDirectory" OnFileSelected="OnFileSelected" />
+                        </NestedList>
+                    </MudListItem>
+                }
+                else if (item is WFile file)
+                {
+                    <MudListItem Icon="@Icons.Material.Filled.Description">
+                        <FileDisplayComponent File="@file" OnFileSelected="OnFileSelected" />
+                    </MudListItem>
+                }
+            }
+        }
+        else
+        {
+            <MudListSubheader>
+                <MudText Typo="Typo.subtitle1" Color="Color.Error">No directory data available.</MudText>
+            </MudListSubheader>
+        }
+    </MudList>
+</MudPaper>
 
 @code {
+    [Parameter] public WDirectory Directory { get; set; }
+    [Parameter] public EventCallback<WFile> OnFileSelected { get; set; }
 
+    private bool _expanded;
 }

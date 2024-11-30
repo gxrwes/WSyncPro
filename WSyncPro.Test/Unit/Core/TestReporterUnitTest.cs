@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using WSyncPro.Core.Test;
-using WSyncPro.Core.Test.TestModels;
+using WSyncPro.Util.Test;
+using WSyncPro.Util.Test.TestModels;
 using Xunit;
 
 namespace WSyncPro.Test.Unit.Core

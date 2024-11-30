@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Test", "WSyncPro.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSyncPro.Util", "WSyncPro.Util\WSyncPro.Util.csproj", "{D265DD33-12B5-44DF-8D61-4A18A99B5983}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wetflix.App", "Wetflix.App\Wetflix.App.csproj", "{48506B34-906F-43EB-90A8-D9BBDC063979}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wetflix.App", "Wetflix.App\Wetflix.App.csproj", "{48506B34-906F-43EB-90A8-D9BBDC063979}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WSyncPro.Core.Test.TestModels
+namespace WSyncPro.Models.Files
 {
-    public enum TestStatus
+    public class WDirectory : WBaseItem
     {
-        Success,
-        Failure,
-        Skipped
+        public List<WBaseItem> Items { get; set; }
     }
 }
