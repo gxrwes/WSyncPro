@@ -1,0 +1,45 @@
+﻿@page "/sync"
+@using WSyncPro.Models.Filter
+@using WSyncPro.Models.Jobs
+<h3>Sync</h3>
+
+<SyncJobList Jobs="@syncJobs" />
+
+@code {
+    private List<SyncJob> syncJobs = new List<SyncJob>
+    {
+        new SyncJob
+        {
+            Name = "Job 1",
+            SrcDirectory = "/source/dir1",
+            DstDirectory = "/dest/dir1",
+            KeepDirectories = true,
+            RunCount = 3,
+            Status = JobStatus.Idle,
+            FilterParams = new FilterParams
+            {
+                Include = new List<string> { "*.txt", "*.jpg" },
+                Exclude = new List<string> { "*.tmp" }
+            },
+            Created = DateTime.Now.AddDays(-5),
+            Updated = DateTime.Now
+        },
+        new SyncJob
+        {
+            Name = "Job 2",
+            SrcDirectory = "/source/dir2",
+            DstDirectory = "/dest/dir2",
+            KeepDirectories = false,
+            RunCount = 1,
+            Status = JobStatus.Running,
+            FilterParams = new FilterParams
+            {
+                Include = new List<string> { "*.png" },
+                Exclude = new List<string> { "*.bak" }
+            },
+            Created = DateTime.Now.AddDays(-2),
+            Updated = DateTime.Now
+        }
+        // Add more SyncJobs as needed for testing
+    };
+}
