@@ -6,54 +6,67 @@
 <SyncJobList Jobs="@syncJobs" />
 
 <SyncJobCreate Job="@newJob" OnJobSubmitted="HandleJobSubmitted" OnCancelled="HandleCancel" />
+
 @code {
-    private SyncJob newJob = new SyncJob();
+    private SyncJob newJob = new SyncJob
+        {
+            FilterParams = new FilterParams { Include = new List<string>(), Exclude = new List<string>() }
+        };
 
     private void HandleJobSubmitted(SyncJob job)
     {
-        // Logic to handle the submitted job, e.g., adding to a list
+        // Add the new job to the existing list
+        syncJobs.Add(job);
+
+        // Reset the newJob object for the next creation
+        newJob = new SyncJob
+            {
+                FilterParams = new FilterParams { Include = new List<string>(), Exclude = new List<string>() }
+            };
+
         Console.WriteLine($"Job Submitted: {job.Name}");
     }
 
     private void HandleCancel()
     {
-        // Logic to handle cancellation, e.g., close a modal
+        // Logic to handle cancellation
         Console.WriteLine("Job creation canceled.");
     }
+
     private List<SyncJob> syncJobs = new List<SyncJob>
-{
-    new SyncJob
     {
-        Name = "Job 1",
-        SrcDirectory = "/source/dir1",
-        DstDirectory = "/dest/dir1",
-        KeepDirectories = true,
-        RunCount = 3,
-        Status = JobStatus.Idle,
-        FilterParams = new FilterParams
+        new SyncJob
         {
-            Include = new List<string> { "*.txt", "*.jpg" },
-            Exclude = new List<string> { "*.tmp" }
+            Name = "Job 1",
+            SrcDirectory = "/source/dir1",
+            DstDirectory = "/dest/dir1",
+            KeepDirectories = true,
+            RunCount = 3,
+            Status = JobStatus.Idle,
+            FilterParams = new FilterParams
+            {
+                Include = new List<string> { "*.txt", "*.jpg" },
+                Exclude = new List<string> { "*.tmp" }
+            },
+            Created = DateTime.Now.AddDays(-5),
+            Updated = DateTime.Now
         },
-        Created = DateTime.Now.AddDays(-5),
-        Updated = DateTime.Now
-    },
-    new SyncJob
-    {
-        Name = "Job 2",
-        SrcDirectory = "/source/dir2",
-        DstDirectory = "/dest/dir2",
-        KeepDirectories = false,
-        RunCount = 1,
-        Status = JobStatus.Running,
-        FilterParams = new FilterParams
+        new SyncJob
         {
-            Include = new List<string> { "*.png" },
-            Exclude = new List<string> { "*.bak" }
+            Name = "Job 2",
+            SrcDirectory = "/source/dir2",
+            DstDirectory = "/dest/dir2",
+            KeepDirectories = false,
+            RunCount = 1,
+            Status = JobStatus.Running,
+            FilterParams = new FilterParams
+            {
+                Include = new List<string> { "*.png" },
+                Exclude = new List<string> { "*.bak" }
+            },
+            Created = DateTime.Now.AddDays(-2),
+            Updated = DateTime.Now
         },
-        Created = DateTime.Now.AddDays(-2),
-        Updated = DateTime.Now
-    },
     new SyncJob
     {
         Name = "Job 3",
@@ -182,5 +195,5 @@
         Created = DateTime.Now.AddDays(-30),
         Updated = DateTime.Now.AddDays(-10)
     }
-};
+    };
 }
