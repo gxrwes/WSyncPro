@@ -12,7 +12,7 @@ namespace WSyncPro.Models.Jobs
         public string SrcDirectory { get; set; }
         public string DstDirectory { get; set; }
         public bool KeepDirectories { get; set; }
-        public FilterParams FilterParams { get; set; }
+        public FilterParams FilterParams { get; set; } = new FilterParams();
         public int RunCount { get; set; } = 0;
         public JobStatus Status { get; set; } = JobStatus.Unknown;
     }

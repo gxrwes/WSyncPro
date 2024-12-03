@@ -5,7 +5,21 @@
 
 <SyncJobList Jobs="@syncJobs" />
 
+<SyncJobCreate Job="@newJob" OnJobSubmitted="HandleJobSubmitted" OnCancelled="HandleCancel" />
 @code {
+    private SyncJob newJob = new SyncJob();
+
+    private void HandleJobSubmitted(SyncJob job)
+    {
+        // Logic to handle the submitted job, e.g., adding to a list
+        Console.WriteLine($"Job Submitted: {job.Name}");
+    }
+
+    private void HandleCancel()
+    {
+        // Logic to handle cancellation, e.g., close a modal
+        Console.WriteLine("Job creation canceled.");
+    }
     private List<SyncJob> syncJobs = new List<SyncJob>
 {
     new SyncJob
