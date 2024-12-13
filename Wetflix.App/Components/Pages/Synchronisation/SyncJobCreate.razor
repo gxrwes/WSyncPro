@@ -1,0 +1,167 @@
+@using WSyncPro.Models.Filter
+@using WSyncPro.Models.Jobs
+
+<MudForm @ref="form" Valid="@isFormValid">
+    <MudText Typo="Typo.h6">Create Sync Job</MudText>
+
+    <MudTextField Label="Name" @bind-Value="Job.Name" Required="true" Variant="Variant.Text" />
+    <MudTextField Label="Source Directory" @bind-Value="Job.SrcDirectory" Required="true" Variant="Variant.Text" />
+    <MudTextField Label="Destination Directory" @bind-Value="Job.DstDirectory" Required="true" Variant="Variant.Text" />
+    <MudCheckBox T=bool Label="Keep Directories" @bind-Checked="Job.KeepDirectories" />
+
+    <MudText Typo="Typo.subtitle1">Filters</MudText>
+    <MudChipSet T="string">
+        <MudChip Color="Color.Primary">Include Filters</MudChip>
+        <MudTextField Label="Add Include Filter" @bind-Value="includeFilter" Variant="Variant.Outlined" Placeholder="e.g., *.txt" />
+        <MudButton Variant="Variant.Filled" OnClick="AddIncludeFilter">Add</MudButton>
+        @foreach (var filter in Job.FilterParams.Include)
+
+        {
+            <MudChip Color="Color.Secondary" Closeable="true" OnClose="@((MudChip<string> chip) => RemoveIncludeFilter(chip.Text))">
+                @filter
+            </MudChip>
+        }
+    </MudChipSet>
+
+    <MudChipSet T="string">
+        <MudChip Color="Color.Primary">Exclude Filters</MudChip>
+        <MudTextField Label="Add Exclude Filter" @bind-Value="excludeFilter" Variant="Variant.Outlined" Placeholder="e.g., *.tmp" />
+        <MudButton Variant="Variant.Filled" OnClick="AddExcludeFilter">Add</MudButton>
+        @foreach (var filter in Job.FilterParams.Exclude)
+
+        {
+            <MudChip Color="Color.Secondary" Closeable="true" OnClose="@((MudChip<string> chip) => RemoveExcludeFilter(chip.Text))">
+                @filter
+            </MudChip>
+        }
+    </MudChipSet>
+
+    <MudSelect Label="Status" @bind-Value="Job.Status" Variant="Variant.Outlined">
+        @foreach (JobStatus status in Enum.GetValues(typeof(JobStatus)))
+
+        {
+            <MudSelectItem Value="@status">@status</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="OnSubmit">Submit</MudButton>
+    <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="OnCancel">Cancel</MudButton>
+</MudForm>
+
+@code {
+    [Parameter]
+
+    public SyncJob Job { get; set; } = new SyncJob
+
+        {
+
+            FilterParams = new FilterParams { Include = new List<string>(), Exclude = new List<string>() }
+
+        };
+
+
+
+    [Parameter]
+
+    public EventCallback<SyncJob> OnJobSubmitted { get; set; }
+
+
+
+    [Parameter]
+
+    public EventCallback OnCancelled { get; set; }
+
+
+
+    private MudForm form;
+
+    private string includeFilter;
+
+    private string excludeFilter;
+
+    private bool isFormValid;
+
+
+
+    private void AddIncludeFilter()
+
+    {
+
+        if (!string.IsNullOrWhiteSpace(includeFilter))
+
+        {
+
+            Job.FilterParams.Include.Add(includeFilter);
+
+            includeFilter = string.Empty;
+
+        }
+
+    }
+
+
+
+    private void AddExcludeFilter()
+
+    {
+
+        if (!string.IsNullOrWhiteSpace(excludeFilter))
+
+        {
+
+            Job.FilterParams.Exclude.Add(excludeFilter);
+
+            excludeFilter = string.Empty;
+
+        }
+
+    }
+
+
+
+    private void RemoveIncludeFilter(string filterText)
+
+    {
+
+        Job.FilterParams.Include.Remove(filterText);
+
+    }
+
+
+
+    private void RemoveExcludeFilter(string filterText)
+
+    {
+
+        Job.FilterParams.Exclude.Remove(filterText);
+
+    }
+
+
+
+    private async Task OnSubmit()
+
+    {
+
+        await form.Validate();
+
+        if (isFormValid)
+
+        {
+
+            await OnJobSubmitted.InvokeAsync(Job);
+
+        }
+
+    }
+
+
+
+    private async Task OnCancel()
+
+    {
+
+        await OnCancelled.InvokeAsync();
+
+    }
+}

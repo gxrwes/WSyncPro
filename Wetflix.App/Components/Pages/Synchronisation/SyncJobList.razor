@@ -1,0 +1,34 @@
+@using MudBlazor
+@using WSyncPro.Models.Jobs
+
+<MudContainer MaxWidth="MaxWidth.Large" Style="margin: 20px;">
+    <MudDataGrid Items="@PagedJobs">
+        <Columns>
+            <PropertyColumn Property="x => x.Name" Title="Name" />
+            <PropertyColumn Property="x => x.SrcDirectory" Title="Source Directory" />
+            <PropertyColumn Property="x => x.DstDirectory" Title="Destination Directory" />
+            <PropertyColumn Property="x => x.FilterParams.IncludeToString()" Title="Include Filters" />
+            <PropertyColumn Property="x => x.FilterParams.ExcludeToString()" Title="Exclude Filters" />
+            <PropertyColumn Property="x => x.KeepDirectories" Title="Keep Directories" />
+            <PropertyColumn Property="x => x.RunCount" Title="Run Count" />
+            <PropertyColumn Property="x => x.Status" Title="Status" />
+            <PropertyColumn Property="x => x.Created" Title="Created" />
+            <PropertyColumn Property="x => x.Updated" Title="Updated" />
+        </Columns>
+    </MudDataGrid>
+
+    <MudPagination Color="Color.Primary" Count="@PageCount" @bind-Selected="_selected" />
+</MudContainer>
+
+@code {
+    [Parameter]
+    public IEnumerable<SyncJob> Jobs { get; set; } = Enumerable.Empty<SyncJob>();
+
+    private int _selected = 1;
+    [Parameter]
+    public int PageSize { get; set; } = 4;
+
+    private IEnumerable<SyncJob> PagedJobs => Jobs.Skip((_selected - 1) * PageSize).Take(PageSize);
+
+    private int PageCount => (int)Math.Ceiling(Jobs.Count() / (double)PageSize);
+}
