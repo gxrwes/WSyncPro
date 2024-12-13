@@ -65,4 +65,9 @@
         <PackageReference Include="MudBlazor" Version="7.15.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\WSyncPro.Core\WSyncPro.Core.csproj" />
+      <ProjectReference Include="..\WSyncPro.Models\WSyncPro.Models.csproj" />
+    </ItemGroup>
+
 </Project>
