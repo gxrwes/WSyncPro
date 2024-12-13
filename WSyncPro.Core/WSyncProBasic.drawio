@@ -1,0 +1,167 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0" version="25.0.3">
+  <diagram name="Page-1" id="StLuMEn5JauuH0qITbQj">
+    <mxGraphModel dx="2899" dy="1066" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-6" value="AppCache" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="40" width="240" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-7" value="&lt;div&gt;Holds All Cached DirectoryScans&lt;/div&gt;&lt;br&gt;&lt;div&gt;Holds Service States&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Holds Cached History, Provides History&lt;br&gt;&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="kjH-tzoOTcNQzayW1YCg-6">
+          <mxGeometry y="50" width="240" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-8" value="AppDB" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="30" width="270" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-9" value="&lt;div&gt;- Holds All Commited DirectoryScans&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;- Saves/loads Db For LongTermStorage" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="kjH-tzoOTcNQzayW1YCg-8">
+          <mxGeometry y="50" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-10" value="CopyService" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="380" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-11" value="&lt;div&gt;- Either Direct Copy&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- Takes Copy Job&lt;br&gt;- triggers versioning on touched file&lt;br&gt;&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="kjH-tzoOTcNQzayW1YCg-10">
+          <mxGeometry y="50" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-12" value="SyncService" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-360" y="140" width="240" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-13" value="&lt;div&gt;- Takes DirecoryScan&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- Creates all required copyJobs&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- Executes all Copy Jobs&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;- Creates Summary of CopyJobs&lt;br&gt;&lt;/div&gt;&lt;br&gt;- Execute Directory Scan For Confirmation" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="kjH-tzoOTcNQzayW1YCg-12">
+          <mxGeometry y="50" width="240" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-14" value="DirecoryScanner" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="50" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-15" value="Scans Directory and returns WDirecotry" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="kjH-tzoOTcNQzayW1YCg-14">
+          <mxGeometry y="50" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-16" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=-0.008;entryY=0.45;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-14" target="kjH-tzoOTcNQzayW1YCg-6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="380" y="40" as="sourcePoint" />
+            <mxPoint x="430" y="-10" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-24" value="Report State" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="kjH-tzoOTcNQzayW1YCg-16">
+          <mxGeometry x="-0.3759" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-17" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-13" target="kjH-tzoOTcNQzayW1YCg-15">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="30" y="70" as="sourcePoint" />
+            <mxPoint x="80" y="20" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-18" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-13" target="kjH-tzoOTcNQzayW1YCg-11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint y="500" as="sourcePoint" />
+            <mxPoint x="50" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-20" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-7" target="kjH-tzoOTcNQzayW1YCg-9">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="790" y="220" as="sourcePoint" />
+            <mxPoint x="840" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-21" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-11" target="kjH-tzoOTcNQzayW1YCg-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="360" as="sourcePoint" />
+            <mxPoint x="480" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-25" value="Report State" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="kjH-tzoOTcNQzayW1YCg-21">
+          <mxGeometry x="-0.3141" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-22" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-12" target="kjH-tzoOTcNQzayW1YCg-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="60" y="290" as="sourcePoint" />
+            <mxPoint x="110" y="240" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="360" y="240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-23" value="Reports State" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="kjH-tzoOTcNQzayW1YCg-22">
+          <mxGeometry x="0.2998" y="1" relative="1" as="geometry">
+            <mxPoint x="-40" y="100" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-26" value="FileVersioningService" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="580" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-27" value="- Creates version if file Modified" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="kjH-tzoOTcNQzayW1YCg-26">
+          <mxGeometry y="50" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-28" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-11" target="kjH-tzoOTcNQzayW1YCg-26">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="530" as="sourcePoint" />
+            <mxPoint x="490" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-29" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-27" target="kjH-tzoOTcNQzayW1YCg-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="490" y="440" as="sourcePoint" />
+            <mxPoint x="540" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-30" value="Report State" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="kjH-tzoOTcNQzayW1YCg-29">
+          <mxGeometry x="-0.0959" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-31" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-27" target="kjH-tzoOTcNQzayW1YCg-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="530" y="520" as="sourcePoint" />
+            <mxPoint x="580" y="470" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="440" y="548" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-32" value="Reports File Change" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="kjH-tzoOTcNQzayW1YCg-31">
+          <mxGeometry x="-0.4647" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-33" value="&lt;div&gt;FileHistorySnapShot&lt;br&gt;&lt;/div&gt;" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="630" y="440" width="250" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-34" value="&lt;div align=&quot;left&quot;&gt;FileId- Required&lt;br&gt;TimeStamp - required&lt;br&gt;&lt;/div&gt;&lt;div align=&quot;left&quot;&gt;FileSize - onchange&lt;br&gt;FileName - onchange&lt;br&gt;FilePath - onchange&lt;br&gt;LastEdited - onchange&lt;/div&gt;&lt;div align=&quot;left&quot;&gt;TriggerJobExcecutionId &lt;br&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="640" y="475" width="200" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-35" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;exitX=0;exitY=0;exitDx=80;exitDy=250;exitPerimeter=0;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-33">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="620" y="460" as="sourcePoint" />
+            <mxPoint x="450" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-37" value="SyncJob" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="-670" y="190" width="170" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-38" value="&lt;div&gt;- Job ID&lt;/div&gt;&lt;div&gt;- JobExecutions&lt;/div&gt;&lt;div&gt;- SrcDirectory&lt;/div&gt;&lt;div&gt;- DstDirectory&lt;/div&gt;&lt;div&gt;- Fitlers&lt;br&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="-650" y="215" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-39" value="&lt;div&gt;JobExcecution&lt;/div&gt;&lt;div&gt;Id&lt;br&gt;Date&lt;br&gt;list&amp;lt;FileHistorySnapShot&amp;gt;&lt;br&gt;&lt;br&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="-570" y="370" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-40" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-39" target="kjH-tzoOTcNQzayW1YCg-38">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-810" y="470" as="sourcePoint" />
+            <mxPoint x="-760" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-41" value="" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0;exitDx=70;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="kjH-tzoOTcNQzayW1YCg-37" target="kjH-tzoOTcNQzayW1YCg-12">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-530" y="180" as="sourcePoint" />
+            <mxPoint x="-480" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kjH-tzoOTcNQzayW1YCg-42" value="files are only Modified Here" style="shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;" vertex="1" parent="1">
+          <mxGeometry x="90" y="310" width="120" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -25,7 +25,7 @@ namespace WSyncPro.Util.Test
         {
             try
             {
-                string filePath = Path.Combine(TestReportsFolder, $"{report.TestName}_{report.Timestamp}.json");
+                string filePath = Path.Combine(TestReportsFolder, $"{report.TestName}_{report.TestStepname}_{report.Timestamp.Normalize().Replace(":", "-").Replace(";", "--")}.json");
                 string jsonContent = JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
                 await File.WriteAllTextAsync(filePath, jsonContent);
                 return true;
@@ -41,7 +41,7 @@ namespace WSyncPro.Util.Test
         {
             try
             {
-                string filePattern = $"{report.TestName}_*.json";
+                string filePattern = $"{report.TestName}_{report.TestStepname}_*.json";
                 string[] matchingFiles = Directory.GetFiles(TestReportsFolder, filePattern);
 
                 if (matchingFiles.Length == 0)
@@ -85,8 +85,8 @@ namespace WSyncPro.Util.Test
                     }
                 }
 
-                var groupedByParent = reports
-                    .GroupBy(r => r.Parent ?? "Ungrouped")
+                var groupedByTestName = reports
+                    .GroupBy(r => r.TestName)
                     .OrderBy(g => g.Key);
 
                 string uniqueId = Guid.NewGuid().ToString();
@@ -96,32 +96,36 @@ namespace WSyncPro.Util.Test
                 htmlBuilder.Append("<style>");
                 htmlBuilder.Append("body { font-family: Arial, sans-serif; line-height: 1.6; background-color: #f4f4f4; padding: 20px; }");
                 htmlBuilder.Append("h1, h2, h3 { color: #333; }");
-                htmlBuilder.Append("ul { list-style-type: none; padding: 0; }");
-                htmlBuilder.Append("li { padding: 5px; border-bottom: 1px solid #ddd; }");
                 htmlBuilder.Append(".success { color: green; }");
                 htmlBuilder.Append(".failure { color: red; }");
                 htmlBuilder.Append(".skipped { color: orange; }");
                 htmlBuilder.Append(".tags { font-style: italic; color: #555; }");
                 htmlBuilder.Append(".log { background-color: #eee; padding: 10px; border-radius: 5px; }");
+                htmlBuilder.Append(".test-step { margin-left: 20px; }");
                 htmlBuilder.Append("</style>");
                 htmlBuilder.Append("</head><body>");
                 htmlBuilder.Append($"<h1>Test Report Overview (ID: {uniqueId})</h1>");
 
-                foreach (var parentGroup in groupedByParent)
+                foreach (var testNameGroup in groupedByTestName)
                 {
-                    htmlBuilder.Append($"<h2>Parent: {parentGroup.Key}</h2>");
-                    var groupedByStatus = parentGroup.GroupBy(r => r.Status);
+                    htmlBuilder.Append($"<h2>Test Name: {testNameGroup.Key}</h2>");
 
-                    foreach (var statusGroup in groupedByStatus)
+                    var groupedByTestStep = testNameGroup
+                        .GroupBy(r => r.TestStepname)
+                        .OrderBy(g => g.Key);
+
+                    foreach (var testStepGroup in groupedByTestStep)
                     {
-                        string statusClass = statusGroup.Key.ToString().ToLower();
-                        htmlBuilder.Append($"<h3 class='{statusClass}'>{statusGroup.Key} Tests: {statusGroup.Count()}</h3>");
+                        htmlBuilder.Append($"<h3 class='test-step'>Test Step: {testStepGroup.Key}</h3>");
                         htmlBuilder.Append("<ul>");
-                        foreach (var report in statusGroup)
+
+                        foreach (var report in testStepGroup)
                         {
+                            string statusClass = report.Status.ToString().ToLower();
                             string tags = report.Tags != null ? string.Join(", ", report.Tags) : "No Tags";
-                            htmlBuilder.Append($"<li>{report.TestName} - {report.Message} <span class='tags'>[{tags}]</span></li>");
+                            htmlBuilder.Append($"<li class='{statusClass}'>{report.Timestamp}: {report.Message} <span class='tags'>[{tags}]</span></li>");
                         }
+
                         htmlBuilder.Append("</ul>");
                     }
                 }
@@ -129,7 +133,7 @@ namespace WSyncPro.Util.Test
                 htmlBuilder.Append("<h2>Detailed Logs</h2>");
                 foreach (var report in reports)
                 {
-                    htmlBuilder.Append($"<h3>{report.TestName} ({report.Timestamp})</h3>");
+                    htmlBuilder.Append($"<h3>{report.TestName} - {report.TestStepname} ({report.Timestamp})</h3>");
                     htmlBuilder.Append($"<p>Status: {report.Status}</p>");
                     htmlBuilder.Append($"<pre class='log'>{report.Log}</pre>");
                 }
@@ -154,6 +158,5 @@ namespace WSyncPro.Util.Test
                 return string.Empty;
             }
         }
-
     }
 }

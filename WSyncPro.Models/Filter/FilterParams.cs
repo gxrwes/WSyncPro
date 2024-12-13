@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace WSyncPro.Models.Filter
 {
     public class FilterParams
     {
-        public List<string> Include = new List<string>();
-        public List<string> Exclude = new List<string>();
-        public int MaxFileSize = -1;
-        public int MinFileSize = -1;
-        public List<string> FileTypes = new List<string>();
-        public string ToString()
-        {
+        public List<string> Include { get; set; } = new List<string>();
+        public List<string> Exclude { get; set; } = new List<string>();
+        public int MaxFileSize { get; set; } = -1;
+        public int MinFileSize { get; set; } = -1;
+        public List<string> FileTypes { get; set; } = new List<string>();
 
+        public override string ToString()
+        {
             StringBuilder sb = new StringBuilder();
             sb.Append("Include: ");
             sb.Append(this.IncludeToString());
@@ -24,28 +22,15 @@ namespace WSyncPro.Models.Filter
             sb.Append(this.ExcludeToString());
             return sb.ToString();
         }
+
         public string IncludeToString()
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (string s in Include)
-            {
-                sb.Append(s);
-                sb.Append(", ");
-            }
-            return sb.ToString();
-
+            return string.Join(", ", Include);
         }
+
         public string ExcludeToString()
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (string s in Exclude)
-            {
-                sb.Append(s);
-                sb.Append(", ");
-            }
-            return sb.ToString();
-
+            return string.Join(", ", Exclude);
         }
-
     }
 }

@@ -13,7 +13,7 @@ namespace WSyncPro.Util.Test.TestModels
         public string TestName { get; set; }
         public string Message { get; set; }
         public string Log { get; set; }
-        public string Parent { get; set; }
+        public string TestStepname { get; set; }
         public List<string> Tags { get; set; }
     }
 

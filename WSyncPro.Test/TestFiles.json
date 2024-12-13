@@ -1,0 +1,130 @@
+[
+  {
+    "Path": "TestSrc/file1.txt",
+    "Content": "Test content for file1.txt"
+  },
+  {
+    "Path": "TestSrc/file6.log",
+    "Content": "Log content for file6.log"
+  },
+  {
+    "Path": "TestSrc/file7.txt",
+    "Content": "Test content for file7.txt"
+  },
+  {
+    "Path": "TestSrc/Folder1/file2.doc",
+    "Content": "Test content for file2.doc"
+  },
+  {
+    "Path": "TestSrc/Folder1/file3.pdf",
+    "Content": "Test content for file3.pdf"
+  },
+  {
+    "Path": "TestSrc/Folder1/file8.csv",
+    "Content": "Comma-separated values for file8.csv"
+  },
+  {
+    "Path": "TestSrc/Folder1/file9.pdf",
+    "Content": "Test content for file9.pdf"
+  },
+  {
+    "Path": "TestSrc/Folder2/file4.jpg",
+    "Content": "Test content for file4.jpg"
+  },
+  {
+    "Path": "TestSrc/Folder2/file5.txt",
+    "Content": "Test content for file5.txt"
+  },
+  {
+    "Path": "TestSrc/Folder2/excluded.file",
+    "Content": "Test content for excluded.file"
+  },
+  {
+    "Path": "TestSrc/Folder2/file10.doc",
+    "Content": "Document content for file10.doc"
+  },
+  {
+    "Path": "TestSrc/Folder3/file11.png",
+    "Content": "Image content for file11.png"
+  },
+  {
+    "Path": "TestSrc/Folder3/file12.pdf",
+    "Content": "Test content for file12.pdf"
+  },
+  {
+    "Path": "TestSrc/Folder3/file13.md",
+    "Content": "Markdown content for file13.md"
+  },
+  {
+    "Path": "TestSrc/Folder3/Archive/file14.zip",
+    "Content": "Compressed archive for file14.zip"
+  },
+  {
+    "Path": "TestSrc/Folder3/Archive/file15.txt",
+    "Content": "Test content for file15.txt"
+  },
+  {
+    "Path": "TestSrc/Folder4/SubFolder/file16.docx",
+    "Content": "Document content for file16.docx"
+  },
+  {
+    "Path": "TestSrc/Folder4/SubFolder/file17.jpg",
+    "Content": "Test content for file17.jpg"
+  },
+  {
+    "Path": "TestSrc/Folder4/SubFolder/file18.txt",
+    "Content": "Test content for file18.txt"
+  },
+  {
+    "Path": "TestSrc/Folder5/file19.pdf",
+    "Content": "Test content for file19.pdf"
+  },
+  {
+    "Path": "TestSrc/Folder5/file20.xml",
+    "Content": "XML content for file20.xml"
+  },
+  {
+    "Path": "TestSrc/Folder5/file21.txt",
+    "Content": "Test content for file21.txt"
+  },
+  {
+    "Path": "TestSrc/Folder6/file22.csv",
+    "Content": "Comma-separated values for file22.csv"
+  },
+  {
+    "Path": "TestSrc/Folder6/file23.txt",
+    "Content": "Test content for file23.txt"
+  },
+  {
+    "Path": "TestSrc/Folder6/file24.pdf",
+    "Content": "Test content for file24.pdf"
+  },
+  {
+    "Path": "TestSrc/Folder7/file25.doc",
+    "Content": "Document content for file25.doc"
+  },
+  {
+    "Path": "TestSrc/Folder7/SubFolder1/file26.jpg",
+    "Content": "Test content for file26.jpg"
+  },
+  {
+    "Path": "TestSrc/Folder7/SubFolder1/file27.txt",
+    "Content": "Test content for file27.txt"
+  },
+  {
+    "Path": "TestSrc/Folder7/SubFolder2/file28.txt",
+    "Content": "Test content for file28.txt"
+  },
+  {
+    "Path": "TestSrc/Folder7/SubFolder2/file29.doc",
+    "Content": "Test content for file29.doc"
+  },
+  {
+    "Path": "TestSrc/Folder8/Reports/file30.log",
+    "Content": "Log content for file30.log"
+  },
+  {
+    "Path": "TestSrc/Folder8/Reports/file31.pdf",
+    "Content": "Test content for file31.pdf"
+  }
+]
