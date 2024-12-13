@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
+using WSyncPro.Core.Services;
 
 namespace WSyncPro.App
 {
@@ -17,6 +18,16 @@ namespace WSyncPro.App
 
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
+
+            // Register services
+            builder.Services.AddSingleton<IAppLocalDb>(provider =>
+            {
+                var logger = provider.GetRequiredService<ILogger<AppLocalDb>>();
+                string dbFilePath = Path.Combine(FileSystem.AppDataDirectory, "appdb.json");
+                return new AppLocalDb(dbFilePath, logger);
+            });
+            builder.Services.AddSingleton<IAppCache, AppCache>();
+
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

@@ -15,6 +15,8 @@ namespace WSyncPro.Core.Services
         public Task<bool> RemoveSyncJob(SyncJob job);
         public Task<bool> UpdateSyncJob(SyncJob job);
         public Task<bool> UpdateSyncJob(string jobId);
+        public Task<List<SyncJob>> GetAllSyncJobs();
+        public Task<SyncJob> GetSyncJob(string jobId);
 
         public Task<bool> SyncWithDb();
     }

@@ -104,5 +104,34 @@ namespace WSyncPro.Core.Services
                 return false;
             }
         }
+
+        public async Task<List<SyncJob>> GetAllSyncJobs()
+        {
+            try
+            {
+                return _cache.SyncJobs;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Returning SyncJobs From Cache");
+                return new List<SyncJob>();
+            }
+        }
+
+        public async Task<SyncJob> GetSyncJob(string jobId)
+        {
+            try
+            {
+                SyncJob sJ = _cache.SyncJobs.FirstOrDefault(_ => _.Id.ToString() == jobId);
+                if (sJ != null) return sJ;
+
+                throw new Exception("no SyncJob Found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error syncing cache with database");
+                return new SyncJob();
+            }
+        }
     }
 }

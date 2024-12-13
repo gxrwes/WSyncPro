@@ -1,7 +1,26 @@
-﻿<h3>SyncHome</h3>
+﻿@page "/sync"
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Jobs
+@inject IAppCache AppCache
+<h3>SyncHome</h3>
 <SyncJobTable />
 <CreateSyncJob />
 
 @code {
+    private string ErrorMessage = string.Empty;
+    private List<SyncJob> jobs = new List<SyncJob>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var jL = await AppCache.GetAllSyncJobs();
+            if (jL != null) jobs = jL;
+
+        }catch(Exception e)
+        {
+            
+        }
+
+  }
 }
