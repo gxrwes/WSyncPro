@@ -1,0 +1,45 @@
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Db
+@using WSyncPro.Models.Jobs
+@inject IAppCache AppCache
+@inject ISnackbar Snackbar
+
+<MudTextField @bind-Value="searchQuery" Label="Search" Variant="Variant.Filled" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+<MudTable Items="@filteredExecutions" Hover="true" Bordered="true" Striped="true">
+    <HeaderContent>
+        <MudTh>Execution ID</MudTh>
+        <MudTh>Job Id</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Id</MudTd>
+        <MudTd>@context.JobId</MudTd>
+        <MudTd>@context.TimeStamp.ToShortDateString()</MudTd>
+        <MudTd>@context.Status</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ViewChanges(context)">View Changes</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<JobExecution> executions = new();
+    private List<JobExecution> filteredExecutions => string.IsNullOrWhiteSpace(searchQuery)
+        ? executions
+        : executions.Where(e => e.JobId.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private string searchQuery = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        executions = AppCache.GetJobExecutions();
+    }
+
+    private void ViewChanges(JobExecution execution)
+    {
+        // Open dialog or overlay to display detailed changes for the execution
+        Snackbar.Add($"Viewing changes for execution: {execution.Id}", Severity.Info);
+    }
+}
