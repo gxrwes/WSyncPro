@@ -6,17 +6,14 @@
 @inject IAppCache AppCache
 <MudDialog>
     <DialogContent>
-        <MudCard Style="max-width: 600px; margin: auto; min-width: 400px;" Outlined="true">
-            <MudCardHeader>
-                <MudText Typo="Typo.h6">Create Sync Job</MudText>
-            </MudCardHeader>
+        <MudCard Style="margin: auto; min-width: 500px;" Outlined="true">
             <MudCardContent>
                 <MudForm @ref="_form">
                     <MudTextField @bind-Value="_syncJob.Name" Label="Name" Variant="Variant.Outlined" Required="true" />
-                    <MudTextField @bind-Value="_syncJob.Description" Label="Description" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_syncJob.Description" T="string" Label="Description" Variant="Variant.Text" AutoGrow HelperText="A short description..." />
                     <MudTextField @bind-Value="_syncJob.SrcDirectory" Label="Source Directory" Variant="Variant.Outlined" Required="true" />
                     <MudTextField @bind-Value="_syncJob.DstDirectory" Label="Destination Directory" Variant="Variant.Outlined" Required="true" />
-                    <MudSwitch @bind-Value="_syncJob.KeepDirectories" Label="Keep Directories" Color="Color.Primary" />
+                    <MudSwitch @bind-Value="_syncJob.KeepDirectories" Color="Color.Primary" Label="Keep Directories" />
                     <MudSelect T="JobStatus" @bind-Value="_syncJob.Status" Label="Status" Variant="Variant.Outlined">
                         @foreach (JobStatus status in Enum.GetValues(typeof(JobStatus)))
 
@@ -24,6 +21,10 @@
                             <MudSelectItem T="JobStatus" Value="@status">@status</MudSelectItem>
                         }
                     </MudSelect>
+                    <MudTextField @bind-Value="IncludeFilters" Label="Include Filters" Variant="Variant.Outlined" Placeholder="Comma-separated values" />
+                    <MudTextField @bind-Value="ExcludeFilters" Label="Exclude Filters" Variant="Variant.Outlined" Placeholder="Comma-separated values" />
+                    <MudTextField @bind-Value="_syncJob.FilterParams.MaxFileSize" Label="Max File Size (KB)" Variant="Variant.Outlined" Type="number" />
+                    <MudTextField @bind-Value="_syncJob.FilterParams.MinFileSize" Label="Min File Size (KB)" Variant="Variant.Outlined" Type="number" />
                 </MudForm>
             </MudCardContent>
             <MudCardActions>
@@ -38,6 +39,32 @@
     private MudForm _form;
 
     private SyncJob _syncJob = new SyncJob { FilterParams = new FilterParams() };
+
+    private string IncludeFilters
+
+    {
+
+        get => string.Join(", ", _syncJob.FilterParams.Include);
+
+        set => _syncJob.FilterParams.Include = value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+
+    }
+
+
+
+    private string ExcludeFilters
+
+    {
+
+        get => string.Join(", ", _syncJob.FilterParams.Exclude);
+
+        set => _syncJob.FilterParams.Exclude = value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+
+    }
+
+
+
+
 
 
 
