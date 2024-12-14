@@ -1,0 +1,98 @@
+<!--CreateSyncJobOverlay-->
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Filter
+@using WSyncPro.Models.Jobs
+@inject ISnackbar Snackbar
+@inject IAppCache AppCache
+<MudDialog>
+    <DialogContent>
+        <MudCard Style="max-width: 600px; margin: auto; min-width: 400px;" Outlined="true">
+            <MudCardHeader>
+                <MudText Typo="Typo.h6">Create Sync Job</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudForm @ref="_form">
+                    <MudTextField @bind-Value="_syncJob.Name" Label="Name" Variant="Variant.Outlined" Required="true" />
+                    <MudTextField @bind-Value="_syncJob.Description" Label="Description" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_syncJob.SrcDirectory" Label="Source Directory" Variant="Variant.Outlined" Required="true" />
+                    <MudTextField @bind-Value="_syncJob.DstDirectory" Label="Destination Directory" Variant="Variant.Outlined" Required="true" />
+                    <MudSwitch @bind-Value="_syncJob.KeepDirectories" Label="Keep Directories" Color="Color.Primary" />
+                    <MudSelect T="JobStatus" @bind-Value="_syncJob.Status" Label="Status" Variant="Variant.Outlined">
+                        @foreach (JobStatus status in Enum.GetValues(typeof(JobStatus)))
+
+                        {
+                            <MudSelectItem T="JobStatus" Value="@status">@status</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudForm>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveSyncJob">Save</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    private MudForm _form;
+
+    private SyncJob _syncJob = new SyncJob { FilterParams = new FilterParams() };
+
+
+
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+
+
+    private async Task SaveSyncJob()
+
+    {
+
+        await _form.Validate();
+
+        if (_form.IsValid)
+
+        {
+
+            // Save the sync job
+
+            var added = await AppCache.AddSyncJob(_syncJob);
+
+            if (added)
+            {
+
+                MudDialog.Close(DialogResult.Ok(true));
+
+            }
+
+            else
+
+            {
+
+                Snackbar.Add("Failed to create sync job. It may already exist.", Severity.Error);
+
+            }
+
+        }
+
+        else
+
+        {
+
+            Snackbar.Add("Please fill in all required fields.", Severity.Warning);
+
+        }
+
+    }
+
+
+
+    private void Cancel()
+
+    {
+
+        MudDialog.Cancel();
+
+    }
+}
