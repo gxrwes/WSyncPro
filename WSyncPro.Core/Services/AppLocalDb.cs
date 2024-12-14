@@ -18,7 +18,26 @@ namespace WSyncPro.Core.Services
         {
             _dbFilePath = dbFilePath;
             _logger = logger;
-            _appDb = new AppDb();
+            LoadDbSync();
+        }
+        private void LoadDbSync()
+        {
+            try
+            {
+                if (!File.Exists(_dbFilePath))
+                {
+                    _logger.LogWarning("Database file not found at {DbFilePath}, initializing new database", _dbFilePath);
+                    _appDb = new AppDb();
+                }
+
+                string json = File.ReadAllText(_dbFilePath);
+                _appDb = JsonSerializer.Deserialize<AppDb>(json) ?? new AppDb();
+                _logger.LogInformation("Database loaded successfully from {DbFilePath}", _dbFilePath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading database from {DbFilePath}", _dbFilePath);
+            }
         }
 
         public async Task<bool> SaveDb()
@@ -60,13 +79,28 @@ namespace WSyncPro.Core.Services
             }
         }
 
-        public Task<AppDb> GetAppDb()
+        public Task<AppDb> GetAppDbAsync()
         {
             try
             {
                 var appDbCopy = JsonSerializer.Deserialize<AppDb>(JsonSerializer.Serialize(_appDb));
                 _logger.LogInformation("Database copy created successfully");
                 return Task.FromResult(appDbCopy);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating database copy");
+                throw;
+            }
+        }
+        public AppDb GetAppDb()
+        {
+
+            try
+            {
+                if (_appDb == null) throw new Exception("Db not Loaded");
+                var appDbCopy = _appDb;
+                return appDbCopy;
             }
             catch (Exception ex)
             {

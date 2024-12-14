@@ -20,7 +20,12 @@ namespace WSyncPro.Core.Services
         {
             _localDb = localDb;
             _logger = logger;
-            _cache = new AppDb();
+            // Try to load Data In file
+            //_localDb.LoadDb();
+            var loadedFiles = _localDb.GetAppDb();
+            if (loadedFiles != null) _cache = loadedFiles;
+            else
+                _cache = new AppDb();
         }
 
         public async Task<bool> AddSyncJob(SyncJob job)
@@ -95,7 +100,7 @@ namespace WSyncPro.Core.Services
                     return false;
                 }
 
-                var appDb = await _localDb.GetAppDb();
+                var appDb = await _localDb.GetAppDbAsync();
                 _cache.SyncJobs.Clear();
                 _cache.SyncJobs.AddRange(appDb.SyncJobs);
                 _logger.LogInformation("Cache synced with database successfully");

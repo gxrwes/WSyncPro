@@ -14,8 +14,10 @@ namespace WSyncPro.Core.Services
 
         // Loads Db from file
         public Task<bool> LoadDb();
+
         // Provides a deep copy of the deserialized AppDb
-        public Task<AppDb> GetAppDb();
+        public Task<AppDb> GetAppDbAsync();
+        public AppDb GetAppDb();
         // Gets a current AppDb state, then saves this state and reloads it
         public Task<bool> UpdateDb(AppDb appDb);
     }

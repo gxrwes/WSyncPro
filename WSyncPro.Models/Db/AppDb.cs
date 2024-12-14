@@ -10,8 +10,12 @@ namespace WSyncPro.Models.Db
     public class AppDb
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public List<SyncJob> SyncJobs = new List<SyncJob>();
-        private string dbName = "default";
 
+        // Change SyncJobs to a property
+        public List<SyncJob> SyncJobs { get; set; } = new List<SyncJob>();
+
+        // Change dbName to a property (optional if you want it serialized)
+        public string DbName { get; set; } = "default";
     }
 }
+
