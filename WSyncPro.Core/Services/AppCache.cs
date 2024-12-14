@@ -30,6 +30,9 @@ namespace WSyncPro.Core.Services
 
         public async Task<bool> AddSyncJob(SyncJob job)
         {
+            // Generate UUID
+            job.Id = GetUUID();
+
             if (_cache.SyncJobs.Exists(j => j.Id == job.Id))
             {
                 _logger.LogWarning("Sync job with ID {JobId} already exists", job.Id);
@@ -146,6 +149,23 @@ namespace WSyncPro.Core.Services
         public async Task<bool> CacheUpdated()
         {
             return _update;
+        }
+
+        public Guid GetUUID()
+        {
+            try
+            {
+                // Get the UUID as a string from the database
+                string uuidString = _localDb.GetUUID();
+
+                // Convert the string to a Guid and return it
+                return Guid.Parse(uuidString);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error converting UUID string to Guid");
+                throw;
+            }
         }
     }
 }

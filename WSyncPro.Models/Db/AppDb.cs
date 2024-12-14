@@ -16,6 +16,7 @@ namespace WSyncPro.Models.Db
 
         // Change dbName to a property (optional if you want it serialized)
         public string DbName { get; set; } = "default";
+        public HashSet<string> GeneratedGuids { get; set; } = new HashSet<string>();
     }
 }
 

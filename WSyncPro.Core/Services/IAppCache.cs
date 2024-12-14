@@ -20,5 +20,7 @@ namespace WSyncPro.Core.Services
         public Task<bool> CacheUpdated();
 
         public Task<bool> SyncWithDb();
+        // To get a unique id, usually done by db
+        public Guid GetUUID();
     }
 }

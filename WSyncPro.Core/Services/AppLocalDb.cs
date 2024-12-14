@@ -123,5 +123,38 @@ namespace WSyncPro.Core.Services
                 return false;
             }
         }
+
+        public string GetUUID()
+        {
+            try
+            {
+                // Ensure the GeneratedGuids list is initialized
+                if (_appDb.GeneratedGuids == null)
+                {
+                    _appDb.GeneratedGuids = new HashSet<string>();
+                }
+
+                string newGuid;
+
+                do
+                {
+                    newGuid = Guid.NewGuid().ToString();
+                } while (_appDb.GeneratedGuids.Contains(newGuid));
+
+                // Add the new GUID to the persistent list
+                _appDb.GeneratedGuids.Add(newGuid);
+
+                // Save the updated database state
+                SaveDb();
+
+                return newGuid;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating unique UUID");
+                throw;
+            }
+        }
+
     }
 }

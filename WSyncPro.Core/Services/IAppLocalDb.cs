@@ -20,5 +20,8 @@ namespace WSyncPro.Core.Services
         public AppDb GetAppDb();
         // Gets a current AppDb state, then saves this state and reloads it
         public Task<bool> UpdateDb(AppDb appDb);
+
+        // To get a unique id
+        public string GetUUID();
     }
 }

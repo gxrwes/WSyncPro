@@ -3,10 +3,12 @@
 @using WSyncPro.Models.Jobs
 @inject IAppCache AppCache
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <h3>SyncHome</h3>
-<SyncJobTable SyncJobs="@jobs" ReloadJobs="ReloadJobs" />
-<CreateSyncJob ReloadJobs="ReloadJobs" />
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreateDialog">Create Sync Job</MudButton>
+
+<SyncJobTable SyncJobs="@jobs" ReloadJobs="ReloadJobs" OnEditJob="OpenEditDialog" />
 
 @code {
     private List<SyncJob> jobs = new List<SyncJob>();
@@ -35,6 +37,33 @@
         catch (Exception e)
         {
             Snackbar.Add("Failed to get Jobs. e: " + e.Message, Severity.Warning);
+        }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<CreateSyncJobOverlay>("Create Sync Job", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await ReloadJobs();
+            Snackbar.Add("Sync job created successfully!", Severity.Success);
+        }
+    }
+
+    private async Task OpenEditDialog(SyncJob job)
+    {
+        var parameters = new DialogParameters<EditSyncJobOverlay> { { x => x.SyncJob, job } };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<EditSyncJobOverlay>("Edit Sync Job", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await ReloadJobs();
+            Snackbar.Add("Sync job updated successfully!", Severity.Success);
         }
     }
 }
