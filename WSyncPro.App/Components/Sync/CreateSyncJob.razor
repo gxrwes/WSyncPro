@@ -1,0 +1,84 @@
+<!--CreateSyncJob-->
+@using MudBlazor
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Filter
+@using WSyncPro.Models.Jobs
+@inject IAppCache AppCache
+@inject ISnackbar Snackbar
+
+<MudCard Style="max-width: 600px; margin: auto;" Outlined="true">
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">Create Sync Job</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudForm @ref="_form">
+            <MudTextField @bind-Value="_syncJob.Name" Label="Name" Variant="Variant.Outlined" Required="true" />
+            <MudTextField @bind-Value="_syncJob.Description" T="string" Label="AutoGrow" Variant="Variant.Text" AutoGrow HelperText="A short description..." />
+            <MudTextField @bind-Value="_syncJob.SrcDirectory" Label="Source Directory" Variant="Variant.Outlined" Required="true" />
+            <MudTextField @bind-Value="_syncJob.DstDirectory" Label="Destination Directory" Variant="Variant.Outlined" Required="true" />
+            <MudSwitch @bind-Value="_syncJob.KeepDirectories" Color="Color.Primary" Label="Keep Directories" />
+            <MudSelect T="JobStatus" @bind-Value="_syncJob.Status" Label="Status" Variant="Variant.Outlined">
+                @foreach (JobStatus status in Enum.GetValues(typeof(JobStatus)))
+                {
+                    <MudSelectItem T="JobStatus" Value="@status">@status</MudSelectItem>
+                }
+            </MudSelect>
+            <MudTextField @bind-Value="IncludeFilters" Label="Include Filters" Variant="Variant.Outlined" Placeholder="Comma-separated values" />
+            <MudTextField @bind-Value="ExcludeFilters" Label="Exclude Filters" Variant="Variant.Outlined" Placeholder="Comma-separated values" />
+            <MudTextField @bind-Value="_syncJob.FilterParams.MaxFileSize" Label="Max File Size (KB)" Variant="Variant.Outlined" Type="number" />
+            <MudTextField @bind-Value="_syncJob.FilterParams.MinFileSize" Label="Min File Size (KB)" Variant="Variant.Outlined" Type="number" />
+        </MudForm>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveSyncJob">Save</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ResetForm">Reset</MudButton>
+    </MudCardActions>
+</MudCard>
+
+<MudSnackbarProvider />
+
+@code {
+    private MudForm _form;
+    private SyncJob _syncJob = new SyncJob { FilterParams = new FilterParams() };
+
+    private string IncludeFilters
+    {
+        get => string.Join(", ", _syncJob.FilterParams.Include);
+        set => _syncJob.FilterParams.Include = value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+    }
+
+    private string ExcludeFilters
+    {
+        get => string.Join(", ", _syncJob.FilterParams.Exclude);
+        set => _syncJob.FilterParams.Exclude = value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+    }
+
+    private async Task SaveSyncJob()
+    {
+        await _form.Validate();
+        if (_form.IsValid)
+        {
+            bool added = await AppCache.AddSyncJob(_syncJob);
+            if (added)
+            {
+                StateHasChanged();
+                Snackbar.Add("Sync job added successfully!", Severity.Success);
+                ResetForm();
+            }
+            else
+            {
+                Snackbar.Add("Failed to add sync job. It may already exist.", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("Please fill in all required fields.", Severity.Warning);
+        }
+    }
+
+    private void ResetForm()
+    {
+        _syncJob = new SyncJob { FilterParams = new FilterParams() };
+        _form.ResetValidation();
+    }
+}
