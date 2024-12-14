@@ -14,6 +14,7 @@ namespace WSyncPro.Core.Services
         private readonly IAppLocalDb _localDb;
         private readonly ILogger<AppCache> _logger;
         private readonly AppDb _cache;
+        private bool _update = false;
 
         public AppCache(IAppLocalDb localDb, ILogger<AppCache> logger)
         {
@@ -32,6 +33,7 @@ namespace WSyncPro.Core.Services
 
             _cache.SyncJobs.Add(job);
             _logger.LogInformation("Sync job with ID {JobId} added", job.Id);
+            _update = true;
             return await _localDb.UpdateDb(_cache);
         }
 
@@ -46,6 +48,7 @@ namespace WSyncPro.Core.Services
 
             _cache.SyncJobs.Remove(job);
             _logger.LogInformation("Sync job with ID {JobId} removed", jobId);
+            _update = true;
             return await _localDb.UpdateDb(_cache);
         }
 
@@ -109,6 +112,7 @@ namespace WSyncPro.Core.Services
         {
             try
             {
+                _update = false;
                 return _cache.SyncJobs;
             }
             catch (Exception ex)
@@ -132,6 +136,11 @@ namespace WSyncPro.Core.Services
                 _logger.LogError(ex, "Error syncing cache with database");
                 return new SyncJob();
             }
+        }
+
+        public async Task<bool> CacheUpdated()
+        {
+            return _update;
         }
     }
 }

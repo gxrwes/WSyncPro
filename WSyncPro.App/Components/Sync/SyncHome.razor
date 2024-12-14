@@ -2,25 +2,39 @@
 @using WSyncPro.Core.Services
 @using WSyncPro.Models.Jobs
 @inject IAppCache AppCache
+@inject ISnackbar Snackbar
+
 <h3>SyncHome</h3>
-<SyncJobTable />
-<CreateSyncJob />
+<SyncJobTable SyncJobs="@jobs" ReloadJobs="ReloadJobs" />
+<CreateSyncJob ReloadJobs="ReloadJobs" />
 
 @code {
-    private string ErrorMessage = string.Empty;
     private List<SyncJob> jobs = new List<SyncJob>();
 
     protected override async Task OnInitializedAsync()
     {
+        await ReloadJobs();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        bool update = await AppCache.CacheUpdated();
+        if (firstRender || update)
+        {
+            await ReloadJobs();
+            StateHasChanged();
+        }
+    }
+
+    public async Task ReloadJobs()
+    {
         try
         {
-            var jL = await AppCache.GetAllSyncJobs();
-            if (jL != null) jobs = jL;
-
-        }catch(Exception e)
-        {
-            
+            jobs = await AppCache.GetAllSyncJobs();
         }
-
-  }
+        catch (Exception e)
+        {
+            Snackbar.Add("Failed to get Jobs. e: " + e.Message, Severity.Warning);
+        }
+    }
 }

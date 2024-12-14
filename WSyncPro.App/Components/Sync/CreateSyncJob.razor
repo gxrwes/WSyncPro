@@ -1,11 +1,8 @@
-<!--CreateSyncJob-->
-@using MudBlazor
 @using WSyncPro.Core.Services
 @using WSyncPro.Models.Filter
 @using WSyncPro.Models.Jobs
-@inject IAppCache AppCache
 @inject ISnackbar Snackbar
-
+@inject IAppCache AppCache
 <MudCard Style="max-width: 600px; margin: auto;" Outlined="true">
     <MudCardHeader>
         <MudText Typo="Typo.h6">Create Sync Job</MudText>
@@ -41,6 +38,8 @@
     private MudForm _form;
     private SyncJob _syncJob = new SyncJob { FilterParams = new FilterParams() };
 
+    [Parameter] public EventCallback ReloadJobs { get; set; }
+
     private string IncludeFilters
     {
         get => string.Join(", ", _syncJob.FilterParams.Include);
@@ -61,8 +60,8 @@
             bool added = await AppCache.AddSyncJob(_syncJob);
             if (added)
             {
-                StateHasChanged();
                 Snackbar.Add("Sync job added successfully!", Severity.Success);
+                await ReloadJobs.InvokeAsync(); // Refresh the table
                 ResetForm();
             }
             else

@@ -1,6 +1,4 @@
 @using WSyncPro.Models.Jobs
-@using System.Net.Http.Json
-
 <MudTable Items="@SyncJobs" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
         <MudTh>Source Directory</MudTh>
@@ -25,6 +23,7 @@
 
 @code {
     private bool _loading;
-    [Parameter] public List<SyncJob> SyncJobs { get; set; } = new List<SyncJob>();
 
+    [Parameter] public List<SyncJob> SyncJobs { get; set; } = new List<SyncJob>();
+    [Parameter] public EventCallback ReloadJobs { get; set; }
 }
