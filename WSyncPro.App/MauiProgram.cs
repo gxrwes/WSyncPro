@@ -26,7 +26,33 @@ namespace WSyncPro.App
                 string dbFilePath = Path.Combine(FileSystem.AppDataDirectory, "appdb.json");
                 return new AppLocalDb(dbFilePath, logger);
             });
-            builder.Services.AddSingleton<IAppCache, AppCache>();
+
+            builder.Services.AddSingleton<IAppCache>(provider =>
+            {
+                var localDb = provider.GetRequiredService<IAppLocalDb>();
+                var logger = provider.GetRequiredService<ILogger<AppCache>>();
+                return new AppCache(localDb, logger);
+            });
+
+            builder.Services.AddSingleton<IFileVersioning, FileVersioning>();
+
+            builder.Services.AddSingleton<ICopyService>(provider =>
+            {
+                var fileVersioning = provider.GetRequiredService<IFileVersioning>();
+                var cache = provider.GetRequiredService<IAppCache>();
+                var logger = provider.GetRequiredService<ILogger<CopyService>>();
+                return new CopyService(fileVersioning, cache, logger);
+            });
+
+            builder.Services.AddSingleton<ISyncService>(provider =>
+            {
+                var cache = provider.GetRequiredService<IAppCache>();
+                var copyService = provider.GetRequiredService<ICopyService>();
+                var fileVersioning = provider.GetRequiredService<IFileVersioning>();
+                var logger = provider.GetRequiredService<ILogger<SyncService>>();
+                return new SyncService(cache, copyService, fileVersioning, logger);
+            });
+
 
 
 #if DEBUG

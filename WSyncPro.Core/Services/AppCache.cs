@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WSyncPro.Models.Db;
+using WSyncPro.Models.Files;
 using WSyncPro.Models.Jobs;
+using WSyncPro.Models.Versioning;
 
 namespace WSyncPro.Core.Services
 {
@@ -167,5 +169,99 @@ namespace WSyncPro.Core.Services
                 throw;
             }
         }
+        public async Task AddCopyJob(CopyJob job)
+        {
+            try
+            {
+                if (job == null)
+                    throw new ArgumentNullException(nameof(job));
+
+                if (!_cache.CopyJobs.Any(j => j.Guid == job.Guid))
+                {
+                    _cache.CopyJobs.Add(job);
+                    _update = true;
+                    _logger.LogInformation("Copy job with ID {JobId} added", job.Guid);
+                    await _localDb.UpdateDb(_cache);
+                }
+                else
+                {
+                    _logger.LogWarning("Copy job with ID {JobId} already exists", job.Guid);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding copy job to cache");
+                throw;
+            }
+        }
+
+        public async Task AddFileHistorySnapshot(FileHistorySnapShot snapshot)
+        {
+            try
+            {
+                if (snapshot == null)
+                    throw new ArgumentNullException(nameof(snapshot));
+
+                _cache.fileHistorySnapShots.Add(snapshot);
+                _update = true;
+                _logger.LogInformation("FileHistorySnapShot with ID {SnapShotId} added", snapshot.Id);
+                await _localDb.UpdateDb(_cache);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding file history snapshot to cache");
+                throw;
+            }
+        }
+
+        public async Task AddJobExecution(JobExecution execution)
+        {
+            try
+            {
+                if (execution == null)
+                    throw new ArgumentNullException(nameof(execution));
+
+                _cache.JobExecutions.Add(execution);
+                _update = true;
+                _logger.LogInformation("JobExecution with ID {ExecutionId} added", execution.Id);
+                await _localDb.UpdateDb(_cache);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding job execution to cache");
+                throw;
+            }
+        }
+
+        public async Task AddDirectory(WDirectory directory)
+        {
+            try
+            {
+                if (directory == null)
+                    throw new ArgumentNullException(nameof(directory));
+
+                if (!_cache.AllDirectories.Any(d => d.Id == directory.Id))
+                {
+                    _cache.AllDirectories.Add(directory);
+                    _update = true;
+                    _logger.LogInformation("Directory with ID {DirectoryId} added", directory.Id);
+                    await _localDb.UpdateDb(_cache);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding directory to cache");
+                throw;
+            }
+        }
+
+        // Additional helper methods to retrieve specific lists
+        public List<WDirectory> GetDirectories() => _cache.AllDirectories;
+
+        public List<CopyJob> GetCopyJobs() => _cache.CopyJobs;
+
+        public List<FileHistorySnapShot> GetFileHistorySnapShots() => _cache.fileHistorySnapShots;
+
+        public List<JobExecution> GetJobExecutions() => _cache.JobExecutions;
     }
 }

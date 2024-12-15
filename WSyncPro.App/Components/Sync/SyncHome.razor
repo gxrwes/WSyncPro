@@ -6,9 +6,17 @@
 @inject IDialogService DialogService
 
 <h3>SyncHome</h3>
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreateDialog">Create Sync Job</MudButton>
+    <MudPaper Class="pa-16 ma-2" Elevation="0">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenCreateDialog">Create Sync Job</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="OpenSyncRunnerDialog">Run Sync Jobs</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OpenJobExecutionsDialog">Job Executions</MudButton>
+</MudPaper>
+<MudPaper Class="pa-16 ma-2">
+    <SyncJobTable SyncJobs="@jobs" ReloadJobs="ReloadJobs" OnEditJob="OpenEditDialog" />
+</MudPaper>
 
-<SyncJobTable SyncJobs="@jobs" ReloadJobs="ReloadJobs" OnEditJob="OpenEditDialog" />
+
+
 
 @code {
     private List<SyncJob> jobs = new List<SyncJob>();
@@ -65,5 +73,17 @@
             await ReloadJobs();
             Snackbar.Add("Sync job updated successfully!", Severity.Success);
         }
+    }
+
+    private async Task OpenSyncRunnerDialog()
+    {
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large };
+        await DialogService.ShowAsync<SyncJobRunner>("Run Sync Jobs", options);
+    }
+
+    private async Task OpenJobExecutionsDialog()
+    {
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large };
+        await DialogService.ShowAsync<JobExecutionList>("Job Executions", options);
     }
 }

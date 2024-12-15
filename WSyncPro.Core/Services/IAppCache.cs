@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WSyncPro.Models.Files;
 using WSyncPro.Models.Jobs;
+using WSyncPro.Models.Versioning;
 
 namespace WSyncPro.Core.Services
 {
@@ -22,5 +25,19 @@ namespace WSyncPro.Core.Services
         public Task<bool> SyncWithDb();
         // To get a unique id, usually done by db
         public Guid GetUUID();
+        public Task AddCopyJob(CopyJob job);
+
+        public Task AddFileHistorySnapshot(FileHistorySnapShot snapshot);
+        public Task AddJobExecution(JobExecution execution);
+        public Task AddDirectory(WDirectory directory);
+
+        // Additional helper methods to retrieve specific lists
+        public List<WDirectory> GetDirectories();
+
+        public List<CopyJob> GetCopyJobs();
+
+        public List<FileHistorySnapShot> GetFileHistorySnapShots();
+
+        public List<JobExecution> GetJobExecutions();
     }
 }

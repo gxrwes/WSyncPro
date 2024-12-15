@@ -15,7 +15,8 @@ namespace WSyncPro.Models.Jobs
         Finishing,
         Successful,
         Failed,
-        Crashed
+        Crashed,
+        Canceled
 
     }
 }
