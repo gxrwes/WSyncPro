@@ -4,6 +4,7 @@
 @inject IAppCache AppCache
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject ISyncService _syncService
 
 <h3>SyncHome</h3>
 <MudPaper Class="pa-16 ma-2" Elevation="0">
@@ -83,7 +84,10 @@
 
     private async Task OpenJobExecutionsDialog()
     {
+       
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large };
         await DialogService.ShowAsync<JobExecutionList>("Job Executions", options);
     }
+
+    
 }

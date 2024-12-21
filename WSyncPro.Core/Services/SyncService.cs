@@ -36,14 +36,14 @@ namespace WSyncPro.Core.Services
 
                 // 1. Scan source directory
                 var sourceDirectory = await ScanDirectoryAsync(job.SrcDirectory);
-                _cache.AddDirectory(sourceDirectory);
+                await _cache.AddDirectory(sourceDirectory);
 
                 // 2. Filter files
                 var filteredFiles = ApplyFilters(sourceDirectory, job.FilterParams);
 
                 // 3. Scan target directory
                 var targetDirectory = await ScanDirectoryAsync(job.DstDirectory);
-                _cache.AddDirectory(targetDirectory);
+                await _cache.AddDirectory(targetDirectory);
 
                 // 4. Generate copy jobs
                 var copyJobs = GenerateCopyJobs(filteredFiles, targetDirectory, job);

@@ -15,7 +15,7 @@ namespace WSyncPro.Core.Services
     {
         private readonly IAppLocalDb _localDb;
         private readonly ILogger<AppCache> _logger;
-        private readonly AppDb _cache;
+        private readonly AppDb _cache = new AppDb();
         private bool _update = false;
 
         public AppCache(IAppLocalDb localDb, ILogger<AppCache> logger)
@@ -175,7 +175,7 @@ namespace WSyncPro.Core.Services
             {
                 if (job == null)
                     throw new ArgumentNullException(nameof(job));
-
+                if (_cache.CopyJobs == null) _cache.CopyJobs = new List<CopyJob>();
                 if (!_cache.CopyJobs.Any(j => j.Guid == job.Guid))
                 {
                     _cache.CopyJobs.Add(job);
@@ -201,7 +201,7 @@ namespace WSyncPro.Core.Services
             {
                 if (snapshot == null)
                     throw new ArgumentNullException(nameof(snapshot));
-
+                if (_cache.fileHistorySnapShots == null) _cache.fileHistorySnapShots = new List<FileHistorySnapShot>();
                 _cache.fileHistorySnapShots.Add(snapshot);
                 _update = true;
                 _logger.LogInformation("FileHistorySnapShot with ID {SnapShotId} added", snapshot.Id);
@@ -239,6 +239,8 @@ namespace WSyncPro.Core.Services
             {
                 if (directory == null)
                     throw new ArgumentNullException(nameof(directory));
+
+                if (_cache.AllDirectories == null) _cache.AllDirectories = new List<WDirectory>();
 
                 if (!_cache.AllDirectories.Any(d => d.Id == directory.Id))
                 {
