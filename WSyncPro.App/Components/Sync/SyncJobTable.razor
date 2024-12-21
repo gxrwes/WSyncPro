@@ -3,6 +3,7 @@
 <MudTable Items="@SyncJobs" Hover="true" Breakpoint="Breakpoint.Md" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
         <MudTh>Name</MudTh>
+        <MudTh>Enabled</MudTh>
         <MudTh>Source Directory</MudTh>
         <MudTh>Destination Directory</MudTh>
         <MudTh>Keep Directories</MudTh>
@@ -13,6 +14,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Enabled">@context.IsEnabled</MudTd>
         <MudTd DataLabel="Source Directory">@context.SrcDirectory</MudTd>
         <MudTd DataLabel="Destination Directory">@context.DstDirectory</MudTd>
         <MudTd DataLabel="Keep Directories">@context.KeepDirectories</MudTd>

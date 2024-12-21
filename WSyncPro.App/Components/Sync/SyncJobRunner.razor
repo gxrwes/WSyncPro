@@ -95,7 +95,7 @@
             isRunning = true;
 
             // Collect all tasks for concurrent execution
-            var syncTasks = syncJobs.Select(StartSync).ToList();
+            var syncTasks = syncJobs.Where(_ => _.IsEnabled).Select(StartSync).ToList();
 
             // Await all tasks to complete
             await Task.WhenAll(syncTasks);

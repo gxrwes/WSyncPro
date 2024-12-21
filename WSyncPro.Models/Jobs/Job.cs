@@ -13,6 +13,7 @@ namespace WSyncPro.Models.Jobs
         public string Description { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime Updated { get; set; }
+        public bool IsEnabled { get; set; } = false;
 
     }
 }

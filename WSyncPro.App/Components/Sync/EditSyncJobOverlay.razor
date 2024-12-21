@@ -11,6 +11,7 @@
                 <MudForm @ref="_form">
                     <MudPaper Class="pa-4">
                         <MudTextField @bind-Value="_syncJob.Name" Label="Name" Variant="Variant.Outlined" Required="true" />
+                        <MudSwitch @bind-Value="_syncJob.IsEnabled" Color="Color.Primary" Label="Enabled" />
                         <MudTextField @bind-Value="_syncJob.Description" T="string" Label="Description" Variant="Variant.Text" AutoGrow HelperText="A short description..." />
                         <MudTextField @bind-Value="_syncJob.SrcDirectory" Label="Source Directory" Variant="Variant.Outlined" Required="true" />
                         <MudTextField @bind-Value="_syncJob.DstDirectory" Label="Destination Directory" Variant="Variant.Outlined" Required="true" />
