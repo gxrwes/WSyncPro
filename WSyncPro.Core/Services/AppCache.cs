@@ -191,7 +191,7 @@ namespace WSyncPro.Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding copy job to cache");
-                throw;
+                throw ex;
             }
         }
 

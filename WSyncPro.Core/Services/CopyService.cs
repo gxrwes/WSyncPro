@@ -32,6 +32,11 @@ namespace WSyncPro.Core.Services
 
                 // Ensure the destination directory exists
                 var destinationDirectory = Path.GetDirectoryName(copyJob.DstFilePathAbsolute);
+                if (string.IsNullOrWhiteSpace(destinationDirectory))
+                {
+                    throw new ArgumentException("Destination directory is invalid.", nameof(copyJob.DstFilePathAbsolute));
+                }
+
                 if (!Directory.Exists(destinationDirectory))
                 {
                     Directory.CreateDirectory(destinationDirectory);
@@ -55,6 +60,11 @@ namespace WSyncPro.Core.Services
                     };
 
                     var sourceFileInfo = new FileInfo(copyJob.SrcFilePathAbsolute);
+                    if (!sourceFileInfo.Exists)
+                    {
+                        throw new FileNotFoundException("Source file does not exist.", copyJob.SrcFilePathAbsolute);
+                    }
+
                     var sourceFile = new WFile
                     {
                         Path = sourceFileInfo.FullName,
@@ -70,8 +80,13 @@ namespace WSyncPro.Core.Services
                 }
 
                 // Perform the copy operation
-                using (var sourceStream = new FileStream(copyJob.SrcFilePathAbsolute, FileMode.Open, FileAccess.Read))
-                using (var destinationStream = new FileStream(copyJob.DstFilePathAbsolute, FileMode.Create, FileAccess.Write))
+                if (!File.Exists(copyJob.SrcFilePathAbsolute))
+                {
+                    throw new FileNotFoundException("Source file does not exist.", copyJob.SrcFilePathAbsolute);
+                }
+
+                using (var sourceStream = new FileStream(copyJob.SrcFilePathAbsolute, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var destinationStream = new FileStream(copyJob.DstFilePathAbsolute, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     await sourceStream.CopyToAsync(destinationStream);
                 }
@@ -81,9 +96,10 @@ namespace WSyncPro.Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error copying file from {SourcePath} to {DestinationPath}", copyJob.SrcFilePathAbsolute, copyJob.DstFilePathAbsolute);
-                throw;
+                throw; // Preserve the stack trace
             }
         }
+
 
         public async Task MoveFile(CopyJob moveJob)
         {

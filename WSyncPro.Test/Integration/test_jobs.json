@@ -1,0 +1,47 @@
+[
+    {
+        "SrcDirectory": "PLACEHOLDER_SRC",
+        "DstDirectory": "PLACEHOLDER_DST",
+        "FilterParams": {
+            "Include": [ "*.txt", "*.docx", "*.md" ],
+            "Exclude": [ "*.tmp", "*.bak", "*.pdf" ]
+        },
+        "KeepDirectories": true
+    },
+    {
+        "SrcDirectory": "PLACEHOLDER_SRC",
+        "DstDirectory": "PLACEHOLDER_DST",
+        "FilterParams": {
+            "Include": [ "*.png", "*.jpg" ],
+            "Exclude": [ "*.gif", "*.mkv" ]
+        },
+        "KeepDirectories": false
+    },
+    {
+        "SrcDirectory": "PLACEHOLDER_SRC",
+        "DstDirectory": "PLACEHOLDER_DST",
+        "FilterParams": {
+            "Include": [ "*.pdf" ],
+            "Exclude": [ "exclude_document2.pdf" ]
+        },
+        "KeepDirectories": true
+    },
+    {
+        "SrcDirectory": "PLACEHOLDER_SRC",
+        "DstDirectory": "PLACEHOLDER_DST",
+        "FilterParams": {
+            "Include": [ "*.*" ],
+            "Exclude": [ "*.bak", "*.tmp", "backup_*", "temp_*" ]
+        },
+        "KeepDirectories": false
+    },
+    {
+        "SrcDirectory": "PLACEHOLDER_SRC",
+        "DstDirectory": "PLACEHOLDER_DST",
+        "FilterParams": {
+            "Include": [ "*.zip", "*.tar.gz" ],
+            "Exclude": [ "*.tar", "*.zip" ]
+        },
+        "KeepDirectories": true
+    }
+]

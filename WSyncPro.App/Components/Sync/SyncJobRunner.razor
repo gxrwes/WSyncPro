@@ -95,7 +95,7 @@
 
 
 
-                await SyncService.VerifyCopyJobsExecuted(new List<CopyJob> { copyJobs[i] });
+                await SyncService.ExecuteAndVerifyJobs(new List<CopyJob> { copyJobs[i] });
 
                 progress[job.Id] = (double)(i + 1) / copyJobs.Count * 100;
 

@@ -37,6 +37,7 @@ namespace WSyncPro.Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading database from {DbFilePath}", _dbFilePath);
+                _appDb = new AppDb();
             }
         }
 

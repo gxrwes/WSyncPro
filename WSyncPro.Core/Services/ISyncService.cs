@@ -12,7 +12,7 @@ namespace WSyncPro.Core.Services
     {
         public Task<List<CopyJob>> CreateCpJobsForSyncJobs(List<SyncJob> jobs);
         public Task<List<CopyJob>> CreateCpJobsForSyncJob(SyncJob jobs);
-        public Task<List<bool>> VerifyCopyJobsExecuted(List<CopyJob> jobs);
+        public Task<List<bool>> ExecuteAndVerifyJobs(List<CopyJob> jobs);
         public Task<WDirectory> ScanDirectoryAsync(string path);
     }
 }

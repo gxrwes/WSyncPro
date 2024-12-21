@@ -74,7 +74,7 @@ namespace WSyncPro.Core.Services
             return allCopyJobs;
         }
 
-        public async Task<List<bool>> VerifyCopyJobsExecuted(List<CopyJob> jobs)
+        public async Task<List<bool>> ExecuteAndVerifyJobs(List<CopyJob> jobs)
         {
             var results = new List<bool>();
 
@@ -140,12 +140,42 @@ namespace WSyncPro.Core.Services
 
         private List<WFile> ApplyFilters(WDirectory directory, FilterParams filters)
         {
-            return directory.Items.OfType<WFile>()
-                .Where(file =>
-                    (filters.Include.Any(include => file.Name.Contains(include)) || filters.Include.Count == 0) &&
-                    !filters.Exclude.Any(exclude => file.Name.Contains(exclude)))
-                .ToList();
+            var filteredFiles = new List<WFile>();
+
+            void TraverseAndFilter(WDirectory currentDirectory)
+            {
+                // Process files in the current directory
+                filteredFiles.AddRange(currentDirectory.Items.OfType<WFile>()
+                    .Where(file =>
+                        (filters.Include.Count == 0 || filters.Include.Any(include => WildCardFound(file.Name, include))) &&
+                        !filters.Exclude.Any(exclude => WildCardFound(file.Name, exclude))));
+
+                // Recursively process subdirectories
+                foreach (var subDirectory in currentDirectory.Items.OfType<WDirectory>())
+                {
+                    TraverseAndFilter(subDirectory);
+                }
+            }
+
+            TraverseAndFilter(directory);
+            return filteredFiles;
         }
+
+        private bool WildCardFound(string input, string wildcard)
+        {
+            if (string.IsNullOrEmpty(wildcard))
+                return false;
+
+            // Convert wildcard to a regular expression
+            string pattern = "^" + System.Text.RegularExpressions.Regex.Escape(wildcard)
+                .Replace("\\*", ".*")
+                .Replace("\\?", ".") + "$";
+
+            // Match the input against the pattern
+            return System.Text.RegularExpressions.Regex.IsMatch(input, pattern);
+        }
+
+
 
         private List<CopyJob> GenerateCopyJobs(List<WFile> sourceFiles, WDirectory targetDirectory, SyncJob job)
         {
@@ -154,7 +184,7 @@ namespace WSyncPro.Core.Services
             foreach (var sourceFile in sourceFiles)
             {
                 var targetPath = job.KeepDirectories
-                    ? Path.Combine(targetDirectory.Path, sourceFile.Path.Replace(job.SrcDirectory, ""))
+                    ? sourceFile.Path.Replace(job.SrcDirectory, targetDirectory.Path)
                     : Path.Combine(targetDirectory.Path, sourceFile.Name);
 
                 var existingFile = targetDirectory.Items
