@@ -9,12 +9,23 @@ namespace WSyncPro.Util.Test.TestModels
     public class TestReport
     {
         public string Timestamp { get; set; } = DateTime.UtcNow.ToString("o");
-        public TestStatus Status { get; set; }
-        public string TestName { get; set; }
-        public string Message { get; set; }
-        public string Log { get; set; }
-        public string TestStepname { get; set; }
-        public List<string> Tags { get; set; }
+        public TestStatus Status { get; set; } = TestStatus.Skipped;
+        public string TestName { get; set; } = "Notset";
+        public string Message { get; set; } = string.Empty;
+        public string Log { get; set; } = String.Empty;
+        public string TestStepname { get; set; } = string.Empty ;
+        public List<string> Tags { get; set; } = new List<string>() ;
+        public TestReport() 
+        {
+            
+        }
+        public TestReport(TestStatus status, string testName, string testStepName,string message)
+        {
+            Status = status;
+            TestName = testName;
+            TestStepname = testStepName;
+            Message = message;
+        }
     }
 
 }

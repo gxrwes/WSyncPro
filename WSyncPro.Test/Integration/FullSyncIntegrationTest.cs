@@ -11,6 +11,8 @@ using WSyncPro.Models.Filter;
 using WSyncPro.Models.Files;
 using WSyncPro.Models.Jobs;
 using Microsoft.Extensions.Logging.Abstractions;
+using WSyncPro.Util.Test.TestModels;
+using WSyncPro.Util.Test;
 
 namespace WSyncPro.Test.Integration
 {
@@ -24,6 +26,7 @@ namespace WSyncPro.Test.Integration
         private ICopyService _copyService;
         private IAppCache _appCache;
         private IAppLocalDb _localDb;
+        private ITestReporter _testReporter;
         private List<FilterParams> _filterConfigs;
         private List<string> _testFiles;
         private List<SyncJob> _testJobs;
@@ -51,6 +54,7 @@ namespace WSyncPro.Test.Integration
             _appCache = new AppCache(_localDb, NullLogger<AppCache>.Instance);
             _copyService = new CopyService(new FileVersioning(), _appCache, NullLogger<CopyService>.Instance);
             _syncService = new SyncService(_appCache, _copyService, new FileVersioning(), NullLogger<SyncService>.Instance);
+            _testReporter = new TestReporter();
 
             // Load configuration files
             LoadTestConfigurations();
@@ -166,7 +170,10 @@ namespace WSyncPro.Test.Integration
         private void Step2_3_ValidateSyncJob(SyncJob job)
         {
             var copiedFiles = Directory.GetFiles(_dstDir, "*.*", SearchOption.AllDirectories).Select(Path.GetFileName).ToList();
+            bool filefailed = false;
+            string jobid = string.Empty;
 
+            jobid = job.Id.ToString();
             foreach (var filterParams in _filterConfigs)
             {
                 foreach (var file in _testFiles)
@@ -175,17 +182,28 @@ namespace WSyncPro.Test.Integration
 
                     var shouldBeIncluded = filterParams.Include.Any(include => fileName.Contains(include)) &&
                                            !filterParams.Exclude.Any(exclude => fileName.Contains(exclude));
+                    try
+                    {
 
-                    if (shouldBeIncluded)
-                    {
-                        Assert.Contains(fileName, copiedFiles, $"File {fileName} was not copied but should have been.");
+                        if (shouldBeIncluded)
+                        {
+                            Assert.Contains(fileName, copiedFiles, $"File {fileName} was not copied but should have been.");
+                        }
+                        else
+                        {
+                            Assert.IsFalse(copiedFiles.Contains(fileName), $"File {fileName} was copied but should not have been.");
+                        }
+                        _testReporter.Report(new TestReport(TestStatus.Success, "FullSyncIntegrationTest", "Step2_3_ValidateSyncJob_" + jobid, "Succeded for Params: " + job.FilterParams.ToString() + "For File " + file)).GetAwaiter().GetResult(); 
+
                     }
-                    else
+                    catch (Exception ex) 
                     {
-                        Assert.IsFalse(copiedFiles.Contains(fileName), $"File {fileName} was copied but should not have been.");
+                        _testReporter.Report(new TestReport(TestStatus.Failure, "FullSyncIntegrationTest", "Step2_3_ValidateSyncJob_" + jobid, "Failed for Params: " + job.FilterParams.ToString() + " with error: "+ ex.Message)).GetAwaiter().GetResult();
+                        filefailed = true;
                     }
                 }
             }
+            Assert.That(filefailed, Is.False,"A File has failed -> check testreport");
         }
 
         private void Step2_4_CleanupDst()
@@ -205,9 +223,19 @@ namespace WSyncPro.Test.Integration
         public void Step3_FinalCleanup()
         {
             TearDown();
-            Assert.IsFalse(Directory.Exists(_srcDir), "Source directory was not deleted.");
-            Assert.IsFalse(Directory.Exists(_dstDir), "Destination directory was not deleted.");
+            try
+            {
+                Assert.IsFalse(Directory.Exists(_srcDir), "Source directory was not deleted.");
+                Assert.IsFalse(Directory.Exists(_dstDir), "Destination directory was not deleted.");
+                _testReporter.Report(new TestReport(TestStatus.Success, "FullSyncIntegrationTest", "Step3_FinalCleanup", ""));
+            }
+            catch (Exception ex)
+            {
+                _testReporter.Report(new TestReport(TestStatus.Failure, "FullSyncIntegrationTest", "Step3_FinalCleanup", "Failed with " + ex.Message));
+            }
+            _testReporter.BuildFinalReport().GetAwaiter().GetResult();
         }
+
 
         private static IEnumerable<SyncJob> GetSyncJobs()
         {
