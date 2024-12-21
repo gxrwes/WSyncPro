@@ -27,7 +27,6 @@ namespace WSyncPro.Test.Integration
         private IAppCache _appCache;
         private IAppLocalDb _localDb;
         private ITestReporter _testReporter;
-        private List<FilterParams> _filterConfigs;
         private List<string> _testFiles;
         private List<SyncJob> _testJobs;
         private static readonly string _tempBaseDir = Path.Combine(Path.GetTempPath(), "TempIntegrationTest");
@@ -66,19 +65,7 @@ namespace WSyncPro.Test.Integration
 
         private void LoadTestConfigurations()
         {
-            // Load filter configurations
-            var filterConfigPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "Integration", "test_filters.json");
-            if (File.Exists(filterConfigPath))
-            {
-                var filterJson = File.ReadAllText(filterConfigPath);
-                _filterConfigs = JsonSerializer.Deserialize<List<FilterParams>>(filterJson);
-            }
-            else
-            {
-                _filterConfigs = new List<FilterParams>();
-            }
-
-            // Load test files configuration
+                        // Load test files configuration
             var testFilesPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "Integration", "test_files.json");
             if (File.Exists(testFilesPath))
             {
@@ -173,34 +160,31 @@ namespace WSyncPro.Test.Integration
             bool filefailed = false;
             string jobid = string.Empty;
 
-            jobid = job.Id.ToString();
-            foreach (var filterParams in _filterConfigs)
+            jobid = Guid.NewGuid().ToString();
+            foreach (var file in _testFiles)
             {
-                foreach (var file in _testFiles)
+                var fileName = Path.GetFileName(file);
+
+                var shouldBeIncluded = job.FilterParams.Include.Any(include => fileName.Contains(include.Replace("*",""))) &&
+                                        !job.FilterParams.Exclude.Any(exclude => fileName.Contains(exclude.Replace("*", "")));
+                try
                 {
-                    var fileName = Path.GetFileName(file);
 
-                    var shouldBeIncluded = filterParams.Include.Any(include => fileName.Contains(include)) &&
-                                           !filterParams.Exclude.Any(exclude => fileName.Contains(exclude));
-                    try
+                    if (shouldBeIncluded)
                     {
-
-                        if (shouldBeIncluded)
-                        {
-                            Assert.Contains(fileName, copiedFiles, $"File {fileName} was not copied but should have been.");
-                        }
-                        else
-                        {
-                            Assert.IsFalse(copiedFiles.Contains(fileName), $"File {fileName} was copied but should not have been.");
-                        }
-                        _testReporter.Report(new TestReport(TestStatus.Success, "FullSyncIntegrationTest", "Step2_3_ValidateSyncJob_" + jobid, "Succeded for Params: " + job.FilterParams.ToString() + "For File " + file)).GetAwaiter().GetResult(); 
-
+                        Assert.Contains(fileName, copiedFiles, $"File {fileName} was not copied but should have been.");
                     }
-                    catch (Exception ex) 
+                    else
                     {
-                        _testReporter.Report(new TestReport(TestStatus.Failure, "FullSyncIntegrationTest", "Step2_3_ValidateSyncJob_" + jobid, "Failed for Params: " + job.FilterParams.ToString() + " with error: "+ ex.Message)).GetAwaiter().GetResult();
-                        filefailed = true;
+                        Assert.IsFalse(copiedFiles.Contains(fileName), $"File {fileName} was copied but should not have been.");
                     }
+                    _testReporter.Report(new TestReport(TestStatus.Success, "FullSyncIntegrationTest", "Step2_3_ValidateSyncJob_" + jobid, "Succeded for Params: " + job.FilterParams.ToString() + "For File " + file)).GetAwaiter().GetResult(); 
+
+                }
+                catch (Exception ex) 
+                {
+                    _testReporter.Report(new TestReport(TestStatus.Failure, "FullSyncIntegrationTest", "Step2_3_ValidateSyncJob_" + jobid, "Failed for Params: " + job.FilterParams.ToString() + " with error: "+ ex.Message)).GetAwaiter().GetResult();
+                    filefailed = true;
                 }
             }
             Assert.That(filefailed, Is.False,"A File has failed -> check testreport");
