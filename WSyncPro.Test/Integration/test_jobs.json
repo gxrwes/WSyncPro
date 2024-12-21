@@ -12,6 +12,15 @@
         "SrcDirectory": "PLACEHOLDER_SRC",
         "DstDirectory": "PLACEHOLDER_DST",
         "FilterParams": {
+            "Include": [ "*.txt", "*.mp4", "*render*" ],
+            "Exclude": [ "*.tmp", "*temp*", "*fail*" ]
+        },
+        "KeepDirectories": true
+    },
+    {
+        "SrcDirectory": "PLACEHOLDER_SRC",
+        "DstDirectory": "PLACEHOLDER_DST",
+        "FilterParams": {
             "Include": [ "*.png", "*.jpg" ],
             "Exclude": [ "*.gif", "*.mkv" ]
         },
