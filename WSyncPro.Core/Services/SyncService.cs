@@ -76,25 +76,44 @@ namespace WSyncPro.Core.Services
 
         public async Task<List<bool>> ExecuteAndVerifyJobs(List<CopyJob> jobs)
         {
-            var results = new List<bool>();
+            var tasks = new List<Task<(bool isSuccess, string fileName)>>();
 
             foreach (var job in jobs)
             {
-                try
+                tasks.Add(ExecuteCopyJobAsync(job));
+            }
+
+            var results = await Task.WhenAll(tasks);
+
+            foreach (var result in results)
+            {
+                if (result.isSuccess)
                 {
-                    await _copyService.CopyFile(job);
-                    _logger.LogInformation("Copy job executed successfully for file {FileName}", job.SrcFilePathAbsolute);
-                    results.Add(true);
+                    _logger.LogInformation("Copy job executed successfully for file {FileName}", result.fileName);
                 }
-                catch (Exception ex)
+                else
                 {
-                    _logger.LogError(ex, "Error executing copy job for file {FileName}", job.SrcFilePathAbsolute);
-                    results.Add(false);
+                    _logger.LogError("Error executing copy job for file {FileName}", result.fileName);
                 }
             }
 
-            return results;
+            return results.Select(r => r.isSuccess).ToList();
         }
+
+        private async Task<(bool isSuccess, string fileName)> ExecuteCopyJobAsync(CopyJob job)
+        {
+            try
+            {
+                await _copyService.CopyFile(job);
+                return (true, job.SrcFilePathAbsolute);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing copy job for file {FileName}", job.SrcFilePathAbsolute);
+                return (false, job.SrcFilePathAbsolute);
+            }
+        }
+
 
         public async Task<WDirectory> ScanDirectoryAsync(string path)
         {
