@@ -9,7 +9,7 @@ namespace WSyncPro.Models.Versioning
     // (before, after)
     public class FileHistorySnapShot
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public (DateTime, DateTime) TimeStamp { get; set; }
         public (double, double) Filesize { get; set; }
         public (string, string) Filename { get; set; }

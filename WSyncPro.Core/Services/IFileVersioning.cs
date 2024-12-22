@@ -10,7 +10,7 @@ namespace WSyncPro.Core.Services
 {
     public interface IFileVersioning
     {
-        public Task<FileHistorySnapShot> CompareFile(WFile oldFile, WFile newFile, string? jobId);
+        public Task<FileHistorySnapShot> CompareFile(WFile? oldFile, WFile newFile, string? jobId);
 
     }
 }

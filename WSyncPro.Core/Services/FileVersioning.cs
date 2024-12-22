@@ -10,38 +10,42 @@ namespace WSyncPro.Core.Services
 {
     public class FileVersioning : IFileVersioning
     {
-        public Task<FileHistorySnapShot> CompareFile(WFile oldFile, WFile newFile, string? jobId)
+        public Task<FileHistorySnapShot> CompareFile(WFile? oldFile, WFile newFile, string? jobId)
         {
             try
             {
-                if (oldFile == null || newFile == null)
+                if (newFile == null)
                 {
-                    throw new ArgumentNullException(nameof(oldFile), "Old file or new file cannot be null.");
+                    throw new ArgumentNullException(nameof(newFile), "New file cannot be null.");
                 }
 
                 // Create the snapshot, comparing fields and preserving unchanged values
                 var snapshot = new FileHistorySnapShot
                 {
                     Id = Guid.NewGuid(), // Unique ID for the snapshot
-                    TimeStamp = (oldFile.LastUpdated, newFile.LastUpdated),
+
+                    TimeStamp = (
+                        oldFile?.LastUpdated ?? DateTime.MinValue, // Default to DateTime.MinValue if oldFile is null
+                        newFile.LastUpdated
+                    ),
 
                     Filesize = (
-                        oldFile.FileSize == newFile.FileSize ? oldFile.FileSize : 0,
-                        oldFile.FileSize == newFile.FileSize ? newFile.FileSize : newFile.FileSize
+                        oldFile?.FileSize ?? 0, // Default to 0 if oldFile is null
+                        newFile.FileSize
                     ),
 
                     Filename = (
-                        oldFile.Name == newFile.Name ? oldFile.Name : null,
-                        oldFile.Name == newFile.Name ? null : newFile.Name
+                        oldFile?.Name ?? "New File", // Default to "New File" if oldFile is null
+                        newFile.Name
                     ),
 
                     FilePath = (
-                        oldFile.Path == newFile.Path ? oldFile.Path : null,
-                        oldFile.Path == newFile.Path ? null : newFile.Path
+                        oldFile?.Path ?? "Unknown Path", // Default to "Unknown Path" if oldFile is null
+                        newFile.Path
                     ),
 
                     LastEdited = (
-                        oldFile.LastUpdated.ToString("o"),
+                        oldFile?.LastUpdated.ToString("o") ?? "N/A", // Default to "N/A" if oldFile is null
                         newFile.LastUpdated.ToString("o")
                     ),
 
@@ -66,6 +70,7 @@ namespace WSyncPro.Core.Services
                 throw; // Rethrow the exception for higher-level handling
             }
         }
+
 
 
     }
