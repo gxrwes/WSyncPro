@@ -220,7 +220,7 @@ namespace WSyncPro.Core.Services
             {
                 if (execution == null)
                     throw new ArgumentNullException(nameof(execution));
-
+                if(_cache.JobExecutions == null) _cache.JobExecutions = new List<JobExecution>();
                 _cache.JobExecutions.Add(execution);
                 _update = true;
                 _logger.LogInformation("JobExecution with ID {ExecutionId} added", execution.Id);
