@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WSyncPro.Models.Files;
 using WSyncPro.Models.Jobs;
+using WSyncPro.Models.Settings;
 using WSyncPro.Models.Versioning;
 
 namespace WSyncPro.Core.Services
@@ -39,5 +40,7 @@ namespace WSyncPro.Core.Services
         public List<FileHistorySnapShot> GetFileHistorySnapShots();
 
         public List<JobExecution> GetJobExecutions();
+        public Task<AppSettingsModel> GetAppSettings();
+        public Task<bool> SetAppSettings(AppSettingsModel newSettings);
     }
 }

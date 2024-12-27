@@ -4,13 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WSyncPro.Models.Files;
+using WSyncPro.Models.Import;
 using WSyncPro.Models.Jobs;
+using WSyncPro.Models.Settings;
 using WSyncPro.Models.Versioning;
 
 namespace WSyncPro.Models.Db
 {
     public class AppDb
     {
+        public DateTime LastUpdate { get; set; } = DateTime.MinValue;
         public Guid Id { get; set; } = Guid.NewGuid();
 
         // Change SyncJobs to a property
@@ -23,6 +26,8 @@ namespace WSyncPro.Models.Db
         // Change dbName to a property (optional if you want it serialized)
         public string DbName { get; set; } = "default";
         public HashSet<string> GeneratedGuids { get; set; } = new HashSet<string>();
+        public AppSettingsModel Appsettings { get; set; } = new AppSettingsModel();
+
     }
 }
 

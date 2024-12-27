@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using WSyncPro.Models.Db;
 using WSyncPro.Models.Files;
 using WSyncPro.Models.Jobs;
+using WSyncPro.Models.Settings;
 using WSyncPro.Models.Versioning;
 
 namespace WSyncPro.Core.Services
@@ -22,8 +23,6 @@ namespace WSyncPro.Core.Services
         {
             _localDb = localDb;
             _logger = logger;
-            // Try to load Data In file
-            //_localDb.LoadDb();
             var loadedFiles = _localDb.GetAppDb();
             if (loadedFiles != null) _cache = loadedFiles;
             else
@@ -94,7 +93,7 @@ namespace WSyncPro.Core.Services
             return await UpdateSyncJob(job);
         }
 
-        public async Task<bool> SyncWithDb()
+        public async Task<bool> SyncWithDb() // currently we reload and check if that is succesful to be able to sync
         {
             try
             {
@@ -262,8 +261,45 @@ namespace WSyncPro.Core.Services
 
         public List<CopyJob> GetCopyJobs() => _cache.CopyJobs;
 
-        public List<FileHistorySnapShot> GetFileHistorySnapShots() => _cache.fileHistorySnapShots;
+        public List<FileHistorySnapShot> GetFileHistorySnapShots()
+        {
+            if(_cache.fileHistorySnapShots == null) _cache.fileHistorySnapShots = new List<FileHistorySnapShot>();
+            return  _cache.fileHistorySnapShots;
+        } 
 
         public List<JobExecution> GetJobExecutions() => _cache.JobExecutions;
+
+        public async Task<AppSettingsModel> GetAppSettings()
+        {
+            if(_cache.Appsettings == null) _cache.Appsettings = new AppSettingsModel();
+            return _cache.Appsettings;
+        }
+
+        public async Task<bool> SetAppSettings(AppSettingsModel newSettings)
+        {
+            try
+            {
+                if(newSettings == null) throw new ArgumentNullException(nameof(newSettings));
+                if(newSettings.AppSettingsBackupPath != null && newSettings.AppSettingsBackupPath.Any())
+                {
+                    _cache.Appsettings.AppSettingsBackupPath = newSettings.AppSettingsBackupPath;
+                    _logger.LogInformation("Set New Backup Path");
+                }
+                if(newSettings.ImportDefault != null)
+                {
+                    _cache.Appsettings.ImportDefault = newSettings.ImportDefault;
+                    _logger.LogInformation("Set New Import Defaults");
+
+                }
+                await _localDb.UpdateDb(_cache);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Something went wrong updating settings in AppCache with :" + ex.Message);
+                return false;
+            }
+
+        }
     }
 }

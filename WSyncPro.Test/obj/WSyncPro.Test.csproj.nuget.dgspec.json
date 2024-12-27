@@ -308,6 +308,10 @@
               "target": "Package",
               "version": "[13.0.3, )"
             },
+            "System.Management": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
             "Xamarin.Essentials": {
               "target": "Package",
               "version": "[1.8.1, )"

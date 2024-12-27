@@ -1,6 +1,87 @@
 ﻿@page "/import"
-<h3>ImportHome</h3>
+@using System.Collections.Generic
+@using MudBlazor
+
+<h3>Import Home</h3>
+
+<MudPaper Elevation="1" Style="padding: 16px; margin-bottom: 16px;">
+    <MudText Typo="Typo.h6" GutterBottom="true">Import</MudText>
+
+    <!-- Import From Dropdown -->
+    <MudSelect T="string" Label="Import From" ValueChanged="OnImportFromChanged" Value="SelectedDevice" Dense="true" Style="margin-bottom: 16px;">
+        @foreach (var device in Devices)
+        {
+            <MudSelectItem T="string" Value="@device">@device</MudSelectItem>
+        }
+        <MudSelectItem T="string" Value="@OtherLocation">Other Location</MudSelectItem>
+    </MudSelect>
+
+    <!-- Import Name -->
+    <MudTextField T="string" Label="Import Name" @bind-Value="ImportName" Dense="true" Style="margin-top: 16px;" />
+    <MudText Typo="Typo.caption" Style="color: green;">Enter text for import name</MudText>
+
+    <!-- Import Path -->
+    <MudTextField T="string" Label="Import Path" @bind-Value="ImportPath" Dense="true" Style="margin-top: 16px;" Disabled="@IsDefaultPath" />
+    <MudText Typo="Typo.caption" Style="color: green;">Opens dialog window to set custom path. If default, it's greyed out.</MudText>
+
+    <!-- File Info -->
+    <MudText Typo="Typo.body1" Style="margin-top: 16px;">Found Files: @FileCount</MudText>
+    <MudText Typo="Typo.body1">Total Size (GB): @TotalSize</MudText>
+
+    <!-- File List -->
+    <MudPaper Elevation="2" Style="margin-top: 16px; padding: 16px; max-height: 200px; overflow-y: auto;">
+        <MudList T="string">
+            @foreach (var file in FoundFiles)
+            {
+                <MudListItem T="string">@file</MudListItem>
+            }
+        </MudList>
+    </MudPaper>
+</MudPaper>
 
 @code {
+    private string SelectedDevice { get; set; }
+    private string ImportName { get; set; }
+    private string ImportPath { get; set; }
+    private bool IsDefaultPath { get; set; } = true; // Assume default path is enabled
+    private int FileCount { get; set; } = 0;
+    private double TotalSize { get; set; } = 0.0; // Size in GB
+    private string OtherLocation { get; set; } = "other"; // Fix for the recurring issue
+    private List<string> Devices { get; set; } = new List<string> { "Device1", "Device2", "Device3" };
+    private List<string> FoundFiles { get; set; } = new List<string> { "file1.txt", "file2.txt", "file3.txt", "file4.txt" };
 
+    [Inject]
+    private IDialogService DialogService { get; set; }
+
+    private async Task OpenCustomPathDialogAsync()
+    {
+        var parameters = new DialogParameters
+        {
+            { "CustomPath", ImportPath }
+        };
+
+        var dialogReference = DialogService.Show<CustomPathDialog>("Select Import Path", parameters);
+        var result = await dialogReference.Result;
+
+        if (!result.Canceled && result.Data is string path)
+        {
+            ImportPath = path;
+            IsDefaultPath = false;
+        }
+    }
+
+    private async void OnImportFromChanged(string newValue)
+    {
+        SelectedDevice = newValue;
+
+        if (newValue == OtherLocation)
+        {
+            await OpenCustomPathDialogAsync();
+        }
+        else
+        {
+            IsDefaultPath = true;
+            ImportPath = string.Empty; // Reset path for default devices
+        }
+    }
 }

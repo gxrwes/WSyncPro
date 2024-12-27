@@ -12,5 +12,7 @@ namespace WSyncPro.Core.Services
     {
         public Task<FileHistorySnapShot> CompareFile(WFile? oldFile, WFile newFile, string? jobId);
 
+        public Task<List<FileHistorySnapShot>> GetVersionHistoryForFile(List<FileHistorySnapShot> files, WFile file);
+
     }
 }

@@ -1,9 +1,41 @@
 ﻿@page "/settings"
+@using WSyncPro.Models.Import
+@using WSyncPro.Models.Settings
 <h3>Settings Home</h3>
 
-<MudButton OnClick="OpenAppSettingsDialogAsync" Variant="Variant.Filled" Color="Color.Primary">
-    Open Application Settings
-</MudButton>
+<MudPaper Elevation="1" Style="padding: 16px; margin-bottom: 16px;">
+    <MudGrid>
+        <MudItem xs="12" md="4">
+            <b>Name:</b>
+        </MudItem>
+        <MudItem xs="12" md="8">
+            @CurrentSettings.ImportDefault.Name
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <b>Description:</b>
+        </MudItem>
+        <MudItem xs="12" md="8">
+            @CurrentSettings.ImportDefault.Description
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <b>Default Import Folder:</b>
+        </MudItem>
+        <MudItem xs="12" md="8">
+            @CurrentSettings.ImportDefault.DefaultImportFolder
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <b>Backup Path:</b>
+        </MudItem>
+        <MudItem xs="12" md="8">
+            @CurrentSettings.AppSettingsBackupPath
+        </MudItem>
+        <MudItem xs="12" Style="text-align: center; margin-top: 16px;">
+            <MudButton OnClick="OpenAppSettingsDialogAsync" Color="Color.Primary" Size="Size.Small">
+                Edit Settings
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 
 <MudAlert Severity="Severity.Info" Style="margin-top: 16px;" Visible="@showUpdatedMessage">
     Settings have been updated successfully!
@@ -12,23 +44,31 @@
 @code {
     @inject IDialogService DialogService
 
+    private AppSettingsModel CurrentSettings { get; set; } = new AppSettingsModel
+        {
+            ImportDefault = new ImportDefault
+            {
+                Name = "Default Name",
+                Description = "Default Description",
+                DefaultImportFolder = "/default/path"
+            },
+            AppSettingsBackupPath = "/backup/path"
+        };
+
     private bool showUpdatedMessage = false;
 
     private async Task OpenAppSettingsDialogAsync()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
-        var dialogReference = DialogService.Show<AppSettings>("Application Settings", options);
+        var dialogReference = DialogService.Show<AppSettings>("Edit Application Settings", options);
 
         var result = await dialogReference.Result;
 
-        if (result != null && !result.Canceled && result.Data is WSyncPro.Models.Settings.AppSettingsModel updatedSettings)
+        if (!result.Canceled && result.Data is AppSettingsModel updatedSettings)
         {
-            // Handle updated settings (e.g., save to your settings service)
-            Console.WriteLine($"Updated Name: {updatedSettings.ImportDefault.Name}");
-            Console.WriteLine($"Updated Description: {updatedSettings.ImportDefault.Description}");
-            Console.WriteLine($"Updated Default Import Folder: {updatedSettings.ImportDefault.DefaultImportFolder}");
-            Console.WriteLine($"Updated Backup Path: {updatedSettings.AppSettingsBackupPath}");
+            // Update the current settings
+            CurrentSettings = updatedSettings;
 
             // Show a success message
             showUpdatedMessage = true;

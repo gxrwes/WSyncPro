@@ -28,6 +28,10 @@ namespace WSyncPro.Core.Services
                 {
                     _logger.LogWarning("Database file not found at {DbFilePath}, initializing new database", _dbFilePath);
                     _appDb = new AppDb();
+                    string defaultJson = JsonSerializer.Serialize(_appDb);
+                    File.WriteAllText(_dbFilePath, defaultJson);
+                    _logger.LogInformation("New database file created at {DbFilePath}", _dbFilePath);
+                    return; // Exit early as the file is already initialized
                 }
 
                 string json = File.ReadAllText(_dbFilePath);
@@ -40,6 +44,7 @@ namespace WSyncPro.Core.Services
                 _appDb = new AppDb();
             }
         }
+
 
         public async Task<bool> SaveDb()
         {
@@ -114,6 +119,8 @@ namespace WSyncPro.Core.Services
         {
             try
             {
+                if (appDb == null) throw new ArgumentException("DB not Updated as loaded DB == Null");
+                appDb.LastUpdate = DateTime.Now;
                 _appDb = appDb;
                 _logger.LogInformation("Updating database with new state");
                 return await SaveDb();

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using WSyncPro.Models.Files;
 using WSyncPro.Models.Versioning;
@@ -71,7 +70,42 @@ namespace WSyncPro.Core.Services
             }
         }
 
+        public Task<List<FileHistorySnapShot>> GetVersionHistoryForFile(List<FileHistorySnapShot> snapshots, WFile file)
+        {
+            try
+            {
+                if (snapshots == null || snapshots.Count == 0)
+                {
+                    throw new ArgumentException("Snapshots list cannot be null or empty.", nameof(snapshots));
+                }
 
+                if (file == null)
+                {
+                    throw new ArgumentNullException(nameof(file), "File cannot be null.");
+                }
 
+                // Filter snapshots matching the file by Filename and FilePath
+                var matchingSnapshots = snapshots
+                    .Where(snapshot =>
+                        snapshot.Filename.Item2 == file.Name &&
+                        snapshot.FilePath.Item2 == file.Path)
+                    .OrderBy(snapshot => snapshot.TimeStamp.Item2) // Sort by the "After" timestamp
+                    .ToList();
+
+                return Task.FromResult(matchingSnapshots);
+            }
+            catch (ArgumentNullException ex)
+            {
+                // Log specific null argument exception
+                Console.Error.WriteLine($"Argument null error: {ex.Message}");
+                throw; // Rethrow the exception for higher-level handling
+            }
+            catch (Exception ex)
+            {
+                // Log general errors
+                Console.Error.WriteLine($"An error occurred while retrieving version history: {ex.Message}");
+                throw; // Rethrow the exception for higher-level handling
+            }
+        }
     }
 }
