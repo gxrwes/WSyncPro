@@ -1,0 +1,68 @@
+@using WSyncPro.Models.Import
+
+<MudDialog>
+    <TitleContent>
+        Build Destination Path
+    </TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.h6" Style="margin-bottom: 8px;">Available Path Types</MudText>
+        <MudList T="ImportPathType">
+            @foreach (var pathType in Enum.GetValues<ImportPathType>())
+            {
+                <MudListItem T="ImportPathType" Style="cursor: pointer;" @onclick="() => AddPathType(pathType)">
+                    @pathType
+                </MudListItem>
+            }
+        </MudList>
+
+        <MudText Typo="Typo.h6" Style="margin-top: 16px; margin-bottom: 8px;">Selected Path Types</MudText>
+        <MudList T="ImportPathType">
+            @foreach (var pathType in SelectedPathTypes)
+            {
+                <MudListItem T="ImportPathType" Style="display: flex; justify-content: space-between;">
+                    @pathType
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="() => RemovePathType(pathType)" />
+                </MudListItem>
+            }
+        </MudList>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public List<ImportPathType> ExistingPathBuilder { get; set; }
+
+    private List<ImportPathType> SelectedPathTypes { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        SelectedPathTypes = new List<ImportPathType>(ExistingPathBuilder ?? new List<ImportPathType>());
+    }
+
+    private void AddPathType(ImportPathType pathType)
+    {
+        SelectedPathTypes.Add(pathType);
+    }
+
+    private void RemovePathType(ImportPathType pathType)
+    {
+        SelectedPathTypes.Remove(pathType);
+    }
+
+    private void Submit()
+    {
+        MudDialog.Close(DialogResult.Ok(SelectedPathTypes));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
