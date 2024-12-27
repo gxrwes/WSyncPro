@@ -1,0 +1,41 @@
+﻿@page "/settings"
+<h3>Settings Home</h3>
+
+<MudButton OnClick="OpenAppSettingsDialogAsync" Variant="Variant.Filled" Color="Color.Primary">
+    Open Application Settings
+</MudButton>
+
+<MudAlert Severity="Severity.Info" Style="margin-top: 16px;" Visible="@showUpdatedMessage">
+    Settings have been updated successfully!
+</MudAlert>
+
+@code {
+    @inject IDialogService DialogService
+
+    private bool showUpdatedMessage = false;
+
+    private async Task OpenAppSettingsDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var dialogReference = DialogService.Show<AppSettings>("Application Settings", options);
+
+        var result = await dialogReference.Result;
+
+        if (result != null && !result.Canceled && result.Data is WSyncPro.Models.Settings.AppSettingsModel updatedSettings)
+        {
+            // Handle updated settings (e.g., save to your settings service)
+            Console.WriteLine($"Updated Name: {updatedSettings.ImportDefault.Name}");
+            Console.WriteLine($"Updated Description: {updatedSettings.ImportDefault.Description}");
+            Console.WriteLine($"Updated Default Import Folder: {updatedSettings.ImportDefault.DefaultImportFolder}");
+            Console.WriteLine($"Updated Backup Path: {updatedSettings.AppSettingsBackupPath}");
+
+            // Show a success message
+            showUpdatedMessage = true;
+
+            // Hide the message after a short delay
+            await Task.Delay(3000);
+            showUpdatedMessage = false;
+        }
+    }
+}

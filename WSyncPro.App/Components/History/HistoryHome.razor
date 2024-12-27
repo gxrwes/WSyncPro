@@ -1,0 +1,20 @@
+﻿@page "/historyhome"
+@using WSyncPro.Models.Versioning
+
+<h3>History Home</h3>
+
+<MudContainer Class="pa-4">
+    <SnapshotDisplaycomponent snapShot="@SampleSnapShot" />
+</MudContainer>
+
+@code {
+    private FileHistorySnapShot SampleSnapShot = new FileHistorySnapShot
+    {
+        TimeStamp = (DateTime.Now.AddDays(-1), DateTime.Now),
+        Filesize = (2048, 4096),
+        Filename = ("example_before.txt", "example_after.txt"),
+        FilePath = ("/path/to/old/location", "/path/to/new/location"),
+        LastEdited = ("UserA", "UserB"),
+        TriggerJobId = ("Job123", "Job456")
+    };
+}

@@ -1,0 +1,152 @@
+@using Microsoft.AspNetCore.Components.Rendering
+@using WSyncPro.Models.Versioning
+
+<MudCard Outlined="true" Class="pa-4">
+    <MudCardHeader>
+        <MudText Typo="Typo.h5">File History Snapshot</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <!-- ID and Current Filename -->
+        <MudContainer Class="mb-4">
+            <MudPaper Class="pa-4 mb-2" Elevation="2">
+                <MudText Typo="Typo.subtitle1"><strong>Snapshot ID:</strong> @snapShot.Id</MudText>
+            </MudPaper>
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudText Typo="Typo.subtitle1"><strong>Filename (Current):</strong> @snapShot.Filename.Item2</MudText>
+            </MudPaper>
+        </MudContainer>
+
+        <!-- Comparison Table -->
+        <MudTable Items="@snapshotData" Dense="true" Hover="true" Bordered="true" Striped="true">
+            <HeaderContent>
+                <MudTh>Property</MudTh>
+                <MudTh>Before</MudTh>
+                <MudTh>Diff</MudTh>
+                <MudTh>After</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Property</MudTd>
+                <MudTd>@context.Before</MudTd>
+                <MudTd>@(GetDiff(context))</MudTd>
+                <MudTd>@context.After</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public FileHistorySnapShot snapShot { get; set; } = new FileHistorySnapShot();
+
+    private List<SnapshotData> snapshotData;
+
+    protected override void OnInitialized()
+    {
+        // Populate snapshot data dynamically
+        snapshotData = new List<SnapshotData>
+        {
+            new SnapshotData("Timestamp", snapShot.TimeStamp.Item1.ToString("g"), snapShot.TimeStamp.Item2.ToString("g")),
+            new SnapshotData("Filesize", $"{snapShot.Filesize.Item1} KB", $"{snapShot.Filesize.Item2} KB"),
+            new SnapshotData("Filename", snapShot.Filename.Item1, snapShot.Filename.Item2),
+            new SnapshotData("FilePath", snapShot.FilePath.Item1, snapShot.FilePath.Item2),
+            new SnapshotData("Last Edited", snapShot.LastEdited.Item1, snapShot.LastEdited.Item2),
+            new SnapshotData("Trigger Job ID", snapShot.TriggerJobId.Item1, snapShot.TriggerJobId.Item2)
+        };
+    }
+
+    private class SnapshotData
+    {
+        public string Property { get; }
+        public string Before { get; }
+        public string After { get; }
+
+        public SnapshotData(string property, string before, string after)
+        {
+            Property = property;
+            Before = before;
+            After = after;
+        }
+    }
+
+    // Generates the difference as a string
+    private RenderFragment GetDiff(SnapshotData data) => builder =>
+    {
+        if (data.Before == data.After)
+        {
+            builder.AddContent(0, string.Empty); // No diff if values are identical
+            return;
+        }
+
+        if (data.Property == "Filesize")
+        {
+            // Filesize difference
+            var beforeSize = double.Parse(data.Before.Split(' ')[0]);
+            var afterSize = double.Parse(data.After.Split(' ')[0]);
+            var diff = afterSize - beforeSize;
+
+            builder.OpenComponent<MudText>(0);
+            builder.AddAttribute(1, "Color", diff > 0 ? Color.Success : Color.Error);
+            builder.AddContent(2, diff > 0 ? $"+{diff} KB" : $"-{-diff} KB");
+            builder.CloseComponent();
+        }
+        else if (data.Property == "FilePath" || data.Property == "Filename")
+        {
+            // Highlight differences in paths or filenames
+            HighlightPathDiff(data.Before, data.After, builder);
+        }
+        else if (data.Property == "Timestamp")
+        {
+            // Highlight timestamp difference
+            var beforeTime = DateTime.Parse(data.Before);
+            var afterTime = DateTime.Parse(data.After);
+            var timeDiff = afterTime - beforeTime;
+
+            builder.OpenComponent<MudText>(0);
+            builder.AddAttribute(1, "Color", Color.Success);
+            builder.AddContent(2, $"+{timeDiff.Days} days, {timeDiff.Hours} hours");
+            builder.CloseComponent();
+        }
+        else
+        {
+            // Generic difference
+            builder.OpenComponent<MudText>(0);
+            builder.AddAttribute(1, "Color", Color.Error);
+            builder.AddContent(2, $"-{data.Before}");
+            builder.CloseComponent();
+
+            builder.AddContent(3, " ");
+
+            builder.OpenComponent<MudText>(4);
+            builder.AddAttribute(5, "Color", Color.Success);
+            builder.AddContent(6, $"+{data.After}");
+            builder.CloseComponent();
+        }
+    };
+
+    // Highlights differences in file paths or filenames
+    private void HighlightPathDiff(string before, string after, RenderTreeBuilder builder)
+    {
+        var beforeParts = before.Split('/');
+        var afterParts = after.Split('/');
+
+        for (int i = 0; i < Math.Max(beforeParts.Length, afterParts.Length); i++)
+        {
+            if (i < beforeParts.Length && (i >= afterParts.Length || beforeParts[i] != afterParts[i]))
+            {
+                builder.OpenComponent<MudText>(0);
+                builder.AddAttribute(1, "Color", Color.Error);
+                builder.AddContent(2, $"-{beforeParts[i]}");
+                builder.CloseComponent();
+            }
+            if (i < afterParts.Length && (i >= beforeParts.Length || beforeParts[i] != afterParts[i]))
+            {
+                builder.OpenComponent<MudText>(3);
+                builder.AddAttribute(4, "Color", Color.Success);
+                builder.AddContent(5, $"+{afterParts[i]}");
+                builder.CloseComponent();
+            }
+
+            if (i < beforeParts.Length - 1 || i < afterParts.Length - 1)
+                builder.AddContent(6, " / ");
+        }
+    }
+}

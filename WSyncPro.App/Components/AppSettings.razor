@@ -1,0 +1,58 @@
+﻿@using WSyncPro.Core.Services
+@using WSyncPro.Models.Import
+@using WSyncPro.Models.Settings
+
+@inject IAppCache AppCache
+
+
+<MudDialog>
+    <TitleContent>
+        Application Settings
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="form" Valid="isValid">
+            <MudTextField @bind-Value="Settings.ImportDefault.Name" Label="Default Import Name" Placeholder="Enter name..." Required="true" />
+            <MudTextField @bind-Value="Settings.ImportDefault.Description" Label="Description" Placeholder="Enter description..." />
+            <MudTextField @bind-Value="Settings.ImportDefault.DefaultImportFolder" Label="Default Import Folder" Placeholder="Enter folder path..." Required="true" />
+            <MudTextField @bind-Value="Settings.AppSettingsBackupPath" Label="Backup Path" Placeholder="Enter backup path..." Required="true" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+        <MudButton OnClick="SaveSettingsAsync" Disabled="!isValid" Color="Color.Primary">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private AppSettingsModel Settings { get; set; } = new AppSettingsModel();
+
+    private MudForm form;
+    private bool isValid;
+
+    private async Task LoadSettingsAsync()
+    {
+        // Placeholder for service call to load settings
+        Settings = await AppCache.GetAppSettings();
+    }
+
+    private async Task SaveSettingsAsync()
+    {
+        if (isValid)
+        {
+            // Placeholder for service call to save settings
+            await AppCache.SetAppSettings(Settings);
+            MudDialog.Close(DialogResult.Ok(Settings));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettingsAsync();
+    }
+}
