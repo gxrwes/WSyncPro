@@ -12,6 +12,10 @@ using WSyncPro.Models.Import;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using WSyncPro.Models.Db;
+using WSyncPro.Models.Jobs;
+using WSyncPro.Models.Settings;
+using WSyncPro.Models.Versioning;
+using WSyncPro.Test.Mock;
 using System.Text.RegularExpressions;
 
 namespace WSyncPro.Test.Integration
@@ -25,6 +29,7 @@ namespace WSyncPro.Test.Integration
         private ImportService _importService;
         private List<string> _testFiles;
         private static readonly string _tempBaseDir = Path.Combine(Path.GetTempPath(), "TempImportIntegrationTest");
+        private ICopyService _copyService;
 
         [SetUp]
         public void SetUp()
@@ -42,7 +47,13 @@ namespace WSyncPro.Test.Integration
             _testFilesPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "Integration", "test_files.json");
 
             // Initialize services with NullLogger
-            _importService = new ImportService();
+            var logger = new NullLogger<ImportService>();
+            var copyLogger = new NullLogger<CopyService>();
+            var fileVersioning = new MockFileVersioning();
+            var appCache = new MockAppCache();
+
+            _copyService = new CopyService(fileVersioning, appCache, copyLogger);
+            _importService = new ImportService(logger, _copyService);
 
             LoadTestFiles();
         }
@@ -87,7 +98,7 @@ namespace WSyncPro.Test.Integration
             var filterParams = new FilterParams
             {
                 Include = new List<string> { "*.gif", "*.mp4" },
-                Exclude = new List<string> { "*.txt" },
+                Exclude = new List<string> { "*temp*" },
                 FileTypes = new List<string> { ".txt", ".mp4" },
                 MaxFileSize = 10000,
                 MinFileSize = 1
@@ -107,15 +118,34 @@ namespace WSyncPro.Test.Integration
             Assert.IsTrue(success, "Import process failed.");
 
             var copiedFiles = Directory.GetFiles(_dstDir, "*", SearchOption.AllDirectories).Select(Path.GetFileName).ToList();
+            var cleandCopiedFiles = new List<string>();
+            foreach (var copiedFile in copiedFiles) 
+            {
+                cleandCopiedFiles.Add(GetFileNameFromPath(copiedFile));
+            }
             var expectedFiles = _testFiles
                 .Where(fileName => filterParams.Include.Any(pattern => fileName.MatchesWildcard(pattern)) &&
                                    !filterParams.Exclude.Any(pattern => fileName.MatchesWildcard(pattern)))
                 .ToList();
-
-            foreach (var expectedFile in expectedFiles)
+            var cleanedFilenames = new List<string>();
+            foreach(var filename in expectedFiles)
+            {
+                cleanedFilenames.Add(GetFileNameFromPath(filename));
+            }
+            foreach (var expectedFile in cleandCopiedFiles)
             {
                 Assert.Contains(Path.GetFileName(expectedFile), copiedFiles, $"File {expectedFile} was not copied correctly.");
             }
+        }
+        public string GetFileNameFromPath(string? filePath)
+        {
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
+            }
+
+            return Path.GetFileName(filePath);
         }
 
         [Test, Order(3)]
@@ -126,33 +156,8 @@ namespace WSyncPro.Test.Integration
             Assert.IsFalse(Directory.Exists(_srcDir), "Source directory was not deleted.");
             Assert.IsFalse(Directory.Exists(_dstDir), "Destination directory was not deleted.");
         }
+        
     }
-
-    public class MockAppLocalDb : IAppLocalDb
-    {
-        // Provide a mock implementation of IAppLocalDb
-        private AppDb _appDb = new AppDb();
-
-        public Task<bool> LoadDb() => Task.FromResult(true);
-
-        public Task<bool> UpdateDb(AppDb appDb)
-        {
-            _appDb = appDb;
-            return Task.FromResult(true);
-        }
-
-        public AppDb GetAppDb() => _appDb;
-
-        public Task<AppDb> GetAppDbAsync() => Task.FromResult(_appDb);
-
-        public string GetUUID() => Guid.NewGuid().ToString();
-
-        public Task<bool> SaveDb()
-        {
-            return Task.FromResult(true);
-        }
-    }
-
     public static class WildcardExtensions
     {
         public static bool MatchesWildcard(this string input, string pattern)

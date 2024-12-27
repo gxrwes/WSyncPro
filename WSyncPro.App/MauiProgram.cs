@@ -36,12 +36,13 @@ namespace WSyncPro.App
 
             builder.Services.AddSingleton<IFileVersioning, FileVersioning>();
 
-            builder.Services.AddSingleton<ICopyService>(provider =>
+            builder.Services.AddSingleton<ICopyService, CopyService>();
+
+            builder.Services.AddSingleton<IImportService>(provider =>
             {
-                var fileVersioning = provider.GetRequiredService<IFileVersioning>();
-                var cache = provider.GetRequiredService<IAppCache>();
-                var logger = provider.GetRequiredService<ILogger<CopyService>>();
-                return new CopyService(fileVersioning, cache, logger);
+                var logger = provider.GetRequiredService<ILogger<ImportService>>();
+                var copyService = provider.GetRequiredService<ICopyService>();
+                return new ImportService(logger, copyService);
             });
 
             builder.Services.AddSingleton<ISyncService>(provider =>
@@ -52,8 +53,6 @@ namespace WSyncPro.App
                 var logger = provider.GetRequiredService<ILogger<SyncService>>();
                 return new SyncService(cache, copyService, fileVersioning, logger);
             });
-
-
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

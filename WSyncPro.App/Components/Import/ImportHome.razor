@@ -1,6 +1,12 @@
 ﻿@page "/import"
 @using System.Collections.Generic
+@using System.Linq
+@using System.Threading.Tasks
 @using MudBlazor
+@using WSyncPro.Util.System
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Filter
+@using WSyncPro.Models.Import
 
 <h3>Import Home</h3>
 
@@ -9,9 +15,16 @@
 
     <!-- Import From Dropdown -->
     <MudSelect T="string" Label="Import From" ValueChanged="OnImportFromChanged" Value="SelectedDevice" Dense="true" Style="margin-bottom: 16px;">
-        @foreach (var device in Devices)
+        @if (Devices.Count == 0)
         {
-            <MudSelectItem T="string" Value="@device">@device</MudSelectItem>
+            <MudText Typo="Typo.body1" Style="color: red;">No external drives detected. Please connect a drive and refresh.</MudText>
+        }
+        else
+        {
+            @foreach (var device in Devices)
+            {
+                <MudSelectItem T="string" Value="@device.DevicePath">@device.DevicePath - @device.DeviceName (@device.DeviceSize)</MudSelectItem>
+            }
         }
         <MudSelectItem T="string" Value="@OtherLocation">Other Location</MudSelectItem>
     </MudSelect>
@@ -24,7 +37,12 @@
     <MudTextField T="string" Label="Import Path" @bind-Value="ImportPath" Dense="true" Style="margin-top: 16px;" Disabled="@IsDefaultPath" />
     <MudText Typo="Typo.caption" Style="color: green;">Opens dialog window to set custom path. If default, it's greyed out.</MudText>
 
-    <!-- File Info -->
+    <!-- Build Destination Path -->
+    <MudButton Color="Color.Primary" Style="margin-top: 16px;" OnClick="OpenPathBuilderDialog">
+        Build Destination Path
+    </MudButton>
+
+    <!-- Found Files Information -->
     <MudText Typo="Typo.body1" Style="margin-top: 16px;">Found Files: @FileCount</MudText>
     <MudText Typo="Typo.body1">Total Size (GB): @TotalSize</MudText>
 
@@ -37,36 +55,63 @@
             }
         </MudList>
     </MudPaper>
+
+    <!-- Run Import Button -->
+    <MudButton Color="Color.Success" Style="margin-top: 16px;" OnClick="RunImportProcess">
+        Run Import
+    </MudButton>
 </MudPaper>
 
 @code {
     private string SelectedDevice { get; set; }
     private string ImportName { get; set; }
     private string ImportPath { get; set; }
-    private bool IsDefaultPath { get; set; } = true; // Assume default path is enabled
+    private bool IsDefaultPath { get; set; } = true;
     private int FileCount { get; set; } = 0;
-    private double TotalSize { get; set; } = 0.0; // Size in GB
-    private string OtherLocation { get; set; } = "other"; // Fix for the recurring issue
-    private List<string> Devices { get; set; } = new List<string> { "Device1", "Device2", "Device3" };
-    private List<string> FoundFiles { get; set; } = new List<string> { "file1.txt", "file2.txt", "file3.txt", "file4.txt" };
+    private double TotalSize { get; set; } = 0.0;
+    private string OtherLocation { get; set; } = "other";
+    private List<ExternalDriveModel> Devices { get; set; } = new();
+    private List<string> FoundFiles { get; set; } = new();
+    private List<ImportPathType> PathBuilder { get; set; } = new();
 
     [Inject]
     private IDialogService DialogService { get; set; }
 
-    private async Task OpenCustomPathDialogAsync()
+    [Inject]
+    private IImportService ImportService { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        var parameters = new DialogParameters
+        try
         {
-            { "CustomPath", ImportPath }
-        };
-
-        var dialogReference = DialogService.Show<CustomPathDialog>("Select Import Path", parameters);
-        var result = await dialogReference.Result;
-
-        if (!result.Canceled && result.Data is string path)
+            Devices = await Task.Run(() => ExternalDriveDetector.GetExternalDrives());
+        }
+        catch (Exception ex)
         {
-            ImportPath = path;
-            IsDefaultPath = false;
+            Console.Error.WriteLine($"Error detecting drives: {ex.Message}");
+        }
+    }
+
+    private async Task OpenPathBuilderDialog()
+    {
+        try
+        {
+            var parameters = new DialogParameters
+            {
+                { "ExistingPathBuilder", PathBuilder }
+            };
+
+            var dialogReference = DialogService.Show<PathBuilderDialog>("Build Destination Path", parameters);
+            var result = await dialogReference.Result;
+
+            if (!result.Canceled && result.Data is List<ImportPathType> updatedPathBuilder)
+            {
+                PathBuilder = updatedPathBuilder;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error opening path builder dialog: {ex.Message}");
         }
     }
 
@@ -80,8 +125,67 @@
         }
         else
         {
+            var selectedDevice = Devices.FirstOrDefault(d => d.DevicePath == newValue);
+            if (selectedDevice != null)
+            {
+                ImportPath = selectedDevice.DevicePath;
+            }
             IsDefaultPath = true;
-            ImportPath = string.Empty; // Reset path for default devices
+        }
+    }
+
+    private async Task OpenCustomPathDialogAsync()
+    {
+        try
+        {
+            var parameters = new DialogParameters
+            {
+                { "CustomPath", ImportPath }
+            };
+
+            var dialogReference = DialogService.Show<CustomPathDialog>("Select Import Path", parameters);
+            var result = await dialogReference.Result;
+
+            if (!result.Canceled && result.Data is string path)
+            {
+                ImportPath = path;
+                IsDefaultPath = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error opening custom path dialog: {ex.Message}");
+        }
+    }
+
+    private async Task RunImportProcess()
+    {
+        try
+        {
+            var filterParams = new FilterParams(); // Update with actual filter parameters if needed
+            var importDirectory = ImportPath;
+            var srcPath = SelectedDevice;
+
+            if (string.IsNullOrEmpty(srcPath) || string.IsNullOrEmpty(importDirectory))
+            {
+                Console.WriteLine("Source or destination path is missing.");
+                return;
+            }
+
+            var success = await ImportService.RunImport(srcPath, importDirectory, filterParams, PathBuilder);
+
+            if (success)
+            {
+                Console.WriteLine("Import process completed successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Import process encountered errors.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error running import: {ex.Message}");
         }
     }
 }
