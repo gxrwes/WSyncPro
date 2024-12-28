@@ -11,7 +11,7 @@
 
 <h3>Import Home</h3>
 
-<MudPaper Elevation="1" Style="padding: 16px; margin-bottom: 16px;">
+<MudPaper Elevation="1" Style="padding: 16px; margin-bottom: 16px; min-width: 100%">
     <MudText Typo="Typo.h6" GutterBottom="true">Import</MudText>
 
     <!-- Import From Dropdown -->
@@ -88,7 +88,7 @@
     <MudButton Color="Color.Success" Style="margin-top: 16px;" OnClick="RunImportProcess">
         Run Import
     </MudButton>
-    <MudOverlay Visible="visible" DarkBackground="true" Absolute="true">
+    <MudOverlay @bind-Visible="@visible" DarkBackground Absolute="true">
         <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
         <MudText Typo="Typo.h2" >Import Running...</MudText>
     </MudOverlay>
@@ -96,14 +96,16 @@
 
 @code {
 
-    public async void OpenOverlay()
+    public void OpenOverlay()
     {
         visible = true;
         StateHasChanged();
     }
-    public async void CloseOverlay()
+    public void CloseOverlay()
     {
         visible = false;
+        StateHasChanged();
+
     }
     private bool visible;
 

@@ -1,11 +1,6 @@
 ﻿<MudNavMenu>
     <MudNavLink Href="/" Match="NavLinkMatch.All">Dashboard</MudNavLink>
-    <MudNavLink Href="/sync" Match="NavLinkMatch.Prefix">Sync</MudNavLink>
-    <MudNavLink Href="/import" Match="NavLinkMatch.Prefix">Import</MudNavLink>
-
-    <MudNavGroup Title="History" Expanded="true">
-        <MudNavLink Href="/historyhome"  Match="NavLinkMatch.Prefix">DEMO</MudNavLink>
-        <MudNavLink Href="/security"  Match="NavLinkMatch.Prefix">Security</MudNavLink>
-    </MudNavGroup>
-    <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix">Settings</MudNavLink>
+    <MudNavLink Href="/sync" Match="NavLinkMatch.Prefix"><MudIcon Icon="@Icons.Material.Filled.Sync" /> Sync</MudNavLink>
+    <MudNavLink Href="/import" Match="NavLinkMatch.Prefix"><MudIcon Icon="@Icons.Material.Filled.FileDownload"/>Import</MudNavLink>
+    <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix"><MudIcon Icon="@Icons.Material.Filled.Settings" />Settings</MudNavLink>
 </MudNavMenu>
