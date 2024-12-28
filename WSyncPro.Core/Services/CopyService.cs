@@ -27,6 +27,7 @@ namespace WSyncPro.Core.Services
         {
             try
             {
+                copyJob.Status = JobStatus.Running;
                 var snapshot = new FileHistorySnapShot();
                 if (copyJob == null)
                 {
@@ -122,10 +123,12 @@ namespace WSyncPro.Core.Services
                 var snapshotList = new List<FileHistorySnapShot>();
                 snapshotList.Add(snapshot);
                 var jobExcecution = new JobExecution(copyJob.Guid.ToString(), JobStatus.Successful, snapshotList);
+                copyJob.Status = JobStatus.Successful;
                 await _cache.AddJobExecution(jobExcecution);
             }
             catch (Exception ex)
             {
+                copyJob.Status = JobStatus.Failed;
                 var jobExcecution = new JobExecution(copyJob.Guid.ToString(), JobStatus.Failed, new List<FileHistorySnapShot>());
                 _logger.LogError(ex, "Error copying file from {SourcePath} to {DestinationPath}", copyJob.SrcFilePathAbsolute, copyJob.DstFilePathAbsolute);
                 throw; // Preserve the stack trace

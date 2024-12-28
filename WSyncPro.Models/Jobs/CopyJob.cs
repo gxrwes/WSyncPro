@@ -14,6 +14,8 @@ namespace WSyncPro.Models.Jobs
         public DateTime Timestamp { get; set; }
         public bool Overwrite { get; set; }
         public bool Successful { get; set; }
+
+        public JobStatus Status { get; set; } = JobStatus.Unknown;
     }
 
     public enum CopyJobOperation

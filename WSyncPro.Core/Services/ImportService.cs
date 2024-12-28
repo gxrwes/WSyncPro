@@ -104,7 +104,7 @@ namespace WSyncPro.Core.Services
                 currentCounter++;
             }
 
-            return await Task.FromResult(copyJobs);
+            return copyJobs;
         }
 
         public async Task<bool> RunImport(string srcPath, string dstPath, FilterParams filterParams, List<ImportPathType> pathBuilder)
@@ -139,11 +139,13 @@ namespace WSyncPro.Core.Services
                     return false;
                 }
 
-                foreach (var job in copyJobs)
-                {
-                    await _copyService.CopyFile(job);
-                }
+                // Collect all tasks for file copying
+                var copyTasks = copyJobs.Select(job => _copyService.CopyFile(job)).ToList();
 
+                // Wait for all tasks to complete
+                await Task.WhenAll(copyTasks);
+
+                // Check if all jobs were successful
                 return copyJobs.All(job => job.Successful);
             }
             catch (Exception ex)
@@ -152,6 +154,7 @@ namespace WSyncPro.Core.Services
                 return false;
             }
         }
+
 
         private bool MatchesFilter(FileInfo file, FilterParams filterParams)
         {
