@@ -42,5 +42,6 @@ namespace WSyncPro.Core.Services
         public List<JobExecution> GetJobExecutions();
         public Task<AppSettingsModel> GetAppSettings();
         public Task<bool> SetAppSettings(AppSettingsModel newSettings);
+        public Task<bool> UpdateCopyJob(CopyJob job);
     }
 }

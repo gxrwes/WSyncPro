@@ -89,8 +89,7 @@
         Run Import
     </MudButton>
     <MudOverlay @bind-Visible="@visible" DarkBackground Absolute="true">
-        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
-        <MudText Typo="Typo.h2" >Import Running...</MudText>
+        <WSyncPro.App.Components.Status.CopyJobStatusComponent />
     </MudOverlay>
 </MudPaper>
 

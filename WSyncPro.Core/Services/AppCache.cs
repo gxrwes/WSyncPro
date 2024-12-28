@@ -301,5 +301,39 @@ namespace WSyncPro.Core.Services
             }
 
         }
+
+        public async Task<bool> UpdateCopyJob(CopyJob job)
+        {
+            try
+            {
+                // Find the job in the cache by Guid
+                var existingJob = _cache.CopyJobs.FirstOrDefault(j => j.Guid == job.Guid);
+
+                if (existingJob == null)
+                {
+                    // Job not found
+                    return false;
+                }
+
+                // Update the existing job's properties
+                existingJob.SrcFilePathAbsolute = job.SrcFilePathAbsolute;
+                existingJob.DstFilePathAbsolute = job.DstFilePathAbsolute;
+                existingJob.Timestamp = job.Timestamp;
+                existingJob.Overwrite = job.Overwrite;
+                existingJob.Successful = job.Successful;
+                existingJob.Status = job.Status;
+                await _localDb.UpdateDb(_cache);
+
+                return (true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Updating CopyJob went wrong with: " + ex.Message);
+                // Log the exception if logging is available
+                Console.WriteLine($"Error updating CopyJob: {ex.Message}");
+                return false;
+            }
+        }
+
     }
 }
