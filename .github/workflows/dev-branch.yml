@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  linux-build:
+  build-linux:
     name: Build and Test on Linux
     runs-on: ubuntu-latest
 
@@ -19,18 +19,18 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore Dependencies
-        run: dotnet restore
+      - name: Restore Workloads
+        run: dotnet workload restore
 
-      - name: Build Solution (Linux Targets)
+      - name: Build Solution (Exclude Android and iOS)
         run: dotnet build --configuration Debug --framework net8.0
 
       - name: Run Unit Tests
         run: dotnet test --no-build --verbosity normal
 
-  macos-build:
-    name: Build and Test on macOS
-    runs-on: macos-latest
+  build-windows:
+    name: Build and Test on Windows
+    runs-on: windows-latest
 
     steps:
       - name: Checkout Repository
@@ -41,11 +41,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install Workloads
+      - name: Restore Workloads
         run: dotnet workload restore
 
-      - name: Restore Dependencies
-        run: dotnet restore
+      - name: Build Solution (Windows Targets)
+        run: dotnet build --configuration Debug
 
-      - name: Build Solution
-        run: dotnet build --configuration Debug --no-restore
+      - name: Run Unit Tests
+        run: dotnet test --no-build --verbosity normal
