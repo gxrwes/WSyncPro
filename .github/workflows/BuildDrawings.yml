@@ -1,0 +1,62 @@
+name: Convert draw.io to images
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+#jobs:
+#  convert-drawio:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Checkout repository
+#      uses: actions/checkout@v2
+#
+#    - name: List .drawio files before conversion
+#      run: ls -la Docu/Drawings/*.drawio
+#
+#    - name: Convert .drawio files to PNG
+#      run: |
+#        for file in Docu/Drawings/*.drawio; do
+#          if [ -f "$file" ]; then
+#            dest_file="${file%.drawio}.png"
+#            echo "Converting $file to $dest_file"
+#            echo "::set-env name=SRC_FILE::$file"
+#            echo "::set-env name=DEST_FILE::$dest_file"
+#            gh workflow run Burnett01/actions-drawio@1.2 --with "src=$file dest=$dest_file"
+#            if [ -f "$dest_file" ]; then
+#              echo "Successfully generated $dest_file"
+#            else
+#              echo "Failed to generate $dest_file"
+#            fi
+#          else
+#            echo "No .drawio files found."
+#          fi
+#        done
+
+    - name: List all files after conversion
+      run: find Docu/Drawings -type f -exec ls -la {} \;
+
+    - name: Check if PNG files were generated
+      run: |
+        if ls Docu/Drawings/*.png 1> /dev/null 2>&1; then
+          echo "PNG files generated."
+        else
+          echo "No PNG files generated."
+          exit 1
+        fi
+
+    - name: Commit and push changes
+      if: success()
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add Docu/Drawings/*.png
+        git commit -m 'Automated conversion of .drawio files to images'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
