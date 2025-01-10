@@ -36,6 +36,10 @@ jobs:
           gem install bundler:2.4.13 # Optional: specify Bundler version if needed
           bundle install
 
+      - name: Debug Vendor Files
+        working-directory: ./page/just-the-docs-main
+        run: ls -R ./vendor/OneLightJekyll
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
