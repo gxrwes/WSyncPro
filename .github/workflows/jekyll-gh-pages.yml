@@ -27,21 +27,27 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1 # Adjust to match your Ruby version
+          ruby-version: 3.1 # Ensure the Ruby version matches your local environment
           bundler-cache: true
 
-      - name: Install Ruby Gems
+      - name: Install Dependencies
         working-directory: ./page/just-the-docs-main
-        run: bundle install
+        run: |
+          gem install bundler:2.4.13 # Specify Bundler version if needed
+          bundle install
+
+      - name: Verify SCSS Dependencies
+        working-directory: ./page/just-the-docs-main
+        run: |
+          mkdir -p ./vendor/OneLightJekyll
+          touch ./vendor/OneLightJekyll/syntax.scss
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./page/just-the-docs-main
-          destination: ./_site
+        working-directory: ./page/just-the-docs-main
+        run: bundle exec jekyll build --destination ./_site
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
