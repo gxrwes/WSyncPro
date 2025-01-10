@@ -33,17 +33,15 @@ jobs:
       - name: Install Dependencies
         working-directory: ./page/just-the-docs-main
         run: |
-          gem install bundler:2.4.13 # Specify Bundler version if needed
+          gem install bundler:2.4.13 # Optional: specify Bundler version if needed
           bundle install
-
-      - name: Verify SCSS Dependencies
-        working-directory: ./page/just-the-docs-main
-        run: |
-          mkdir -p ./vendor/OneLightJekyll
-          touch ./vendor/OneLightJekyll/syntax.scss
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Install Dependencies Again (Before Build)
+        working-directory: ./page/just-the-docs-main
+        run: bundle install
 
       - name: Build with Jekyll
         working-directory: ./page/just-the-docs-main
