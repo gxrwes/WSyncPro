@@ -23,7 +23,8 @@ jobs:
       - name: Install Dependencies
         run: |
           cd page/just-the-docs-main
-          bundle install
+          gem install bundler  # Ensure bundler is installed
+          bundle install        # Install the gems from the Gemfile
 
       - name: Verify Includes and Files
         run: |
