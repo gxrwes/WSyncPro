@@ -1,0 +1,39 @@
+name: Master Merge Build, Test, and Publish
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  build-and-publish:
+    name: Build, Test, and Publish on Master
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x' # Specify .NET version
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build Solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test --no-build --verbosity normal
+
+      - name: Publish App
+        run: dotnet publish WSyncPro.App/WSyncPro.App.csproj --configuration Release --output publish/
+
+      - name: Create Release Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: WSyncPro-App-Build
+          path: WSyncPro.App/publish/
