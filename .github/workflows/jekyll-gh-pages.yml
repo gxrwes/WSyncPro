@@ -20,22 +20,29 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Configure Git Safe Directory
         run: git config --global --add safe.directory /github/workspace
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1
+          ruby-version: 3.1 # Adjust to match your Ruby version
           bundler-cache: true
-      - name: Install dependencies
+
+      - name: Install Ruby Gems
+        working-directory: ./page/just-the-docs-main
         run: bundle install
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./page/just-the-docs-main
           destination: ./_site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
