@@ -38,7 +38,7 @@ jobs:
 
       - name: Debug Vendor Files
         working-directory: ./page/just-the-docs-main
-        run: ls -R ./sass/vendor/OneLightJekyll
+        run: ls -R ./_sass/vendor/OneLightJekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
