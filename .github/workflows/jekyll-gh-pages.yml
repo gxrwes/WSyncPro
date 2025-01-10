@@ -45,7 +45,7 @@ jobs:
 
       - name: Build with Jekyll
         working-directory: ./page/just-the-docs-main
-        run: bundle exec jekyll build --destination ./_site
+        run: bundle exec jekyll build --destination ./_site --trace
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
