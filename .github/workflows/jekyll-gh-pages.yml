@@ -27,14 +27,18 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1 # Ensure the Ruby version matches your local environment
+          ruby-version: 3.1
           bundler-cache: true
 
       - name: Install Dependencies
         working-directory: ./page/just-the-docs-main
         run: |
-          gem install bundler:2.4.13 # Optional: specify Bundler version if needed
+          gem install bundler:2.5.9
           bundle install
+
+      - name: Install npm dependencies
+        working-directory: ./page/just-the-docs-main
+        run: npm install
 
       - name: Debug Vendor Files
         working-directory: ./page/just-the-docs-main
@@ -42,13 +46,6 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
-      - name: Install Dependencies Again (Before Build)
-        working-directory: ./page/just-the-docs-main
-        run: bundle install
-
-      - name: Test
-        run: ls ./page/just-the-docs-main --recursive
 
       - name: Build with Jekyll
         working-directory: ./page/just-the-docs-main
