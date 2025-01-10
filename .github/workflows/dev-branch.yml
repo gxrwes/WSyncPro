@@ -19,6 +19,9 @@ jobs:
         with:
           dotnet-version: '8.0.x' # Specify .NET version
 
+      - name: Install Workloads
+        run: dotnet workload restore
+
       - name: Restore Dependencies
         run: dotnet restore
 
