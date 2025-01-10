@@ -10,3 +10,4 @@ gem "html-proofer", "~> 5.0", :group => :development
 
 gem "csv"
 gem "base64"
+gem "faraday-retry"
