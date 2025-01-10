@@ -2,6 +2,7 @@
 @using WSyncPro.Models.Import
 @using WSyncPro.Models.Settings
 
+@inject ISnackbar Snackbar
 @inject IAppCache AppCache
 
 
@@ -11,15 +12,15 @@
     </TitleContent>
     <DialogContent>
         <MudForm @ref="form" Valid="isValid">
-            <MudTextField @bind-Value="Settings.ImportDefault.Name" Label="Default Import Name" Placeholder="Enter name..." Required="true" />
-            <MudTextField @bind-Value="Settings.ImportDefault.Description" Label="Description" Placeholder="Enter description..." />
-            <MudTextField @bind-Value="Settings.ImportDefault.DefaultImportFolder" Label="Default Import Folder" Placeholder="Enter folder path..." Required="true" />
-            <MudTextField @bind-Value="Settings.AppSettingsBackupPath" Label="Backup Path" Placeholder="Enter backup path..." Required="true" />
+            <MudTextField @bind-Value="Settings.ImportDefault.Name" Label="Default Import Name" Placeholder="@Settings.ImportDefault.Name" Required="true" />
+            <MudTextField @bind-Value="Settings.ImportDefault.Description" Label="Description" Placeholder="@Settings.ImportDefault.Description" />
+            <MudTextField @bind-Value="Settings.ImportDefault.DefaultImportFolder" Label="Default Import Folder" Placeholder="@Settings.ImportDefault.DefaultImportFolder" Required="true" />
+            <MudTextField @bind-Value="Settings.AppSettingsBackupPath" Label="Backup Path" Placeholder="@Settings.AppSettingsBackupPath" Required="true" />
         </MudForm>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
-        <MudButton OnClick="SaveSettingsAsync" Disabled="!isValid" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="SaveSettingsAsync" Color="Color.Primary">Save</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -36,17 +37,27 @@
     private async Task LoadSettingsAsync()
     {
         // Placeholder for service call to load settings
-        Settings = await AppCache.GetAppSettings();
+        try
+        {
+            var temp_settings = await AppCache.GetAppSettings();
+            if (temp_settings == null) throw new Exception("Failed to retrieve Settings from Cache");
+            Settings = temp_settings;
+
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add("Something went wrong: " + e.Message, Severity.Error);
+
+        }
     }
 
     private async Task SaveSettingsAsync()
     {
-        if (isValid)
-        {
-            // Placeholder for service call to save settings
+          // Placeholder for service call to save settings
             await AppCache.SetAppSettings(Settings);
+            Snackbar.Add("Settings Updated", Severity.Success);
+
             MudDialog.Close(DialogResult.Ok(Settings));
-        }
     }
 
     private void Cancel() => MudDialog.Cancel();

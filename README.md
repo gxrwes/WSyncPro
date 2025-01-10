@@ -70,6 +70,11 @@ dotnet test
 
 This will run all tests and provide a report on the results.
 
+#### Building Via CMD
+If the .exe that is created is not runnable, use this command to build instead
+```dotnet publish -c Release -f net8.0-windows10.0.19041.0 -p:WindowsPackageType=None```
+
+
 ## Contributing
 
 Contributions are welcome! Please fork the repository, create a new branch, and submit a pull request with your changes. Ensure that all new features and bug fixes are covered by appropriate unit tests.

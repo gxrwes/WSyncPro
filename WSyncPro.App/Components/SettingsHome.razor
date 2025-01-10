@@ -1,6 +1,10 @@
 ﻿@page "/settings"
 @using WSyncPro.Models.Import
 @using WSyncPro.Models.Settings
+@using WSyncPro.Core.Services
+@inject ISnackbar Snackbar
+@inject IAppCache Cache
+
 <h3>Settings Home</h3>
 
 <MudPaper Elevation="1" Style="padding: 16px; margin-bottom: 16px;">
@@ -42,6 +46,8 @@
 </MudAlert>
 
 @code {
+
+
     @inject IDialogService DialogService
 
     private AppSettingsModel CurrentSettings { get; set; } = new AppSettingsModel
@@ -77,5 +83,21 @@
             await Task.Delay(3000);
             showUpdatedMessage = false;
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try{
+            var temp_settings = await Cache.GetAppSettings();
+            if (temp_settings == null) throw new Exception("Failed to retrieve Settings from Cache");
+            CurrentSettings = temp_settings;
+
+        }
+            catch(Exception e)
+        {
+            Snackbar.Add("Something went wrong: " + e.Message, Severity.Error);
+
+        }
+        //
     }
 }
