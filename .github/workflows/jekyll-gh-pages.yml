@@ -47,6 +47,9 @@ jobs:
         working-directory: ./page/just-the-docs-main
         run: bundle install
 
+      - name: Test
+        run: ls ./page/just-the-docs-main -r
+
       - name: Build with Jekyll
         working-directory: ./page/just-the-docs-main
         run: bundle exec jekyll build --destination ./_site --trace
