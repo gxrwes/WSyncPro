@@ -1,9 +1,9 @@
-name: Build and Deploy Jekyll Site
+name: Build and Deploy Jekyll Site (Dev)
 
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to the main branch
+      - dev  # Trigger the workflow on the dev branch for testing
 
 jobs:
   build-and-deploy:
@@ -25,13 +25,19 @@ jobs:
           cd page/just-the-docs-main
           bundle install
 
+      - name: Verify Includes and Files
+        run: |
+          cd page/just-the-docs-main
+          find . -type f -name 'anchor_headings.html' || echo "anchor_headings.html not found"
+
       - name: Build Site
         run: |
           cd page/just-the-docs-main
-          bundle exec jekyll build
+          bundle exec jekyll build --trace
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages (Optional for Testing)
         uses: peaceiris/actions-gh-pages@v3
+        if: success()  # Only deploy if the build succeeds
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: page/just-the-docs-main/_site
