@@ -1,0 +1,37 @@
+name: Build and Deploy Jekyll Site
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push to the main branch
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy Jekyll
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1  # Specify Ruby version
+          bundler-cache: true
+
+      - name: Install Dependencies
+        run: |
+          cd page/just-the-docs-main
+          bundle install
+
+      - name: Build Site
+        run: |
+          cd page/just-the-docs-main
+          bundle exec jekyll build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: page/just-the-docs-main/_site
