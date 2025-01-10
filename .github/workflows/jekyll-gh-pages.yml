@@ -48,7 +48,7 @@ jobs:
         run: bundle install
 
       - name: Test
-        run: ls ./page/just-the-docs-main --r
+        run: ls ./page/just-the-docs-main --recursive
 
       - name: Build with Jekyll
         working-directory: ./page/just-the-docs-main
