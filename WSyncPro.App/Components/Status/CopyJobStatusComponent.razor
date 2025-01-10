@@ -1,0 +1,58 @@
+﻿@using WSyncPro.Core.Services
+@using WSyncPro.Models.Jobs
+@inject IAppCache Cache
+
+<MudProgressLinear Color="Color.Primary" Striped="true" Size="Size.Large" Value="@Progress" Class="my-7" />
+
+<div class="my-4">
+    <MudText Typo="Typo.h6">Total Jobs: @TotalJobs</MudText>
+    <MudText Typo="Typo.h6">Remaining Jobs: @RemainingJobs</MudText>
+    <MudText Typo="Typo.h6" Color="Color.Success">Succeeded Jobs: @SucceededJobs</MudText>
+    <MudText Typo="Typo.h6" Color="Color.Error">Failed Jobs: @FailedJobs</MudText>
+</div>
+
+<MudTable Items="jobs" Dense="true" Hover="true">
+    <HeaderContent>
+        <MudTh>Job</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Source</MudTh>
+        <MudTh>Destination</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Guid</MudTd>
+        <MudTd>@context.Status</MudTd>
+        <MudTd>@context.SrcFilePathAbsolute</MudTd>
+        <MudTd>@context.DstFilePathAbsolute</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<CopyJob> jobs = new List<CopyJob>();
+    private double Progress => TotalJobs > 0 ? ((double)SucceededJobs / TotalJobs) * 100 : 0;
+    private int TotalJobs => jobs.Count;
+    private int RemainingJobs => jobs.Count(job => job.Status != JobStatus.Successful && job.Status != JobStatus.Failed);
+    private int SucceededJobs => jobs.Count(job => job.Status == JobStatus.Successful);
+    private int FailedJobs => jobs.Count(job => job.Status == JobStatus.Failed);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadJobs();
+    }
+
+    private async Task LoadJobs()
+    {
+        try
+        {
+            var temp = Cache.GetCopyJobs();
+            if (temp != null && temp.Any())
+            {
+                jobs = temp;
+                StateHasChanged(); // Refresh the UI
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error loading jobs: {e.Message}");
+        }
+    }
+}

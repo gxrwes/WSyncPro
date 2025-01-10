@@ -1,0 +1,188 @@
+<!--EditSyncJobOverlay-->
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Jobs
+@inject ISnackbar Snackbar
+@inject IAppCache AppCache
+
+<MudDialog>
+     <DialogContent>
+        <MudCard Style="margin: auto; min-width: 500px;" Outlined="true">
+            <MudCardContent>
+                <MudForm @ref="_form">
+                    <MudPaper Class="pa-4">
+                        <MudTextField @bind-Value="_syncJob.Name" Label="Name" Variant="Variant.Outlined" Required="true" />
+                        <MudSwitch @bind-Value="_syncJob.IsEnabled" Color="Color.Primary" Label="Enabled" />
+                        <MudTextField @bind-Value="_syncJob.Description" T="string" Label="Description" Variant="Variant.Text" AutoGrow HelperText="A short description..." />
+                        <MudTextField @bind-Value="_syncJob.SrcDirectory" Label="Source Directory" Variant="Variant.Outlined" Required="true" />
+                        <MudTextField @bind-Value="_syncJob.DstDirectory" Label="Destination Directory" Variant="Variant.Outlined" Required="true" />
+                        <MudSwitch @bind-Value="_syncJob.KeepDirectories" Color="Color.Primary" Label="Keep Directories" />
+                        <MudSelect T="JobStatus" @bind-Value="_syncJob.Status" Label="Status" Variant="Variant.Outlined">
+                            @foreach (JobStatus status in Enum.GetValues(typeof(JobStatus)))
+
+                            {
+                                <MudSelectItem T="JobStatus" Value="@status">@status</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudPaper>
+                    <MudPaper Class="pa-4" >
+                        <MudTextField @bind-Value="IncludeFilters" Label="Include Filters" Variant="Variant.Outlined" Placeholder="Comma-separated values" />
+                        <MudTextField @bind-Value="ExcludeFilters" Label="Exclude Filters" Variant="Variant.Outlined" Placeholder="Comma-separated values" />
+                        <MudTextField @bind-Value="_syncJob.FilterParams.MaxFileSize" Label="Max File Size (KB)" Variant="Variant.Outlined" Type="number" />
+                        <MudTextField @bind-Value="_syncJob.FilterParams.MinFileSize" Label="Min File Size (KB)" Variant="Variant.Outlined" Type="number" />
+                     </MudPaper>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="tryDelete">Delete Job</MudButton>
+                    @if(_openConfirmDelete)
+                    {   <MudPaper Class="pa-4 mt-4">
+                            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="Delete">Confirm Deletion</MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="CancelDelete">Cancel</MudButton>
+                        </MudPaper>
+                    }
+                </MudForm>
+            </MudCardContent>
+            <MudCardActions>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveSyncJob">Save</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </DialogContent>
+
+</MudDialog>
+
+@code {
+
+    private bool _ConfirmDelete = false;
+
+    private bool _openConfirmDelete = false;
+
+    private MudForm _form;
+
+    private SyncJob _syncJob;
+
+    private string IncludeFilters
+
+    {
+
+        get => string.Join(", ", _syncJob.FilterParams.Include);
+
+        set => _syncJob.FilterParams.Include = value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+
+    }
+    private string ExcludeFilters
+
+    {
+
+        get => string.Join(", ", _syncJob.FilterParams.Exclude);
+
+        set => _syncJob.FilterParams.Exclude = value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+
+    }
+
+
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public SyncJob SyncJob { get; set; }
+    protected override void OnInitialized()
+    {
+
+        _syncJob = new SyncJob
+
+            {
+
+                Id = SyncJob.Id,
+
+                Name = SyncJob.Name,
+
+                Description = SyncJob.Description,
+
+                SrcDirectory = SyncJob.SrcDirectory,
+
+                DstDirectory = SyncJob.DstDirectory,
+
+                KeepDirectories = SyncJob.KeepDirectories,
+
+                Status = SyncJob.Status,
+
+                FilterParams = SyncJob.FilterParams
+
+            };
+
+    }
+    private async Task SaveSyncJob()
+
+    {
+
+        await _form.Validate();
+
+        if (_form.IsValid)
+
+        {
+
+            var updated = await AppCache.UpdateSyncJob(_syncJob);
+
+            if (updated)
+
+            {
+
+                MudDialog.Close(DialogResult.Ok(true));
+
+            }
+
+            else
+
+            {
+
+                Snackbar.Add("Failed to update sync job.", Severity.Error);
+
+            }
+
+        }
+
+        else
+
+        {
+
+            Snackbar.Add("Please fill in all required fields.", Severity.Warning);
+
+        }
+
+    }
+    private void Cancel()
+
+    {
+
+        MudDialog.Cancel();
+
+    }
+    private void tryDelete()
+    {
+        _openConfirmDelete = true;
+    }
+    private void CancelDelete()
+    {
+        _openConfirmDelete = false;
+    }
+    private async Task Delete()
+    {
+        if(_openConfirmDelete)
+        {
+            try
+            {
+                var result = await AppCache.RemoveSyncJob(_syncJob.Id.ToString());
+                if(result)
+                {
+                    Snackbar.Add("Job " + _syncJob.Id + " removed", Severity.Warning);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Snackbar.Add("Failed to update sync job: " + e.Message, Severity.Error);
+            }
+
+        }
+
+        _openConfirmDelete = false;
+        MudDialog.Close(DialogResult.Ok(true));
+
+    }
+}

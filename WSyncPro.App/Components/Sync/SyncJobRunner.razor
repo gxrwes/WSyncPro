@@ -1,0 +1,114 @@
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Jobs
+@inject ISyncService SyncService
+@inject ISnackbar Snackbar
+@inject IAppCache AppCache
+
+<MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="() => RunAllJobs()" Disabled="@isRunning">Run All Jobs</MudButton>
+
+<MudTable Items="@syncJobs" Hover="true" Bordered="true" Striped="true">
+    <HeaderContent>
+        <MudTh>Job Name</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Progress</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.Status</MudTd>
+        <MudTd>
+            <MudProgressLinear Value="@GetProgress(context)" BufferValue="100" Color="Color.Primary" />
+        </MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="() => StartSync(context)" Disabled="@IsRunning(context)">Start</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="() => CancelSync(context)" Disabled="@(context.Status != JobStatus.Running)">Cancel</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<SyncJob> syncJobs = new();
+
+    private Dictionary<Guid, double> progress = new();
+    private bool isRunning = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        syncJobs = await AppCache.GetAllSyncJobs();
+    }
+
+    private double GetProgress(SyncJob job)
+    {
+        return progress.ContainsKey(job.Id) ? progress[job.Id] : 0;
+    }
+
+    private bool IsRunning(SyncJob job)
+    {
+        return job.Status == JobStatus.Running;
+    }
+
+    private async Task StartSync(SyncJob job)
+    {
+        try
+        {
+            job.Status = JobStatus.Running;
+            progress[job.Id] = 0;
+            Snackbar.Add($"Started sync job: {job.Name}", Severity.Info);
+
+            var copyJobs = await SyncService.CreateCpJobsForSyncJob(job);
+
+
+            try
+            {
+                await SyncService.ExecuteAndVerifyJobs(copyJobs);
+                progress[job.Id] = 100;
+                job.Status = JobStatus.Successful;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                job.Status = JobStatus.Failed;
+                Snackbar.Add($"Error executing copy job for {job.Name}: {ex.Message}", Severity.Warning);
+                throw;
+            }
+
+
+            job.Status = JobStatus.Successful;
+            Snackbar.Add($"Sync job completed: {job.Name}", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            job.Status = JobStatus.Failed;
+            Snackbar.Add($"Sync job failed: {job.Name}. Error: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void CancelSync(SyncJob job)
+    {
+        job.Status = JobStatus.Canceled;
+    }
+
+    private async Task RunAllJobs()
+    {
+        try
+        {
+            isRunning = true;
+
+            // Collect all tasks for concurrent execution
+            var syncTasks = syncJobs.Where(_ => _.IsEnabled).Select(StartSync).ToList();
+
+            // Await all tasks to complete
+            await Task.WhenAll(syncTasks);
+
+            Snackbar.Add("All sync jobs completed successfully.", Severity.Success);
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add("Something went wrong when syncing: " + e.Message, Severity.Warning);
+        }
+        finally
+        {
+            isRunning = false;
+        }
+    }
+}

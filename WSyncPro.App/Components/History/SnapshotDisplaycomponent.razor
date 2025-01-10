@@ -1,0 +1,161 @@
+@using WSyncPro.Models.Versioning
+
+<MudCard Outlined="true" Class="pa-4">
+    <MudCardHeader>
+        <MudText Typo="Typo.h5">File History Snapshot</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <!-- ID and Current Filename -->
+        <MudContainer Class="mb-4">
+            <MudPaper Class="pa-4 mb-2" Elevation="2">
+                <MudText Typo="Typo.subtitle1"><strong>Snapshot ID:</strong> @snapShot.Id</MudText>
+            </MudPaper>
+            <MudPaper Class="pa-4" Elevation="2">
+                <MudText Typo="Typo.subtitle1"><strong>Filename (Current):</strong> @snapShot.Filename.Item2</MudText>
+            </MudPaper>
+        </MudContainer>
+
+        <!-- Comparison Table -->
+        <MudTable Items="@snapshotData" Dense="true" Hover="true" Bordered="true" Striped="true">
+            <HeaderContent>
+                <MudTh>Property</MudTh>
+                <MudTh>Before</MudTh>
+                <MudTh>Diff</MudTh>
+                <MudTh>After</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Property</MudTd>
+                <MudTd>@context.Before</MudTd>
+                <MudTd>
+                    @foreach (var diff in GetDiffParts(context))
+                    {
+                            <FileDivComponenent Text="@diff.Text" Plus="@diff.IsAddition" />
+                    }
+                </MudTd>
+                <MudTd>@context.After</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public FileHistorySnapShot snapShot { get; set; } = new FileHistorySnapShot();
+
+    private List<SnapshotData> snapshotData;
+
+    protected override void OnInitialized()
+    {
+        // Populate snapshot data dynamically
+        snapshotData = new List<SnapshotData>
+        {
+            new SnapshotData("Timestamp", snapShot.TimeStamp.Item1.ToString("g"), snapShot.TimeStamp.Item2.ToString("g")),
+            new SnapshotData("Filesize", $"{snapShot.Filesize.Item1} KB", $"{snapShot.Filesize.Item2} KB"),
+            new SnapshotData("Filename", snapShot.Filename.Item1, snapShot.Filename.Item2),
+            new SnapshotData("FilePath", snapShot.FilePath.Item1, snapShot.FilePath.Item2),
+            new SnapshotData("Last Edited", snapShot.LastEdited.Item1, snapShot.LastEdited.Item2),
+            new SnapshotData("Trigger Job ID", snapShot.TriggerJobId.Item1, snapShot.TriggerJobId.Item2)
+        };
+    }
+
+    private class SnapshotData
+    {
+        public string Property { get; }
+        public string Before { get; }
+        public string After { get; }
+
+        public SnapshotData(string property, string before, string after)
+        {
+            Property = property;
+            Before = before;
+            After = after;
+        }
+    }
+
+    private class DiffPart
+    {
+        public string Text { get; set; }
+        public bool IsAddition { get; set; }
+    }
+
+    // Generate differences for the Diff column
+    private List<DiffPart> GetDiffParts(SnapshotData data)
+    {
+        var diffParts = new List<DiffPart>();
+
+        if (data.Property == "Filesize")
+        {
+            // Filesize difference
+            var beforeSize = double.Parse(data.Before.Split(' ')[0]);
+            var afterSize = double.Parse(data.After.Split(' ')[0]);
+            var diff = afterSize - beforeSize;
+
+            diffParts.Add(new DiffPart
+            {
+                Text = $"{Math.Abs(diff)} KB",
+                IsAddition = diff > 0
+            });
+        }
+        else if (data.Property == "FilePath" || data.Property == "Filename")
+        {
+            // Highlight path or filename differences
+            diffParts.AddRange(GetSubstringDiff(data.Before, data.After));
+        }
+        else if (data.Property == "Timestamp")
+        {
+            // Timestamp difference
+            var beforeTime = DateTime.Parse(data.Before);
+            var afterTime = DateTime.Parse(data.After);
+            var timeDiff = afterTime - beforeTime;
+
+            diffParts.Add(new DiffPart
+            {
+                Text = $"{timeDiff.Days} days, {timeDiff.Hours} hours",
+                IsAddition = true
+            });
+        }
+        else if (data.Before != data.After)
+        {
+            // String-based differences for other properties
+            diffParts.AddRange(GetSubstringDiff(data.Before, data.After));
+        }
+
+        return diffParts;
+    }
+
+    // Helper method to calculate substring-based differences
+    private List<DiffPart> GetSubstringDiff(string before, string after)
+    {
+        var diffParts = new List<DiffPart>();
+
+        int minLength = Math.Min(before.Length, after.Length);
+        int diffStart = 0;
+
+        // Find the starting point of the difference
+        while (diffStart < minLength && before[diffStart] == after[diffStart])
+        {
+            diffStart++;
+        }
+
+        // Add removed part from the before string
+        if (diffStart < before.Length)
+        {
+            diffParts.Add(new DiffPart
+            {
+                Text = before.Substring(diffStart),
+                IsAddition = false
+            });
+        }
+
+        // Add added part from the after string
+        if (diffStart < after.Length)
+        {
+            diffParts.Add(new DiffPart
+            {
+                Text = after.Substring(diffStart),
+                IsAddition = true
+            });
+        }
+
+        return diffParts;
+    }
+}

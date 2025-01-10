@@ -1,0 +1,116 @@
+﻿@page "/historyhome"
+@using WSyncPro.Core.Services
+@using WSyncPro.Models.Files
+@using WSyncPro.Models.Versioning
+@inject IAppCache Cache
+
+<h3>History Home</h3>
+
+<MudContainer Class="pa-4">
+    <!-- File List Section -->
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.h6">Edited Files</MudText>
+        <MudTable Items="@EditedFiles" Dense="true" Hover="true" Bordered="true" Striped="true">
+            <HeaderContent>
+                <MudTh>Filename</MudTh>
+                <MudTh>FilePath</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Name</MudTd>
+                <MudTd>@context.Path</MudTd>
+                <MudTd>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => LoadSnapshots(context))">
+                        View Snapshots
+                    </MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+
+    <!-- Snapshots Section -->
+    <MudPaper Class="pa-4 mb-4" Elevation="2" @if="SelectedSnapshots.Count > 0">
+        <MudText Typo="Typo.h6">Snapshots for @SelectedFile?.Name</MudText>
+        <MudTable Items="@SelectedSnapshots" Dense="true" Hover="true" Bordered="true" Striped="true">
+            <HeaderContent>
+                <MudTh>Timestamp</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.TimeStamp.Item2</MudTd>
+                <MudTd>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => ViewSnapshot(context))">
+                        View Details
+                    </MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+
+    <!-- Snapshot Details -->
+    @if (SelectedSnapshot != null)
+    {
+        <MudPaper Class="pa-4" Elevation="2">
+            <MudText Typo="Typo.h6">Snapshot Details</MudText>
+                <SnapshotDisplaycomponent snapShot="@SelectedSnapshot" />
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    private List<WFile> EditedFiles = new();
+    private List<FileHistorySnapShot> SelectedSnapshots = new();
+    private FileHistorySnapShot? SelectedSnapshot = null;
+    private WFile? SelectedFile = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Get all snapshots and retrieve unique edited files
+            var allSnapshots = Cache.GetFileHistorySnapShots(); // Ensure method is async
+            EditedFiles = allSnapshots
+                .GroupBy(snapshot => new { Filename = snapshot.Filename.Item2, FilePath = snapshot.FilePath.Item2 }) // Use named properties
+                .Select(group => new WFile
+                {
+                    Name = group.Key.Filename,
+                    Path = group.Key.FilePath
+                })
+                .ToList();
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Error loading edited files: {e.Message}");
+        }
+    }
+
+    private async Task LoadSnapshots(WFile file)
+    {
+        try
+        {
+            SelectedFile = file;
+
+            // Get snapshots for the selected file
+            var allSnapshots = Cache.GetFileHistorySnapShots(); // Ensure method is async
+            SelectedSnapshots = allSnapshots
+                .Where(snapshot =>
+                    snapshot.Filename.Item2 == file.Name &&
+                    snapshot.FilePath.Item2 == file.Path)
+                .OrderBy(snapshot => snapshot.TimeStamp.Item2)
+                .ToList();
+
+            // Clear any previously selected snapshot
+            SelectedSnapshot = null;
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Error loading snapshots: {e.Message}");
+        }
+    }
+
+    private void ViewSnapshot(FileHistorySnapShot snapshot)
+    {
+        // Set the selected snapshot to display its details
+        SelectedSnapshot = snapshot;
+    }
+}

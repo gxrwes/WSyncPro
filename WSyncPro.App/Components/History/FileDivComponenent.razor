@@ -1,0 +1,15 @@
+<MudText>
+    @if (Plus)
+    {
+            <MudText Color="Color.Success">+@Text</MudText>
+    }
+    else
+    {
+            <MudText Color="Color.Error">-@Text</MudText>
+    }
+</MudText>
+@code
+{
+    [Parameter] public string Text { get; set; }
+    [Parameter] public bool Plus { get; set; } // True for additions, false for removals
+}

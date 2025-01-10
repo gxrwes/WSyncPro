@@ -1,0 +1,47 @@
+<MudDialog Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="dialog-background-surface py-10" ActionsClass="dialog-background-surface">
+    <DialogContent>
+        <h4>Select Custom Path</h4>
+        <MudTextField T="string" Label="Custom Path" @bind-Value="CustomPath" Style="width: 100%;" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="CloseDialog">OK</MudButton>
+        <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="CancelDialog">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: rgb(from var(--mud-palette-info-lighten) r g b / 50%);
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgb(from var(--mud-palette-surface) r g b / 75%);
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string CustomPath { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private void CloseDialog()
+    {
+        MudDialog.Close(DialogResult.Ok(CustomPath));
+    }
+
+    private void CancelDialog()
+    {
+        MudDialog.Cancel();
+    }
+}

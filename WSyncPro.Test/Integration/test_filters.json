@@ -1,0 +1,22 @@
+[
+    {
+        "Include": [ ".txt", ".docx", ".md" ],
+        "Exclude": [ ".mp4", ".tmp", ".bak" ]
+    },
+    {
+        "Include": [ ".png", ".jpg" ],
+        "Exclude": [ ".gif", ".mkv" ]
+    },
+    {
+        "Include": [ "*.pdf" ],
+        "Exclude": [ "exclude_document2.pdf" ]
+    },
+    {
+        "Include": [ "*.*" ],
+        "Exclude": [ "*.bak", "*.tmp", "temp_*", "backup_*" ]
+    },
+    {
+        "Include": [ "*.zip", "*.tar.gz" ],
+        "Exclude": [ "*.tar", "*.zip" ]
+    }
+]

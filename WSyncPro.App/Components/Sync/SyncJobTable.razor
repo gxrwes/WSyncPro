@@ -1,0 +1,44 @@
+<!--SyncJobTable-->
+@using WSyncPro.Models.Jobs
+<MudTable Items="@SyncJobs" Hover="true" Breakpoint="Breakpoint.Md" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Enabled</MudTh>
+        <MudTh>Source Directory</MudTh>
+        <MudTh>Destination Directory</MudTh>
+        <MudTh>Keep Directories</MudTh>
+        <MudTh>Run Count</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Filters</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Enabled">@context.IsEnabled</MudTd>
+        <MudTd DataLabel="Source Directory">@context.SrcDirectory</MudTd>
+        <MudTd DataLabel="Destination Directory">@context.DstDirectory</MudTd>
+        <MudTd DataLabel="Keep Directories">@context.KeepDirectories</MudTd>
+        <MudTd DataLabel="Run Count">@context.RunCount</MudTd>
+        <MudTd DataLabel="Status">@context.Status</MudTd>
+        <MudTd DataLabel="Filters">@context.FilterParams.ToString()</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="() => EditJob(context)">Edit</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudSwitch @bind-Value="_loading" Color="Color.Primary">Show Loading</MudSwitch>
+<MudSnackbarProvider />
+
+@code {
+    private bool _loading;
+
+    [Parameter] public List<SyncJob> SyncJobs { get; set; } = new List<SyncJob>();
+    [Parameter] public EventCallback ReloadJobs { get; set; }
+    [Parameter] public EventCallback<SyncJob> OnEditJob { get; set; }
+
+    private async Task EditJob(SyncJob job)
+    {
+        await OnEditJob.InvokeAsync(job);
+    }
+}
