@@ -6,28 +6,6 @@ on:
       - dev
 
 jobs:
-  build-linux:
-    name: Build and Test on Linux
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore Workloads
-        run: dotnet workload restore
-
-      - name: Build Solution (Exclude Android and iOS)
-        run: dotnet build --configuration Debug --framework net8.0
-
-      - name: Run Unit Tests
-        run: dotnet test --no-build --verbosity normal
-
   build-windows:
     name: Build and Test on Windows
     runs-on: windows-latest
@@ -44,8 +22,11 @@ jobs:
       - name: Restore Workloads
         run: dotnet workload restore
 
-      - name: Build Solution (Windows Targets)
-        run: dotnet build --configuration Debug
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build Solution
+        run: dotnet build --configuration Debug --no-restore
 
       - name: Run Unit Tests
         run: dotnet test --no-build --verbosity normal
