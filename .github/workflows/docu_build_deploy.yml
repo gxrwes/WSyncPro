@@ -16,20 +16,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Set up Ruby and cache gems via Bundler
+      # Set up Ruby (using a Ruby version that works for you)
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.1'           # Adjust Ruby version as needed
           bundler-cache: true
 
-      # Install dependencies from your Gemfile
+      # Install dependencies from your Gemfile, which is located in the Jekyll source folder
       - name: Install dependencies
+        working-directory: ./page/just-the-docs-main
         run: bundle install
 
       # Build the Jekyll site:
-      # - Change directory into your Jekyll source folder (page/just-the-docs-main)
-      # - Build with the destination set to the docs folder in the repository root.
+      # The working directory is set to the Jekyll source folder, and the output is sent to ../../docs.
       - name: Build site with Jekyll
         working-directory: ./page/just-the-docs-main
         run: bundle exec jekyll build --destination ../../docs
