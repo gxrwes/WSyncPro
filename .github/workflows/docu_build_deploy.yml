@@ -12,29 +12,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository so the workflow can access its contents
+      # 1. Check out the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Set up Ruby (using a Ruby version that works for you)
+      # 2. Set up Ruby (adjust the version as needed)
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'           # Adjust Ruby version as needed
+          ruby-version: '3.1'
           bundler-cache: true
 
-      # Install dependencies from your Gemfile, which is located in the Jekyll source folder
+      # 3. Install dependencies from your Gemfile (located in page/just-the-docs-main)
       - name: Install dependencies
         working-directory: ./page/just-the-docs-main
         run: bundle install
 
-      # Build the Jekyll site:
-      # The working directory is set to the Jekyll source folder, and the output is sent to ../../docs.
+      # 4. (Optional) Copy vendor assets into the assets/css folder so that the relative imports work
+      - name: Copy vendor assets to assets/css
+        run: cp -R ../vendor ./vendor
+        working-directory: ./page/just-the-docs-main/assets/css
+        # This copies "page/just-the-docs-main/vendor" into "page/just-the-docs-main/assets/css/vendor"
+
+      # 5. Build the Jekyll site (output to the repository’s docs folder)
       - name: Build site with Jekyll
         working-directory: ./page/just-the-docs-main
         run: bundle exec jekyll build --destination ../../docs
 
-      # Deploy the built site to GitHub Pages
+      # 6. Deploy the built site to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
