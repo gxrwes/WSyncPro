@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 gemspec
+gem "just-the-docs"
 
 gem "jekyll-github-metadata", ">= 2.15"
 
@@ -12,4 +13,4 @@ gem "csv"
 gem "base64"
 gem "faraday-retry"
 gem "jekyll-sass-converter", "~> 3.0"
-gem "sass-embedded" # Ensure the embedded Sass compiler is installed
+gem "sass-embedded" 
