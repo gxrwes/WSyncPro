@@ -9,7 +9,7 @@ gem "jekyll-sitemap", group: :jekyll_plugins
 
 gem "html-proofer", "~> 5.0", :group => :development
 
-gem 'just-the-docs
+gem 'just-the-docs'
 
 gem "csv"
 gem "base64"
