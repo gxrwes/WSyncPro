@@ -51,6 +51,32 @@
           }
         }
       },
+      "NReco.VideoConverter/1.2.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/NReco.VideoConverter.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/NReco.VideoConverter.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "NReco.VideoInfo/1.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/NReco.VideoInfo.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/NReco.VideoInfo.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "System.CodeDom/9.0.0": {
         "type": "package",
         "compile": {
@@ -300,6 +326,36 @@
         "packageIcon.png"
       ]
     },
+    "NReco.VideoConverter/1.2.1": {
+      "sha512": "d/V78hRW6Iqi9+lNrivCWL9qMiiJ8WCrwN1wpEvGq+3mE3uIy7VYhkgHrJBkUzx4RRQKEJ9UvCvVb+0ELIbGWg==",
+      "type": "package",
+      "path": "nreco.videoconverter/1.2.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net45/NReco.VideoConverter.dll",
+        "lib/net45/NReco.VideoConverter.xml",
+        "lib/netstandard2.0/NReco.VideoConverter.dll",
+        "lib/netstandard2.0/NReco.VideoConverter.xml",
+        "nreco.videoconverter.1.2.1.nupkg.sha512",
+        "nreco.videoconverter.nuspec"
+      ]
+    },
+    "NReco.VideoInfo/1.2.0": {
+      "sha512": "ImMkJusg6R02fk0vpmo9qOwd6uDSn7Sfm6sEEHCtBh9EPfczLYfMavBHPgXbCooaE/YIKwytLN0TAbkrc1jl9g==",
+      "type": "package",
+      "path": "nreco.videoinfo/1.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net45/NReco.VideoInfo.dll",
+        "lib/net45/NReco.VideoInfo.xml",
+        "lib/netstandard2.0/NReco.VideoInfo.dll",
+        "lib/netstandard2.0/NReco.VideoInfo.xml",
+        "nreco.videoinfo.1.2.0.nupkg.sha512",
+        "nreco.videoinfo.nuspec"
+      ]
+    },
     "System.CodeDom/9.0.0": {
       "sha512": "oTE5IfuMoET8yaZP/vdvy9xO47guAv/rOhe4DODuFBN3ySprcQOlXqO3j+e/H/YpKKR5sglrxRaZ2HYOhNJrqA==",
       "type": "package",
@@ -492,6 +548,8 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "Microsoft.Extensions.Logging.Abstractions >= 9.0.0",
+      "NReco.VideoConverter >= 1.2.1",
+      "NReco.VideoInfo >= 1.2.0",
       "WSyncPro.Models >= 1.0.0",
       "WSyncPro.Util >= 1.0.0"
     ]
@@ -557,6 +615,14 @@
           "Microsoft.Extensions.Logging.Abstractions": {
             "target": "Package",
             "version": "[9.0.0, )"
+          },
+          "NReco.VideoConverter": {
+            "target": "Package",
+            "version": "[1.2.1, )"
+          },
+          "NReco.VideoInfo": {
+            "target": "Package",
+            "version": "[1.2.0, )"
           }
         },
         "imports": [
@@ -575,7 +641,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
