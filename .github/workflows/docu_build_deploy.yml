@@ -1,0 +1,42 @@
+name: Build and Deploy GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository so the workflow can access its contents
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up Ruby and cache gems via Bundler
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'           # Adjust Ruby version as needed
+          bundler-cache: true
+
+      # Install dependencies from your Gemfile
+      - name: Install dependencies
+        run: bundle install
+
+      # Build the Jekyll site:
+      # - Change directory into your Jekyll source folder (page/just-the-docs-main)
+      # - Build with the destination set to the docs folder in the repository root.
+      - name: Build site with Jekyll
+        working-directory: ./page/just-the-docs-main
+        run: bundle exec jekyll build --destination ../../docs
+
+      # Deploy the built site to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
