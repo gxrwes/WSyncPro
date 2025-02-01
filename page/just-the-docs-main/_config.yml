@@ -2,7 +2,7 @@
 title: WSync Pro
 description: A File Import/Sync Tool
 baseurl: "/WSyncPro" # Set the subpath for GitHub Pages deployment
-url: "https://gxrwes.github.io" # Set the full URL for the site
+url: "https://wsyncpro.com/" # Set the full URL for the site
 repository: gxrwes/WSyncPro # For github-metadata
 
 permalink: pretty
