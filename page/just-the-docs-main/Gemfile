@@ -13,4 +13,4 @@ gem "base64"
 gem "faraday-retry"
 gem "jekyll-sass-converter", "~> 3.0"
 gem "sass-embedded" 
-gem 'just-the-docs', '~> 0.2.3'
+
