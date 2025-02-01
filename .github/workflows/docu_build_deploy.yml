@@ -16,30 +16,35 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Set up Ruby (adjust the version as needed)
-      - name: Set up Ruby
+      # 2. Set up Node.js (needed to install Node dependencies)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # or another LTS version
+
+      # 3. Install Node dependencies (this should install vendor assets if your package.json is set up correctly)
+      - name: Install Node Dependencies
+        working-directory: ./page/just-the-docs-main
+        run: npm install
+
+      # 4. Set up Ruby and Bundler
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
+          ruby-version: '3.1'  # adjust as needed
           bundler-cache: true
 
-      # 3. Install dependencies from your Gemfile (located in page/just-the-docs-main)
-      - name: Install dependencies
+      # 5. Install Ruby dependencies (Gemfile in your Jekyll source folder)
+      - name: Install Ruby Dependencies
         working-directory: ./page/just-the-docs-main
         run: bundle install
 
-      # 4. (Optional) Copy vendor assets into the assets/css folder so that the relative imports work
-      - name: Copy vendor assets to assets/css
-        run: cp -R ../vendor ./vendor
-        working-directory: ./page/just-the-docs-main/assets/css
-        # This copies "page/just-the-docs-main/vendor" into "page/just-the-docs-main/assets/css/vendor"
-
-      # 5. Build the Jekyll site (output to the repository’s docs folder)
+      # 6. Build the Jekyll site (make sure the destination is set correctly)
       - name: Build site with Jekyll
         working-directory: ./page/just-the-docs-main
         run: bundle exec jekyll build --destination ../../docs
 
-      # 6. Deploy the built site to GitHub Pages
+      # 7. Deploy the built site to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
