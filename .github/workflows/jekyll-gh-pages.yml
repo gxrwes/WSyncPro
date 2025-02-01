@@ -40,14 +40,19 @@ jobs:
         working-directory: ./page/just-the-docs-main
         run: npm install
 
+      # Debug step: List the contents of node_modules/normalize-scss to verify its structure.
+      - name: Debug normalize-scss package
+        working-directory: ./page/just-the-docs-main
+        run: ls -R node_modules/normalize-scss
+
       # Copy the vendor file from node_modules to the expected folder.
       - name: Copy vendor normalize.scss
         working-directory: ./page/just-the-docs-main
         run: |
           mkdir -p vendor/normalize.scss
-          cp node_modules/normalize-scss/sass/_normalize.scss vendor/normalize.scss/normalize.scss
+          cp node_modules/normalize-scss/_normalize.scss vendor/normalize.scss/normalize.scss
 
-      # Debug step to verify that the vendor file exists.
+      # Debug step: Verify that the file has been copied.
       - name: Debug Vendor Files
         working-directory: ./page/just-the-docs-main
         run: ls -R ./vendor/normalize.scss
