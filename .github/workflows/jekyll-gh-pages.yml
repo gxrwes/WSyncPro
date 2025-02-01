@@ -40,16 +40,17 @@ jobs:
         working-directory: ./page/just-the-docs-main
         run: npm install
 
-      # New step: Copy vendor assets if needed
+      # Copy the vendor file from node_modules to the expected folder.
       - name: Copy vendor normalize.scss
         working-directory: ./page/just-the-docs-main
         run: |
           mkdir -p vendor/normalize.scss
-          cp node_modules/normalize-scss/sass/normalize.scss vendor/normalize.scss/normalize.scss
+          cp node_modules/normalize-scss/sass/_normalize.scss vendor/normalize.scss/normalize.scss
 
+      # Debug step to verify that the vendor file exists.
       - name: Debug Vendor Files
         working-directory: ./page/just-the-docs-main
-        run: ls -R ./_sass/vendor/OneLightJekyll
+        run: ls -R ./vendor/normalize.scss
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -60,4 +61,3 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
-
