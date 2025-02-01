@@ -1,0 +1,40 @@
+name: Build and Deploy GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Ruby and cache your gems via Bundler
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          # Specify your Ruby version (adjust if needed)
+          ruby-version: '3.1'
+          bundler-cache: true
+
+      # Install your gem dependencies (reads from your Gemfile)
+      - name: Install dependencies
+        run: bundle install
+
+      # Build your site with Jekyll (using the same destination as your local build)
+      - name: Build site with Jekyll
+        run: bundle exec jekyll build --destination docs
+
+      # Deploy the generated site to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
