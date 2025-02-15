@@ -1,4 +1,4 @@
-name: Master Merge Build, Test, Publish, and Deploy
+name: Master Merge Build, Test, Publish   and Deploy
 
 on:
   pull_request:
