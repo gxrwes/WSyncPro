@@ -1,0 +1,18 @@
+@page "/video-management"
+@using WSyncPro.Core.Services.VideoProbing
+@using WSyncPro.Models.Files
+@inject IVideoProbeService VideoProbeService
+@inject IVideoConverter VideoConverter
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mx-auto pa-4">
+    <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Video Management</MudText>
+    
+    <MudTabs>
+        <MudTabPanel Text="Video Probing">
+            <VideoProbeUI />
+        </MudTabPanel>
+        <MudTabPanel Text="Video Conversion">
+            <VideoConversionUI />
+        </MudTabPanel>
+    </MudTabs>
+</MudContainer>

@@ -1,0 +1,106 @@
+@using WSyncPro.Core.Services.VideoProbing
+@inject IVideoConverter VideoConverter
+
+<MudPaper Class="pa-4" Elevation="4">
+    <MudText Typo="Typo.h5" GutterBottom="true">Convert Video</MudText>
+
+    <MudTextField @bind-Value="videoFilePath" Label="Video File Path" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="outputFormat" Label="Output Format" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="videoCodec" Label="Video Codec" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="audioCodec" Label="Audio Codec" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="videoBitRate" Label="Video Bit Rate (e.g., 800k)" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="audioBitRate" Label="Audio Bit Rate (e.g., 128k)" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="frameRateInput" Label="Frame Rate (e.g., 30)" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="targetWidthInput" Label="Target Width" Variant="Variant.Outlined" FullWidth="true" />
+    <MudTextField @bind-Value="targetHeightInput" Label="Target Height" Variant="Variant.Outlined" FullWidth="true" />
+
+    <MudButton OnClick="ConvertVideo" Color="Color.Primary" Variant="Variant.Filled" Class="mt-2">
+        Convert Video
+    </MudButton>
+
+    @if (isConverting)
+    {
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Class="mt-4" />
+    }
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <MudAlert Severity="Severity.Success" Class="mt-4">@successMessage</MudAlert>
+    }
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@errorMessage</MudAlert>
+    }
+    </MudPaper>
+
+    @code {
+    private string videoFilePath = string.Empty;
+    private string outputFormat = "mp4";
+    private string videoCodec = "libx264";
+    private string audioCodec = "aac";
+    private string videoBitRate = "";
+    private string audioBitRate = "";
+    private string frameRateInput = "";
+    private string targetWidthInput = "";
+    private string targetHeightInput = "";
+    private bool isConverting = false;
+    private string? successMessage;
+    private string? errorMessage;
+
+    private async Task ConvertVideo()
+    {
+        // Reset messages
+        successMessage = null;
+        errorMessage = null;
+
+        // Basic validation.
+        if (string.IsNullOrWhiteSpace(videoFilePath))
+        {
+            errorMessage = "Please enter a valid video file path.";
+            return;
+        }
+        if (!File.Exists(videoFilePath))
+        {
+            errorMessage = "The specified video file does not exist.";
+            return;
+        }
+
+        // Prepare conversion parameters.
+        var parameters = new VideoConversionParameters
+            {
+                OutputFormat = outputFormat,
+                VideoCodec = videoCodec,
+                AudioCodec = audioCodec,
+                VideoBitRate = string.IsNullOrWhiteSpace(videoBitRate) ? null : videoBitRate,
+                AudioBitRate = string.IsNullOrWhiteSpace(audioBitRate) ? null : audioBitRate,
+                CustomFFMpegArgs = null
+            };
+
+        if (double.TryParse(frameRateInput, out double parsedFrameRate))
+        {
+            parameters.FrameRate = parsedFrameRate;
+        }
+        if (int.TryParse(targetWidthInput, out int parsedWidth))
+        {
+            parameters.TargetWidth = parsedWidth;
+        }
+        if (int.TryParse(targetHeightInput, out int parsedHeight))
+        {
+            parameters.TargetHeight = parsedHeight;
+        }
+
+        isConverting = true;
+        try
+        {
+            await VideoConverter.ConvertVideo(videoFilePath, parameters);
+            successMessage = "Video conversion completed successfully.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Video conversion failed: {ex.Message}";
+        }
+        finally
+        {
+            isConverting = false;
+        }
+    }
+}

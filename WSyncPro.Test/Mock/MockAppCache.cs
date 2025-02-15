@@ -122,5 +122,10 @@ namespace WSyncPro.Test.Mock
         {
             throw new NotImplementedException();
         }
+
+        public Task<bool> UpdateCopyJob(CopyJob job)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

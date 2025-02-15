@@ -1,5 +1,39 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-6">
+    <!-- Title and Description -->
+    <MudText Typo="Typo.h2" Align="Align.Center">WSyncPro</MudText>
+    <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="mt-2">
+        WSyncPro is a versatile file synchronization, archiving, and management application designed to handle a wide variety of file operations across different storage devices and directories.
+    </MudText>
 
-Welcome to your new app.
+    <!-- Call-to-Action Button -->
+    <MudStack Direction="Row" Spacing="2" Justify="Justify.Center" Class="mt-4">
+        <MudButton Color="Color.Info" Variant="Variant.Outlined" Href="https://github.com/gxrwes/WSyncPro" Target="_blank" Size="Size.Small">
+            View it on GitHub
+        </MudButton>
+    </MudStack>
+
+    <!-- Work In Progress Warning -->
+    <MudPaper Class="mt-6 pa-4" Elevation="1" Style="border-left: 4px solid #ffc107;">
+        <MudText Typo="Typo.body1">
+            <strong>Work in Progress</strong><br />
+            This project is still under development. The main import and sync functionality are working, but the UI and reporting features are far from complete.
+        </MudText>
+    </MudPaper>
+
+    <MudDivider Class="my-6" />
+
+    <!-- Features Section -->
+    <MudText Typo="Typo.h4" Class="mt-4">Features</MudText>
+    <MudList T="string" Dense="true" Class="mt-2">
+        <MudListItem T="string">File Management: Comprehensive services for copying, moving, and cleaning files based on user-defined criteria.</MudListItem>
+        <MudListItem T="string">Synchronization: Sync files between directories or external devices with ease.</MudListItem>
+        <MudListItem T="string">Archiving: Archive files into zip files with customizable grouping patterns.</MudListItem>
+        <MudListItem T="string">State Management: Persist and manage application state across sessions.</MudListItem>
+        <MudListItem T="string">External Device Detection: Detect and interact with external USB devices.</MudListItem>
+        <MudListItem T="string">Data Import: Efficiently import files with advanced filtering options.</MudListItem>
+        <MudListItem T="string">User-Friendly Interface: Intuitive UI with a dark mode theme and live job tracking.</MudListItem>
+        <MudListItem T="string">Cross-Platform Support: Fully compatible with Windows and Linux systems.</MudListItem>
+    </MudList>
+</MudContainer>
