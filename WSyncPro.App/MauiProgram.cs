@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using WSyncPro.Core.Services;
+using WSyncPro.Core.Services.VideoProbing; // Make sure to include the correct namespace
 
 namespace WSyncPro.App
 {
@@ -19,7 +20,7 @@ namespace WSyncPro.App
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
 
-            // Register services
+            // Register existing services
             builder.Services.AddSingleton<IAppLocalDb>(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<AppLocalDb>>();
@@ -35,7 +36,6 @@ namespace WSyncPro.App
             });
 
             builder.Services.AddSingleton<IFileVersioning, FileVersioning>();
-
             builder.Services.AddSingleton<ICopyService, CopyService>();
 
             builder.Services.AddSingleton<IImportService>(provider =>
@@ -53,6 +53,10 @@ namespace WSyncPro.App
                 var logger = provider.GetRequiredService<ILogger<SyncService>>();
                 return new SyncService(cache, copyService, fileVersioning, logger);
             });
+
+            // ** Register new video services **
+            builder.Services.AddSingleton<IVideoProbeService, VideoProbeService>();
+            builder.Services.AddSingleton<IVideoConverter, VideoConverter>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
