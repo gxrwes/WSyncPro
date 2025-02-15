@@ -5,33 +5,58 @@
         Build Destination Path
     </TitleContent>
     <DialogContent>
-        <!-- Available Path Types Column -->
         <MudStack Row Class="justify-space-between mud-width-full">
+            <!-- Available Path Types Column -->
             <MudStack Style="width: 300px">
-                <MudText Typo="Typo.h6" Style="margin-bottom: 8px;">Available Path Types</MudText>
+                <MudText Typo="Typo.h6" Class="mb-2">Available Path Types</MudText>
                 <MudList T="ImportPathType">
-                    @foreach (var pathType in Enum.GetValues<ImportPathType>())
+                    <MudListSubheader>Folder Types</MudListSubheader>
+                    @foreach (var pathType in FolderTypes)
                     {
-                        <MudListItem T="ImportPathType" Style="cursor: pointer;" @onclick="() => AddPathType(pathType)">
+                        <MudListItem T="ImportPathType" Style="cursor: pointer;" OnClick="() => AddPathType(pathType)">
+                            @pathType
+                        </MudListItem>
+                    }
+                    <MudListSubheader>Additional Types</MudListSubheader>
+                    @foreach (var pathType in AdditionalTypes)
+                    {
+                        <MudListItem T="ImportPathType" Style="cursor: pointer;" OnClick="() => AddPathType(pathType)">
                             @pathType
                         </MudListItem>
                     }
                 </MudList>
             </MudStack>
+
             <!-- Selected Path Types Column -->
             <MudStack Style="width: 300px">
-                <MudText Typo="Typo.h6" Style="margin-bottom: 8px;">Selected Path Types</MudText>
+                <MudText Typo="Typo.h6" Class="mb-2">Selected Folder Types</MudText>
                 <MudList T="ImportPathType">
-                    @foreach (var pathType in SelectedPathTypes)
+                    @foreach (var pathType in SelectedFolderTypes)
                     {
                         <MudListItem T="ImportPathType" Style="display: flex; justify-content: space-between;">
                             @pathType
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="() => RemovePathType(pathType)" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="() => RemoveFolderType(pathType)" />
+                        </MudListItem>
+                    }
+                </MudList>
+                <MudText Typo="Typo.h6" Class="mb-2 mt-4">Selected Additional Types</MudText>
+                <MudList T="ImportPathType">
+                    @foreach (var pathType in SelectedAdditionalTypes)
+                    {
+                        <MudListItem T="ImportPathType" Style="display: flex; justify-content: space-between;">
+                            @pathType
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="() => RemoveAdditionalType(pathType)" />
                         </MudListItem>
                     }
                 </MudList>
             </MudStack>
         </MudStack>
+
+        <!-- Preview Section -->
+        <MudPaper Class="pa-4 mt-4" Elevation="1">
+            <MudText Typo="Typo.subtitle1" GutterBottom="true">Preview:</MudText>
+            <MudText>@PreviewPath</MudText>
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
@@ -46,26 +71,102 @@
     [Parameter]
     public List<ImportPathType> ExistingPathBuilder { get; set; }
 
-    private List<ImportPathType> SelectedPathTypes { get; set; } = new();
+    // Folder types are those that form folder segments.
+    private readonly ImportPathType[] FolderTypes = new ImportPathType[]
+    {
+        ImportPathType.Video,
+        ImportPathType.Audio,
+        ImportPathType.Photo,
+        ImportPathType.DateFull,
+        ImportPathType.DateYearMonth,
+        ImportPathType.DateYear,
+        ImportPathType.DateMonth
+    };
+
+    // Additional types modify the file name.
+    private readonly ImportPathType[] AdditionalTypes = new ImportPathType[]
+    {
+        ImportPathType.ID,
+        ImportPathType.Counter,
+        ImportPathType.FileName
+    };
+
+    private List<ImportPathType> SelectedFolderTypes { get; set; } = new();
+    private List<ImportPathType> SelectedAdditionalTypes { get; set; } = new();
 
     protected override void OnInitialized()
     {
-        SelectedPathTypes = new List<ImportPathType>(ExistingPathBuilder ?? new List<ImportPathType>());
+        if (ExistingPathBuilder != null)
+        {
+            foreach (var path in ExistingPathBuilder)
+            {
+                if (FolderTypes.Contains(path))
+                {
+                    SelectedFolderTypes.Add(path);
+                }
+                else if (AdditionalTypes.Contains(path))
+                {
+                    SelectedAdditionalTypes.Add(path);
+                }
+            }
+        }
     }
 
     private void AddPathType(ImportPathType pathType)
     {
-        SelectedPathTypes.Add(pathType);
+        if (FolderTypes.Contains(pathType))
+        {
+            SelectedFolderTypes.Add(pathType);
+        }
+        else if (AdditionalTypes.Contains(pathType))
+        {
+            SelectedAdditionalTypes.Add(pathType);
+        }
     }
 
-    private void RemovePathType(ImportPathType pathType)
+    private void RemoveFolderType(ImportPathType pathType)
     {
-        SelectedPathTypes.Remove(pathType);
+        SelectedFolderTypes.Remove(pathType);
+    }
+
+    private void RemoveAdditionalType(ImportPathType pathType)
+    {
+        SelectedAdditionalTypes.Remove(pathType);
+    }
+
+    // Build a preview string where date-related tokens are replaced with the current date.
+    private string PreviewPath
+    {
+        get
+        {
+            var now = DateTime.Now;
+            // Build folder segments with date substitutions.
+            var folderSegments = SelectedFolderTypes.Any()
+                ? "/" + string.Join("/", SelectedFolderTypes.Select(pt =>
+                    pt switch
+                    {
+                        ImportPathType.DateFull => now.ToString("yyyy-MM-dd"),
+                        ImportPathType.DateYearMonth => now.ToString("yyyy-MM"),
+                        ImportPathType.DateYear => now.ToString("yyyy"),
+                        ImportPathType.DateMonth => now.ToString("MM"),
+                        _ => pt.ToString()
+                    }))
+                : "";
+
+            // Build the file name with additional parts.
+            var filePart = SelectedAdditionalTypes.Any()
+                ? "BaseFileName" + string.Join("", SelectedAdditionalTypes.Select(pt => $"_{pt}"))
+                : "BaseFileName";
+
+            // Combine folder segments and file part to form the preview path.
+            return $"{folderSegments}/{filePart}.ext";
+        }
     }
 
     private void Submit()
     {
-        MudDialog.Close(DialogResult.Ok(SelectedPathTypes));
+        var combined = SelectedFolderTypes.Concat(SelectedAdditionalTypes).ToList();
+        MudDialog.Close(DialogResult.Ok(combined));
     }
 
     private void Cancel()
