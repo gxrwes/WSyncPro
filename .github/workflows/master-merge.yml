@@ -112,4 +112,8 @@ jobs:
         working-directory: WSyncPro/page/just-the-docs-main
         run: bundle exec jekyll build
 
-      - name: 
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: WSyncPro/page/just-the-docs-main/_site
