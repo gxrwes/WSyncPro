@@ -25,8 +25,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore Dependencies
-        run: dotnet restore
+      - name: Restore Dependencies for Windows
+        # Use MSBuild to restore only the net8.0-windows target
+        run: dotnet msbuild -t:Restore /p:TargetFramework=net8.0-windows
 
       - name: Build Solution for Windows
         run: dotnet build --configuration Release --no-restore --framework net8.0-windows
