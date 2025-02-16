@@ -25,11 +25,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore Dependencies
-        run: dotnet restore
+      - name: Restore Dependencies for Windows
+        run: dotnet restore --framework net8.0-windows
 
-      - name: Build Solution
-        run: dotnet build --configuration Release --no-restore
+      - name: Build Solution for Windows
+        run: dotnet build --configuration Release --no-restore --framework net8.0-windows
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -58,7 +58,7 @@ jobs:
           path: .
 
       - name: Run Unit Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal --framework net8.0-windows
 
   publish:
     name: Publish .NET App
@@ -79,8 +79,8 @@ jobs:
           name: build-artifact
           path: .
 
-      - name: Publish App
-        run: dotnet publish WSyncPro.App/WSyncPro.App.csproj --configuration Release --no-build --output publish/
+      - name: Publish App for Windows
+        run: dotnet publish WSyncPro.App/WSyncPro.App.csproj --configuration Release --no-build --output publish/ --framework net8.0-windows
 
       - name: Upload Publish Artifact
         uses: actions/upload-artifact@v4
