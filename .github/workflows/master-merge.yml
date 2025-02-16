@@ -25,8 +25,8 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore Dependencies for Windows
-        run: dotnet restore --framework net8.0-windows
+      - name: Restore Dependencies
+        run: dotnet restore
 
       - name: Build Solution for Windows
         run: dotnet build --configuration Release --no-restore --framework net8.0-windows
