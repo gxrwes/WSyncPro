@@ -25,14 +25,15 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      # Optional: Restore MAUI workloads if needed.
       - name: Restore MAUI Workloads (optional)
         run: dotnet workload restore
 
-      - name: Restore Dependencies for Windows
-        run: dotnet msbuild WSyncPro.sln -t:Restore /p:TargetFramework=net8.0-windows /p:SkipWorkloadCheck=true
+      - name: Restore Dependencies
+        run: dotnet restore WSyncPro.sln
 
       - name: Build Solution for Windows
-        run: dotnet build WSyncPro.sln --configuration Release --no-restore --framework net8.0-windows /p:SkipWorkloadCheck=true
+        run: dotnet build WSyncPro.sln --configuration Release --no-restore /p:TargetPlatformVersion=10.0.19041.0 /p:SkipWorkloadCheck=true
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -60,7 +61,7 @@ jobs:
           path: .
 
       - name: Run Unit Tests
-        run: dotnet test WSyncPro.sln --no-build --verbosity normal --framework net8.0-windows
+        run: dotnet test WSyncPro.sln --no-build --verbosity normal
 
   publish:
     name: Publish .NET App
@@ -82,7 +83,7 @@ jobs:
           path: .
 
       - name: Publish App for Windows
-        run: dotnet publish WSyncPro.App/WSyncPro.App.csproj --configuration Release --no-build --output publish/ --framework net8.0-windows /p:SkipWorkloadCheck=true
+        run: dotnet publish WSyncPro.App/WSyncPro.App.csproj --configuration Release --no-build --output publish/ /p:TargetPlatformVersion=10.0.19041.0 /p:SkipWorkloadCheck=true
 
       - name: Upload Publish Artifact
         uses: actions/upload-artifact@v4
@@ -98,24 +99,36 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      # Set up Node.js and install Node dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Node Dependencies
+        working-directory: ./page/just-the-docs-main
+        run: npm install
+
+      # Set up Ruby and Bundler
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
+          bundler-cache: true
 
       - name: Install Bundler
         run: gem install bundler
 
       - name: Install Jekyll Dependencies
-        working-directory: page/just-the-docs-main
+        working-directory: ./page/just-the-docs-main
         run: bundle install
 
       - name: Build Jekyll Site
-        working-directory: page/just-the-docs-main
+        working-directory: ./page/just-the-docs-main
         run: bundle exec jekyll build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: page/just-the-docs-main/_site
+          publish_dir: ./page/just-the-docs-main/_site
