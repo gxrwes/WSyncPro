@@ -26,7 +26,7 @@ jobs:
       - name: Restore Solution
         run: dotnet restore WSyncPro.sln
 
-      # Build shared libraries and tests using net8.0
+      # Build shared libraries and test project individually using net8.0
       - name: Build WSyncPro.Core
         run: dotnet build WSyncPro.Core\WSyncPro.Core.csproj -c Release --no-restore -f net8.0 /m:1
 
@@ -62,8 +62,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       
+      # Remove --no-build so the test project is built if not already available
       - name: Run Tests
-        run: dotnet test WSyncPro.Test\WSyncPro.Test.csproj -c Release --no-build -f net8.0
+        run: dotnet test WSyncPro.Test\WSyncPro.Test.csproj -c Release -f net8.0 /m:1
 
   publish:
     name: Publish .NET App
