@@ -25,21 +25,28 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # Optional: Restore MAUI workloads if needed.
+      # Optionally ensure MAUI workloads are restored
       - name: Restore MAUI Workloads (optional)
         run: dotnet workload restore
 
+      # First restore the solution normally so each project uses its declared TFM
       - name: Restore Dependencies
         run: dotnet restore WSyncPro.sln
 
-      - name: Build Solution for Windows
-        run: dotnet build WSyncPro.sln --configuration Release --no-restore /p:TargetPlatformVersion=10.0.19041.0 /p:SkipWorkloadCheck=true
+      # Build the libraries, test, and other projects that target net8.0
+      - name: Build Libraries and Test Projects
+        run: dotnet build WSyncPro.sln --configuration Release --no-restore /p:TargetFramework=net8.0 /p:SkipWorkloadCheck=true
 
-      - name: Upload Build Artifact
+      # Build the MAUI app separately using the Windows-only target framework.
+      # This forces the App project to build only its windows target.
+      - name: Build Windows App
+        run: dotnet build WSyncPro.App\WSyncPro.App.csproj --configuration Release --no-restore -f net8.0-windows10.0.19041.0 /p:SkipWorkloadCheck=true
+
+      - name: Upload Build Artifact (Windows App)
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: WSyncPro.App/bin/Release
+          path: WSyncPro.App/bin/Release/net8.0-windows10.0.19041.0
 
   test:
     name: Test
@@ -54,14 +61,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: .
-
+      # Run tests from your test project which targets net8.0
       - name: Run Unit Tests
-        run: dotnet test WSyncPro.sln --no-build --verbosity normal
+        run: dotnet test WSyncPro.Test\WSyncPro.Test.csproj --configuration Release --no-build /p:TargetFramework=net8.0
 
   publish:
     name: Publish .NET App
@@ -82,8 +84,9 @@ jobs:
           name: build-artifact
           path: .
 
+      # Publish only the Windows app target
       - name: Publish App for Windows
-        run: dotnet publish WSyncPro.App/WSyncPro.App.csproj --configuration Release --no-build --output publish/ /p:TargetPlatformVersion=10.0.19041.0 /p:SkipWorkloadCheck=true
+        run: dotnet publish WSyncPro.App\WSyncPro.App.csproj --configuration Release --no-build -f net8.0-windows10.0.19041.0 /p:SkipWorkloadCheck=true --output publish/
 
       - name: Upload Publish Artifact
         uses: actions/upload-artifact@v4
