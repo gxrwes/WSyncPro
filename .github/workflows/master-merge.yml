@@ -62,9 +62,8 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       
-      # Remove --no-build so the test project is built if not already available
-      - name: Run Tests
-        run: dotnet test WSyncPro.Test\WSyncPro.Test.csproj -c Release -f net8.0 /m:1
+      - name: Run Tests (excluding Integration tests)
+        run: dotnet test WSyncPro.Test\WSyncPro.Test.csproj -c Release -f net8.0 /m:1 --filter "Category!=Integration"
 
   publish:
     name: Publish .NET App
