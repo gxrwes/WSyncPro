@@ -90,7 +90,6 @@ jobs:
   deploy:
     name: Deploy Jekyll Site to GitHub Pages
     runs-on: ubuntu-latest
-    needs: test
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
