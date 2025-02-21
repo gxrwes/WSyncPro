@@ -8,7 +8,7 @@ using WSyncPro.Models.Files;
 
 namespace WSyncPro.Test.Integration
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     internal class VideoPobeTest
     {
         private string _testDirectory;
