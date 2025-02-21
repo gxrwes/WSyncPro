@@ -2,11 +2,9 @@ name: Main Build, Test, Publish, and Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,28 +23,31 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # Optionally ensure MAUI workloads are restored
-      - name: Restore MAUI Workloads (optional)
-        run: dotnet workload restore
-
-      # First restore the solution normally so each project uses its declared TFM
-      - name: Restore Dependencies
+      - name: Restore Solution
         run: dotnet restore WSyncPro.sln
 
-      # Build the libraries, test, and other projects that target net8.0
-      - name: Build Libraries and Test Projects
-        run: dotnet build WSyncPro.sln --configuration Release --no-restore /p:TargetFramework=net8.0 /p:SkipWorkloadCheck=true
+      # Build shared libraries and tests using net8.0
+      - name: Build WSyncPro.Core
+        run: dotnet build WSyncPro.Core\WSyncPro.Core.csproj -c Release --no-restore -f net8.0 /m:1
 
-      # Build the MAUI app separately using the Windows-only target framework.
-      # This forces the App project to build only its windows target.
-      - name: Build Windows App
-        run: dotnet build WSyncPro.App\WSyncPro.App.csproj --configuration Release --no-restore -f net8.0-windows10.0.19041.0 /p:SkipWorkloadCheck=true
+      - name: Build WSyncPro.Models
+        run: dotnet build WSyncPro.Models\WSyncPro.Models.csproj -c Release --no-restore -f net8.0 /m:1
 
-      - name: Upload Build Artifact (Windows App)
+      - name: Build WSyncPro.Util
+        run: dotnet build WSyncPro.Util\WSyncPro.Util.csproj -c Release --no-restore -f net8.0 /m:1
+
+      - name: Build WSyncPro.Test
+        run: dotnet build WSyncPro.Test\WSyncPro.Test.csproj -c Release --no-restore -f net8.0 /m:1
+
+      # Build the MAUI app using the Windows-only target
+      - name: Build WSyncPro.App (Windows)
+        run: dotnet build WSyncPro.App\WSyncPro.App.csproj -c Release --no-restore -f net8.0-windows10.0.19041.0 -p:WindowsPackageType=None -p:SkipWorkloadCheck=true /m:1
+
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: WSyncPro.App/bin/Release/net8.0-windows10.0.19041.0
+          path: WSyncPro.App\bin\Release\net8.0-windows10.0.19041.0
 
   test:
     name: Test
@@ -55,15 +56,14 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-
+      
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-
-      # Run tests from your test project which targets net8.0
-      - name: Run Unit Tests
-        run: dotnet test WSyncPro.Test\WSyncPro.Test.csproj --configuration Release --no-build /p:TargetFramework=net8.0
+      
+      - name: Run Tests
+        run: dotnet test WSyncPro.Test\WSyncPro.Test.csproj -c Release --no-build -f net8.0
 
   publish:
     name: Publish .NET App
@@ -72,22 +72,15 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-
+      
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: .
-
-      # Publish only the Windows app target
-      - name: Publish App for Windows
-        run: dotnet publish WSyncPro.App\WSyncPro.App.csproj --configuration Release --no-build -f net8.0-windows10.0.19041.0 /p:SkipWorkloadCheck=true --output publish/
-
+      
+      - name: Publish WSyncPro.App (Windows)
+        run: dotnet publish WSyncPro.App\WSyncPro.App.csproj -c Release --no-build -f net8.0-windows10.0.19041.0 -p:WindowsPackageType=None -p:SkipWorkloadCheck=true --output publish/ /m:1
+      
       - name: Upload Publish Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -102,7 +95,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Set up Node.js and install Node dependencies
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -112,7 +104,6 @@ jobs:
         working-directory: ./page/just-the-docs-main
         run: npm install
 
-      # Set up Ruby and Bundler
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
