@@ -6,7 +6,7 @@ using WSyncPro.Core.Services.VideoProbing;
 
 namespace WSyncPro.Test.Integration
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class VideoConversionTest
     {
         private string _testDirectory;
